@@ -15,7 +15,13 @@ target/
 .project
 .settings/
 
+# IntelliJ IDEA
+
+
+
+
 # Bỏ qua file log và OS rác
 *.log
 .DS_Store
 Thumbs.db
+*.jar
