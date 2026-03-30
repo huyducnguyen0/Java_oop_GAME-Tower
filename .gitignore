@@ -1,0 +1,21 @@
+# Bỏ qua các file biên dịch của Java
+*.class
+
+# Bỏ qua thư mục build
+bin/
+out/
+build/
+target/
+
+# Bỏ qua cấu hình của các IDE (Tránh xung đột máy anh em xài IntelliJ vs Eclipse vs VSCode)
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Bỏ qua file log và OS rác
+*.log
+.DS_Store
+Thumbs.db
