@@ -21,6 +21,7 @@ import com.hust.towerdefence.Model.GameWorld;
 import com.hust.towerdefence.Model.Systems.CombatSystem;
 import com.hust.towerdefence.Model.Systems.MovementSystem;
 import com.hust.towerdefence.Model.Systems.EconomySystem;
+import com.hust.towerdefence.Model.Systems.AISystem;
 import com.hust.towerdefence.Model.Entities.Unit;
 import com.hust.towerdefence.Model.Entities.Enemy;
 
@@ -48,6 +49,7 @@ public class BoovGameScreen implements Screen {
     private CombatSystem combatSystem;
     private MovementSystem movementSystem;
     private EconomySystem economySystem;
+    private AISystem aiSystem;
 
     public BoovGameScreen() {
         batch = new SpriteBatch();
@@ -89,6 +91,7 @@ public class BoovGameScreen implements Screen {
         combatSystem = new CombatSystem();
         movementSystem = new MovementSystem();
         economySystem = new EconomySystem();
+        aiSystem = new AISystem();
 
         // ===== THÊM TEST ENTITIES =====
         initializeTestEntities();
@@ -142,6 +145,7 @@ public class BoovGameScreen implements Screen {
 
         // ===== UPDATE SYSTEMS =====
         movementSystem.update(gameWorld, delta);
+        aiSystem.update(gameWorld, delta);  // AI logic cho enemies
         combatSystem.update(gameWorld, delta);
         economySystem.update(gameWorld, delta);
 

@@ -28,21 +28,7 @@ public class MovementSystem {
             }
         }
 
-        // Hệ thống di chuyển cho Enemies
-        for (Enemy e : em.getEnemies()) {
-            if (e.getState() == Enemy.State.WALKING) {
-                float dx = world.BASE_X - e.getX();
-                float dy = world.BASE_Y - e.getY();
-                float dist = (float) Math.hypot(dx, dy);
-
-                if (dist > 50) {
-                    float angle = (float) Math.atan2(dy, dx);
-                    e.setPosition(
-                        e.getX() + (float)Math.cos(angle) * e.getSpd() * 40 * delta,
-                        e.getY() + (float)Math.sin(angle) * e.getSpd() * 40 * delta
-                    );
-                }
-            }
-        }
+        // === Enemy di chuyển được điều khiển bởi AISystem ===
+        // (Không update Enemies tại đây để tránh xung đột logic)
     }
 }

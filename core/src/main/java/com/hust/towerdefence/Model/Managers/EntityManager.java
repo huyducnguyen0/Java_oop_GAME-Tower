@@ -5,7 +5,7 @@ import com.hust.towerdefence.Model.Entities.Unit;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityManager {
+public class EntityManager {// entity manager sẽ chỉ quản lý danh sách thực thể và cập nhật chúng, không xử lý logic chiến đấu hay spawn
     private List<Unit> units = new ArrayList<>();
     private List<Enemy> enemies = new ArrayList<>();
     private int gold = 1000;

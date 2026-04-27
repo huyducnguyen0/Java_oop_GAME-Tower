@@ -112,7 +112,7 @@ public class CombatSystem {
     public int getDamageDealt() { return damageDealt; }
     public int getDamageToBase() { return damageToBase; }
 
-    public void resetStats() {
+    public void resetStats() {// Reset thống kê khi bắt đầu game mới
         enemiesKilled = 0;
         damageDealt = 0;
         damageToBase = 0;

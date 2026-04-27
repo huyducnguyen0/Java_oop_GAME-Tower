@@ -25,9 +25,10 @@ public class Unit extends GameEntity {
 
         // Set hành động mặc định theo loại
         switch (type) {
-            case MINER: this.currentAction = Action.MINE; break;
-            case INFANTRY: this.currentAction = Action.ATTACK; break;
-            case ARCHER: this.currentAction = Action.SHOOT; break;
+            case MINER: this.currentAction = Action.MINE; break;//miner : thợ mỏ
+            case INFANTRY: this.currentAction = Action.ATTACK; break;// infantry   : bộ binh
+            case ARCHER: this.currentAction = Action.SHOOT; break; // archer : cung thủ
+
         }
     }
 
