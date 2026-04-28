@@ -142,4 +142,5 @@ public class Enemy extends GameEntity implements Steerable<Vector2> {
         outVector.y = (float)Math.sin(angle);
         return outVector;
     }
+
 }
