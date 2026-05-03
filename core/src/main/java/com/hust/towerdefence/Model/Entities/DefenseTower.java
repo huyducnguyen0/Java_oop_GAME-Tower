@@ -14,6 +14,9 @@ public class DefenseTower extends InteractableEntity {
     // Bộ não AI quản lý trạng thái Quét mục tiêu và Tấn công
     protected StateMachine<DefenseTower, TowerState> stateMachine;
 
+    // THÊM: Cờ hiệu báo phát bắn để lớp System nhận biết và sinh Projectile
+    private boolean fireSignal = false;
+
     /**
      * Khởi tạo Trụ phòng thủ.
      *
@@ -43,13 +46,17 @@ public class DefenseTower extends InteractableEntity {
 
     /**
      * Thực hiện phát bắn bảo vệ.
-     * Trụ gây sát thương trực tiếp lên mục tiêu hiện tại dựa trên interactValue.
+     * SỬA LOGIC: Thay vì trừ máu trực tiếp, trụ phát tín hiệu để System sinh đạn.
+     * Điều này giúp đảm bảo tính chân thực: Đạn bay chạm địch mới mất máu.
      */
     @Override
     public void performAction() {
         if (isTargetExisting()) {
             // Gây sát thương dựa trên chỉ số sức mạnh của trụ
-            target.takeDamage((int) interactValue);
+            // target.takeDamage((int) interactValue); // Dòng cũ - Trừ máu tức thời
+
+            // LOGIC MỚI: Bật cờ hiệu để lớp System biết đã đến lúc sinh đạn (Projectile)
+            this.fireSignal = true;
 
             // Note: Có thể thêm logic tạo Projectile (viên đạn) tại đây nếu cần hiệu ứng bay
         }
@@ -68,5 +75,21 @@ public class DefenseTower extends InteractableEntity {
 
     public StateMachine<DefenseTower, TowerState> getStateMachine() {
         return stateMachine;
+    }
+
+    // --- THÊM: Cửa sổ giao tiếp với lớp System để quản lý đạn ---
+
+    /**
+     * Kiểm tra xem trụ đã sẵn sàng tung ra một viên đạn mới hay chưa.
+     */
+    public boolean hasFired() {
+        return fireSignal;
+    }
+
+    /**
+     * Sau khi lớp System đã tạo Projectile thành công, gọi hàm này để hạ cờ.
+     */
+    public void consumeFireSignal() {
+        this.fireSignal = false;
     }
 }
