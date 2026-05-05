@@ -14,8 +14,12 @@ public abstract class CombatEntity extends BaseEntity {
         ENEMY     // Kẻ thù
     }
 
-    protected Team team; // Phe của entity (Soldier hoặc Enemy)
+    public enum State {
+        IDLE, MOVING, ATTACKING, MINING, HEALING, DYING
+    } // Trạng thái hành động hiện tại (có thể dùng để điều khiển animation, logic hành vi, v.v.)
 
+    protected Team team; // Phe của entity (Soldier hoặc Enemy)
+    protected State currentState; // Trạng thái hành động hiện tại (có thể dùng để điều khiển animation, logic hành vi, v.v.)
     // ===== Health =====
     protected float health; // Máu hiện tại
     protected float maxHealth; // Máu tối đa
@@ -38,29 +42,7 @@ public abstract class CombatEntity extends BaseEntity {
         targetId = 0;
     }
 
-    // ===== Logic =====
-
-    public void takeDamage(float amount) {
-        if (dead) return;
-
-        health -= amount;
-
-        if (health <= 0) {
-            health = 0;
-            onDeath();
-        } //
-    }// Nhận sát thương và kiểm tra nếu chết
-
-    protected void onDeath() {
-        dead = true;
-        active = false;
-        markRemoved();
-    } // Xử lý logic nội tại khi chết (có thể override để thêm hiệu ứng, rơi đồ, v.v.)
-
-    // ===== Helpers =====
-
-    public boolean isInRange(CombatEntity other) { // hàm dùng để check xem địch có trong tầm bắn không
-
+    public boolean isInRange(CombatEntity other) {
         float range2 = attackRange * attackRange;
         return this.dst2(other) <= range2;
     } // Kiểm tra nếu thực thể khác trong tầm tấn công

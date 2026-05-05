@@ -7,7 +7,7 @@ import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
  * Lớp cơ sở cho tất cả các loại quân lính phe người chơi (Archer, Miner, Healer).
  * Giúp Systems phân biệt giữa quân đồng minh và kẻ thù (Enemy).
  */
-public abstract class Soldier extends CombatEntity {
+public abstract class   Soldier extends CombatEntity {
 
     // ==================== Thông số kinh tế & Phát triển ====================
     protected int level; // Cấp độ của lính, ảnh hưởng đến sức mạnh và khả năng
@@ -19,6 +19,7 @@ public abstract class Soldier extends CombatEntity {
         this.level = 1;
         this.experience = 0;
         this.team = Team.SOLDIER;
+        this.currentState = State.IDLE;
     }
 
     // ==================== Pool Reset ====================
@@ -26,6 +27,8 @@ public abstract class Soldier extends CombatEntity {
     public void reset() {
         super.reset();
         this.level = 1;
+        this.team = Team.SOLDIER;
+        this.currentState = State.IDLE;
         this.upgradeCost = 0;
         this.experience = 0;
     }
@@ -54,8 +57,5 @@ public abstract class Soldier extends CombatEntity {
 
     public void setExperience(float experience) {
         this.experience = Math.max(0, experience);
-    }
-
-    public static class Pawn {
     }
 }

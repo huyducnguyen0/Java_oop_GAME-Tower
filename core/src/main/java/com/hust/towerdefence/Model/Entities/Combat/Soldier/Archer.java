@@ -11,16 +11,15 @@ public class Archer extends Soldier {
     private static final int MAX_LEVEL = 3;
     private static final float[] HEALTH_DATA = {80f, 150f, 300f};
     private static final float[] DAMAGE_DATA = {12f, 28f, 65f};
-    private static final float[] RANGE_DATA = {250f, 300f, 400f}; // Tầm bắn xa
+    private static final float[] RANGE_DATA = {4.0f, 5.0f, 6.0f}; // Tầm bắn xa
     private static final int[] UPGRADE_COST_DATA = {60, 180, 0};
-    private static final float[] ARROW_SPEED_DATA = {350f, 450f, 600f}; // Tốc độ bay của mũi tên tăng theo cấp độ
-    // Thông số đặc thù của xạ thủ
+    private static final float[] ARROW_SPEED_DATA = {8.0f, 10.0f, 14.0f}; // Tốc độ bay của mũi tên tăng theo cấp độ
     protected float arrowSpeed;
 
     public Archer() {
         super();
-        this.width = 64;
-        this.height = 64;
+        this.width = 0.7f;
+        this.height = 0.7f;
         applyLevelData();
     }
 
@@ -44,8 +43,9 @@ public class Archer extends Soldier {
     @Override
     public void reset() {
         super.reset();
-        this.level = 1;
         this.arrowSpeed = 400f;
+        this.width = 0.7f;
+        this.height = 0.7f;
         applyLevelData();
     }
 

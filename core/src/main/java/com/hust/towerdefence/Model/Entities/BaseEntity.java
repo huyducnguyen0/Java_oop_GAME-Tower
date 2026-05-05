@@ -5,10 +5,10 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 public abstract class BaseEntity implements Poolable {
     protected long id; //dùng để định danh đối tượng
     protected final Vector2 position; // vị trí của đối tượng
-    protected final Vector2 velocity; // vận tốc (đơn vị: pixel/s) — dùng để tính toán di chuyển mỗi frame
+    protected final Vector2 velocity; // tinh vận tốc của đối tượng qua đơn vị world
     protected float width; // dùng để render và tính va chạm
     protected float height; // dùng để render và tính va chạm
-    protected float rotation; // Hướng nhìn (độ)
+    protected float rotation; // (độ)
 
     protected boolean active; // dùng để xác định xem entity có đang hoạt động hay không (ví dụ: đã chết, đã hoàn thành nhiệm vụ, v.v.)
     protected boolean removed; // dùng để đánh dấu entity đã bị xóa khỏi game world (ví dụ: sau khi chết, hoặc sau khi hoàn thành nhiệm vụ)
@@ -102,7 +102,6 @@ public abstract class BaseEntity implements Poolable {
     }
 
     /**
-     * Khoảng cách thật (ít dùng trong loop)
      *
     // ==================== Helper Methods ====================
     /**

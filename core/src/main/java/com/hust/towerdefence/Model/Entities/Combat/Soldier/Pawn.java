@@ -3,7 +3,7 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
 /**
  * Pawn
  * Đơn vị lính cận chiến cơ bản.
- * Có 3 cấp độ với chỉ số tăng dần.
+ * Sử dụng đơn vị World Unit (1.0f tương ứng 1 ô gạch).
  */
 public class Pawn extends Soldier {
 
@@ -11,51 +11,54 @@ public class Pawn extends Soldier {
     private static final int MAX_LEVEL = 3;
     private static final float[] HEALTH_DATA = {150f, 300f, 600f};
     private static final float[] DAMAGE_DATA = {15f, 35f, 80f};
-    private static final float[] RANGE_DATA = {40f, 45f, 50f}; // Tầm đánh ngắn (cận chiến)
+
+    // Range cũng phải chuyển sang World Unit (Ví dụ: 0.8f đơn vị thay vì 50 pixel)
+    private static final float[] RANGE_DATA = {0.6f, 0.7f, 0.8f};
     private static final int[] UPGRADE_COST_DATA = {50, 150, 0};
 
     public Pawn() {
         super();
-        // Thiết lập kích thước vật lý cho Pawn
-        this.width = 32;
-        this.height = 32;
+        // Thiết lập kích thước theo World Unit
+        // Nếu 1 ô gạch = 1.0f, thì lính nên nhỏ hơn 1 chút để trông thoáng (0.8f)
+        this.width = 0.8f;
+        this.height = 0.8f;
+
+        this.team = Team.SOLDIER; // Xác định phe
+        this.currentState = State.IDLE; // Trạng thái mặc định
+
         applyLevelData();
     }
 
     /**
      * Cập nhật các chỉ số chiến đấu dựa trên level hiện tại.
-     * Hàm này sẽ được gọi khi khởi tạo hoặc sau khi Soldier được setLevel mới.
-     * Giả định: level đã được validate trong khoảng [1, MAX_LEVEL]
      */
     public void applyLevelData() {
-        // Không cần validation ở đây vì level đã được validate trong setLevel()
-        int index = this.level - 1; // Level 1 tương ứng index 0
+        int index = this.level - 1;
 
-        // Gán dữ liệu vào các biến thừa kế từ CombatEntity
         this.maxHealth = HEALTH_DATA[index];
         this.health = this.maxHealth;
         this.attackDamage = DAMAGE_DATA[index];
         this.attackRange = RANGE_DATA[index];
-        this.attackSpeed = 1.2f; // Tốc độ đánh cố định hoặc có thể cho vào mảng nếu muốn tăng theo level
 
-        // Gán dữ liệu vào biến thừa kế từ Soldier
+        // Tốc độ đánh (giữ nguyên vì đây là đơn vị thời gian, không ảnh hưởng bởi unit)
+        this.setAttackSpeed(1.2f);
+
         this.upgradeCost = UPGRADE_COST_DATA[index];
-
-        // Tính toán lại cooldown dựa trên attackSpeed mới
-        this.setAttackSpeed(this.attackSpeed);
     }
 
     @Override
     public void setLevel(int level) {
-        super.setLevel(level);  // Gọi parent validation (level >= 1)
+        super.setLevel(level);
         if (this.level > MAX_LEVEL) this.level = MAX_LEVEL;
-        applyLevelData();  // 🆕 Tự động cập nhật stats khi level thay đổi
+        applyLevelData();
     }
 
     @Override
     public void reset() {
         super.reset();
         this.level = 1;
+        this.width = 0.8f;
+        this.height = 0.8f;
         applyLevelData();
     }
 }
