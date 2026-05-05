@@ -28,7 +28,7 @@ public class MainBase extends BaseEntity {
     }
 
     @Override
-    protected void die() {
+    public void die() {
         super.die();
         // Nơi phát tín hiệu Game Over cho hệ thống quản lý
     }

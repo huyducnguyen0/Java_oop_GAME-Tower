@@ -50,7 +50,7 @@ public class GoldMine extends BaseEntity {
      * nhưng vì mỏ vàng không bao giờ chết nên logic bên trong sẽ không được gọi.
      */
     @Override
-    protected void die() {
+    public void die() {
         // Mỏ vàng tồn tại vĩnh viễn trong suốt trận đấu.
     }
 }

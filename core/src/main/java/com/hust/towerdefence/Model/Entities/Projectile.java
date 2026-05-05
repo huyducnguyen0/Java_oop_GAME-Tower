@@ -58,4 +58,8 @@ public class Projectile extends BaseEntity {
     public int getDamage() {
         return damage;
     }
+
+    public BaseEntity getTarget() {
+        return target;
+    }
 }

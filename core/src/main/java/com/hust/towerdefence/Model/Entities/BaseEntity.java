@@ -75,10 +75,14 @@ public abstract class BaseEntity {
      * Đánh dấu thực thể đã chết.
      * Tách biệt active và removed để có thể chạy Animation chết trước khi biến mất hẳn.
      */
-    protected void die() {
+    public void die() {
         this.hp = 0;
         this.active = false;
         this.removed = true; // Lưu ý: Nếu có animation chết lâu, hãy delay việc set removed = true
+    }
+
+    public boolean isAlive() {
+        return hp > 0; // Hoặc logic của bro
     }
 
     /**

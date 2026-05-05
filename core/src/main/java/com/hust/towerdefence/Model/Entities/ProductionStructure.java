@@ -54,7 +54,7 @@ public class ProductionStructure extends BaseEntity {
     }
 
     @Override
-    protected void die() {
+    public void die() {
         // Khi nhà sụp đổ, gọi logic của cha để set active = false
         super.die();
         // Bạn của bro sẽ check isRemoved() để ngừng cho phép sản xuất lính từ nhà này.
