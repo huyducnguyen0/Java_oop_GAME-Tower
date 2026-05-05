@@ -22,7 +22,7 @@ public abstract class Enemy extends CombatEntity {
     public void reset() {
         super.reset();
         this.level = 1;
-        this.goldReward = 0;
+        this.goldReward = 0;// Mặc định không có phần thưởng, sẽ được set cụ thể trong từng loại enemy
         this.expReward = 0;
     }
 

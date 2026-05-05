@@ -59,7 +59,8 @@ public abstract class CombatEntity extends BaseEntity {
 
     // ===== Helpers =====
 
-    public boolean isInRange(CombatEntity other) {
+    public boolean isInRange(CombatEntity other) { // hàm dùng để check xem địch có trong tầm bắn không
+
         float range2 = attackRange * attackRange;
         return this.dst2(other) <= range2;
     } // Kiểm tra nếu thực thể khác trong tầm tấn công
