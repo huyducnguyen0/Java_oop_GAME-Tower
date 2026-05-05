@@ -15,8 +15,11 @@ public class Miner extends Soldier {
 
     public Miner() {
         super();
-        this.width = 64;
-        this.height = 64;
+        this.width = 0.8f;
+        this.height = 0.8f;
+
+        this.team = Team.SOLDIER; // Xác định phe
+        this.currentState = State.IDLE; // Trạng thái mặc định
         applyLevelData();
     }
 
@@ -44,7 +47,6 @@ public class Miner extends Soldier {
     @Override
     public void reset() {
         super.reset();
-        this.level = 1;
         applyLevelData();
     }
 

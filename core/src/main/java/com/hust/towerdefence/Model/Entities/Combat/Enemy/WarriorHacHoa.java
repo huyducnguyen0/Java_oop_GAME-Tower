@@ -16,7 +16,7 @@ public class WarriorHacHoa extends Enemy {
     private static final float[] DAMAGE_DATA = {20f, 45f, 75f};
 
     // Tầm đánh nhỉnh hơn Warrior một chút (Warrior: 75, 80, 85)
-    private static final float[] RANGE_DATA = {80f, 85f, 90f};
+    private static final float[] RANGE_DATA = {1.2f, 1.3f, 1.4f};
 
     // Phần thưởng khi tiêu diệt (Xứng đáng với công sức hạ gục một Tanker)
     private static final int[] GOLD_REWARD_DATA = {40, 100, 250};
@@ -24,9 +24,8 @@ public class WarriorHacHoa extends Enemy {
 
     public WarriorHacHoa() {
         super();
-        this.width = 64;
-        this.height = 64;
-        this.level = 1;
+        this.width = 0.9f;
+        this.height = 0.9f; // Giữ chiều cao như Warrior thường để tạo sự tương phản về chỉ số mà không làm thay đổi hình ảnh quá nhiều
         applyLevelData();
     }
 
@@ -59,7 +58,8 @@ public class WarriorHacHoa extends Enemy {
     @Override
     public void reset() {
         super.reset();
-        this.level = 1;
+        this.width = 0.9f;
+        this.height = 0.9f;
         applyLevelData();
     }
 }

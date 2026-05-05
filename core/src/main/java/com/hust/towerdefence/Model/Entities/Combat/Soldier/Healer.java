@@ -8,13 +8,13 @@ public class Healer extends Soldier {
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
     private static final int MAX_LEVEL = 3;
     private static final float[] HEAL_AMOUNT = {20f, 40f, 80f}; // Lượng máu hồi mỗi lần - cố định progression
-    private static final float[] HEAL_RANGE = {150f, 180f, 220f}; // Phạm vi tìm đồng đội
+    private static final float[] HEAL_RANGE = {2.5f, 3.0f, 3.5f}; // Phạm vi tìm đồng đội
     private static final int[] UPGRADE_COST_DATA = {100, 250, 0};
 
     public Healer() {
         super();
-        this.width = 64;
-        this.height = 64;
+        this.width = 0.7f;
+        this.height = 0.7f;
         applyLevelData();
     }
 
@@ -44,7 +44,8 @@ public class Healer extends Soldier {
     @Override
     public void reset() {
         super.reset();
-        this.level = 1;
+        this.width = 0.7f;
+        this.height = 0.7f;
         applyLevelData();
     }
 

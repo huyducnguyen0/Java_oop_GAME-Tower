@@ -19,6 +19,7 @@ public abstract class Soldier extends CombatEntity {
         this.level = 1;
         this.experience = 0;
         this.team = Team.SOLDIER;
+        this.currentState = State.IDLE;
     }
 
     // ==================== Pool Reset ====================
@@ -26,6 +27,8 @@ public abstract class Soldier extends CombatEntity {
     public void reset() {
         super.reset();
         this.level = 1;
+        this.team = Team.SOLDIER;
+        this.currentState = State.IDLE;
         this.upgradeCost = 0;
         this.experience = 0;
     }
@@ -54,8 +57,5 @@ public abstract class Soldier extends CombatEntity {
 
     public void setExperience(float experience) {
         this.experience = Math.max(0, experience);
-    }
-
-    public static class Pawn {
     }
 }

@@ -12,7 +12,7 @@ public class PawnHacHoa extends Enemy {
     private static final float[] HEALTH_DATA = {180f, 380f, 750f};
 
     // Sát thương nhỉnh hơn Pawn (Pawn: 15, 35, 80)
-    private static final float[] DAMAGE_DATA = {20f, 45f, 100f};
+    private static final float[] DAMAGE_DATA = {0.65f, 0.75f, 0.85f};
 
     // Giữ nguyên tầm đánh ngắn như yêu cầu (Pawn: 40, 45, 50)
     private static final float[] RANGE_DATA = {40f, 45f, 50f};
@@ -23,9 +23,8 @@ public class PawnHacHoa extends Enemy {
 
     public PawnHacHoa() {
         super();
-        this.width = 64;
-        this.height = 64;
-        this.level = 1;
+        this.width = 0.8f; // Giữ nguyên kích thước như Pawn thường để tạo sự tương phản về chỉ số mà không làm thay đổi hình ảnh quá nhiều
+        this.height = 0.8f;
         applyLevelData();
     }
 
@@ -59,7 +58,8 @@ public class PawnHacHoa extends Enemy {
     @Override
     public void reset() {
         super.reset();
-        this.level = 1;
+        this.width = 0.8f;
+        this.height = 0.8f;
         applyLevelData();
     }
 }

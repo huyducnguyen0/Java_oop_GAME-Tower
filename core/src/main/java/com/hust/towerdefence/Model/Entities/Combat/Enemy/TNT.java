@@ -10,20 +10,19 @@ public class TNT extends Enemy {
     private static final int MAX_LEVEL = 3;
     private static final float[] HEALTH_DATA = {60f, 150f, 400f};
     private static final float[] DAMAGE_DATA = {30f, 70f, 150f};
-    private static final float[] RANGE_DATA = {200f, 250f, 300f};
+    private static final float[] RANGE_DATA = {3.0f, 3.8f, 4.5f};
 
     // Phần thưởng tăng dần để người chơi có động lực nâng cấp Soldier
     private static final int[] GOLD_REWARD_DATA = {20, 50, 120};
     private static final float[] EXP_REWARD_DATA = {40f, 100f, 250f};
-
+    // Tốc độ bay của bom (World Unit/giây)
+    private static final float[] BOMB_SPEED_DATA = {5.0f, 6.5f, 8.0f};
     protected float bombSpeed;
 
     public TNT() {
         super();
-        this.width = 64;
-        this.height = 64;
-        this.level = 1; // Mặc định là level 1
-        this.bombSpeed = 300f;
+        this.width = 0.75f; // Kích thước vừa phải để trông như một kẻ ném bom, không quá lớn nhưng vẫn có thể nhận biết
+        this.height = 0.75f;
         applyLevelData();
     }
 
@@ -42,7 +41,7 @@ public class TNT extends Enemy {
 
         this.goldReward = GOLD_REWARD_DATA[index];
         this.expReward = EXP_REWARD_DATA[index];
-
+        this.bombSpeed = BOMB_SPEED_DATA[index];
         // Level càng cao ném bom càng nhanh (giảm giãn cách)
         this.setAttackSpeed(0.5f + (index * 0.2f));
     }
@@ -57,8 +56,8 @@ public class TNT extends Enemy {
     @Override
     public void reset() {
         super.reset();
-        this.level = 1;
-        this.bombSpeed = 300f;
+        this.width = 0.75f;
+        this.height = 0.75f;
         applyLevelData();
     }
 

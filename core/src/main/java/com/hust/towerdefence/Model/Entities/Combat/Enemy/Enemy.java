@@ -15,6 +15,7 @@ public abstract class Enemy extends CombatEntity {
     public Enemy() {
         super();
         this.team = Team.ENEMY;
+        this.currentState = State.IDLE;
         this.level = 1; // Mặc định level 1 cho enemy base class
     }
 
@@ -24,6 +25,8 @@ public abstract class Enemy extends CombatEntity {
         this.level = 1;
         this.goldReward = 0;
         this.expReward = 0;
+        this.team = Team.ENEMY;
+        this.currentState = State.IDLE;
     }
 
     // ===== Getter / Setter =====

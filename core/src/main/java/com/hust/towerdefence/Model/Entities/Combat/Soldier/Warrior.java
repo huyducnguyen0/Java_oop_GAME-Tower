@@ -15,13 +15,13 @@ public class Warrior extends Soldier {
 
     // Tầm đánh: Pawn (40-50), Warrior (75-80)
     // Giúp Warrior có thể chạm vào địch sớm hơn một chút để "thu hút" sự chú ý.
-    private static final float[] RANGE_DATA = {75f, 80f, 85f};
+    private static final float[] RANGE_DATA = {1.0f, 1.1f, 1.2f};
     private static final int[] UPGRADE_COST_DATA = {120, 300, 0};
 
     public Warrior() {
         super();
-        this.width = 64;
-        this.height = 64;
+        this.width = 0.9f; // Lớn hơn Pawn để trông vững chãi hơn, nhưng vẫn nhỏ hơn 1.0f để không chiếm quá nhiều diện tích
+        this.height = 0.9f; // Cùng chiều cao để tạo cảm giác đồng đều, nhưng có thể điều chỉnh nếu muốn tạo sự khác biệt rõ ràng hơn
         applyLevelData();
     }
 
@@ -46,7 +46,8 @@ public class Warrior extends Soldier {
     @Override
     public void reset() {
         super.reset();
-        this.level = 1;
+        this.width = 0.9f;
+        this.height = 0.9f;
         applyLevelData();
     }
 
