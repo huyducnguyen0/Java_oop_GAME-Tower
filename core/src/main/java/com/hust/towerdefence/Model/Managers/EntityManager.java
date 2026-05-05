@@ -1,15 +1,20 @@
 package com.hust.towerdefence.Model.Managers;
 
-import com.hust.towerdefence.Model.Entities.Enemy;
-import com.hust.towerdefence.Model.Entities.Unit;
 import java.util.ArrayList;
 import java.util.List;
+import com.hust.towerdefence.Model.GameWorld;
 
 public class EntityManager {// entity manager sẽ chỉ quản lý danh sách thực thể và cập nhật chúng, không xử lý logic chiến đấu hay spawn
     private List<Unit> units = new ArrayList<>();
     private List<Enemy> enemies = new ArrayList<>();
     private int gold = 1000;
     private int mainBuildingHp = 1000;
+
+    private GameWorld world;  // ← thêm reference đến GameWorld
+
+    public EntityManager(GameWorld world) {  // ← nhận world qua constructor
+        this.world = world;
+    }
 
     public void addUnit(Unit unit) { units.add(unit); }
     public void addEnemy(Enemy enemy) { enemies.add(enemy); }
@@ -20,7 +25,9 @@ public class EntityManager {// entity manager sẽ chỉ quản lý danh sách t
         enemies.removeIf(e -> e.getState() == Enemy.State.DEAD);
 
         for(Unit u : units) u.update(delta);
-        for(Enemy e : enemies) e.update(delta);
+        for(Enemy e : enemies) {
+            e.getAIController().update(world, this, delta);
+        }
     }
 
     public int getGold() { return gold; }

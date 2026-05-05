@@ -1,7 +1,5 @@
 package com.hust.towerdefence.Model.Systems;
 
-import com.hust.towerdefence.Model.Entities.Unit;
-import com.hust.towerdefence.Model.Entities.Enemy;
 import com.hust.towerdefence.Model.GameWorld;
 import com.hust.towerdefence.Model.Managers.EntityManager;
 

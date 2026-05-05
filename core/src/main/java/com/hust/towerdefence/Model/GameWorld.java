@@ -1,7 +1,7 @@
 package com.hust.towerdefence.Model;
 
 import com.hust.towerdefence.Model.Managers.EntityManager;
-import com.hust.towerdefence.Model.Entities.Enemy;
+
 import java.util.Random;
 
 public class GameWorld {
@@ -32,7 +32,7 @@ public class GameWorld {
     private Random random = new Random();
 
     public GameWorld() {
-        this.entityManager = new EntityManager();
+        this.entityManager = new EntityManager(this);
     }
 
     public void update(float delta) {
@@ -222,5 +222,9 @@ public class GameWorld {
         if (gameState == GameState.PAUSED) {
             gameState = GameState.PLAYING;
         }
+    }
+    public void dispose() {
+        // Hiện tại EntityManager không có resource cần giải phóng
+        // Để sẵn cho sau này khi thêm assets (textures, sounds...)
     }
 }

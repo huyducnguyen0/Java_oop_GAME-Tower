@@ -6,10 +6,7 @@ import com.badlogic.gdx.ai.steer.behaviors.Flee;
 import com.badlogic.gdx.ai.steer.behaviors.Wander;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.ai.utils.Location;
-import com.hust.towerdefence.Model.Entities.Enemy;
-import com.hust.towerdefence.Model.Entities.Unit;
-import com.hust.towerdefence.Model.Entities.GameEntity;
-import com.hust.towerdefence.Model.GameWorld;
+ import com.hust.towerdefence.Model.GameWorld;
 import com.hust.towerdefence.Model.Managers.EntityManager;
 import java.util.List;
 
