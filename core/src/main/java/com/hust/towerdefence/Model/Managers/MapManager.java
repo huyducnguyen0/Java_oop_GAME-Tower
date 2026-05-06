@@ -129,4 +129,18 @@ public class MapManager {
     public int getTileSize() { return tileSize; }
     public Vector2 getStartGridPos() { return startGridPos.cpy(); }
     public Vector2 getEndGridPos() { return endGridPos.cpy(); }
+
+    /**
+     * Lấy vị trí Player Castle (Start Point của map)
+     */
+    public Vector2 getPlayerCastlePosition() {
+        return gridToWorld(startGridPos);
+    }
+
+    /**
+     * Lấy vị trí Enemy Base (End Point của map)
+     */
+    public Vector2 getEnemyBasePosition() {
+        return gridToWorld(endGridPos);
+    }
 }

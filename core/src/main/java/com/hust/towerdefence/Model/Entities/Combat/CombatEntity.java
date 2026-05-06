@@ -151,4 +151,22 @@ public abstract class CombatEntity extends BaseEntity {
 
     public float getSpeed() { return speed; }
     public void setSpeed(float speed) { this.speed = speed; }
+
+    // ===== State Management =====
+    public State getCurrentState() { return currentState; }
+    public void setState(State state) { this.currentState = state; }
+
+    /**
+     * Kiểm tra xem entity đã chết chưa (health <= 0 hoặc state == DYING)
+     */
+    public boolean isDead() {
+        return health <= 0 || currentState == State.DYING;
+    }
+
+    /**
+     * Kiểm tra xem entity còn sống (dùng cho ngược lại isDead())
+     */
+    public boolean isAlive() {
+        return health > 0 && currentState != State.DYING;
+    }
 }
