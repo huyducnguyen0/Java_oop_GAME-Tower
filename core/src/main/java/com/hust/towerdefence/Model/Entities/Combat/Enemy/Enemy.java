@@ -4,10 +4,8 @@ import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 
 public abstract class Enemy extends CombatEntity {
 
-    // ===== Level & Progression =====
-    protected int level; // Level của enemy (ảnh hưởng đến stats và rewards)
 
-    // ===== Reward =====
+
     protected int goldReward;
     protected float expReward;
 
@@ -43,10 +41,6 @@ public abstract class Enemy extends CombatEntity {
         this.expReward = Math.max(0, expReward);
     }
 
-    public int getLevel() { return level; }
 
-    public void setLevel(int level) {
-        this.level = Math.max(1, level);  // Level không thể < 1
-    }
 
 }

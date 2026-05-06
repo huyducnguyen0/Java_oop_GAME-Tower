@@ -1,6 +1,8 @@
 package com.hust.towerdefence.Model.Entities.Combat;
 
 import com.hust.towerdefence.Model.Entities.BaseEntity;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * CombatEntity
@@ -13,6 +15,7 @@ public abstract class CombatEntity extends BaseEntity {
         SOLDIER,  // Quân lính (người chơi)
         ENEMY     // Kẻ thù
     }
+    protected int level;
 
     public enum State {
         IDLE, MOVING, ATTACKING, MINING, HEALING, DYING
@@ -23,7 +26,7 @@ public abstract class CombatEntity extends BaseEntity {
     // ===== Health =====
     protected float health; // Máu hiện tại
     protected float maxHealth; // Máu tối đa
-    protected boolean dead; // Trạng thái chết sống
+
 
     // ===== Combat =====
     protected float attackDamage; // Sát thương mỗi đòn tấn công
@@ -36,10 +39,17 @@ public abstract class CombatEntity extends BaseEntity {
     // ===== Target =====
     protected long targetId; // ID của thực thể mục tiêu hiện tại (0 nếu không có mục tiêu)
 
+    // ===== Movement =====
+    protected Array<Vector2> waypoints; // Danh sách waypoints để di chuyển
+    protected int currentWaypointIndex; // Chỉ số waypoint hiện tại
+    protected float speed; // Tốc độ di chuyển (world units/giây)
+
     public CombatEntity() {
         super();
-        dead = false;
+
         targetId = 0;
+        currentWaypointIndex = 0;
+        speed = 50f; // Default speed
     }
 
     public boolean isInRange(CombatEntity other) {
@@ -64,7 +74,6 @@ public abstract class CombatEntity extends BaseEntity {
 
         health = 0;
         maxHealth = 0;
-        dead = false;
 
         attackDamage = 0;
         attackRange = 0;
@@ -75,6 +84,10 @@ public abstract class CombatEntity extends BaseEntity {
 
         targetId = 0;
         team = null;
+
+        waypoints = null;
+        currentWaypointIndex = 0;
+        speed = 50f;
     } // Đặt lại trạng thái để tái sử dụng từ pool
 
     // ===== Getter / Setter =====
@@ -122,5 +135,20 @@ public abstract class CombatEntity extends BaseEntity {
     public Team getTeam() { return team; }
     public void setTeam(Team team) { this.team = team; }
 
-    public boolean isDead() { return dead; }
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = Math.max(1, level);
+    }
+
+    public Array<Vector2> getWaypoints() { return waypoints; }
+    public void setWaypoints(Array<Vector2> waypoints) { this.waypoints = waypoints; }
+
+    public int getCurrentWaypointIndex() { return currentWaypointIndex; }
+    public void setCurrentWaypointIndex(int currentWaypointIndex) { this.currentWaypointIndex = currentWaypointIndex; }
+
+    public float getSpeed() { return speed; }
+    public void setSpeed(float speed) { this.speed = speed; }
 }

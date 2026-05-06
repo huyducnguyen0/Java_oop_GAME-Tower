@@ -2,9 +2,9 @@ package com.hust.towerdefence.Model.Entities.Projectile;
 
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 
-public class Cung extends Projectile {
+public class Arrow extends Projectile {
 
-    public Cung() {
+    public Arrow() {
         super();
         this.width = 0.3f;
         this.height = 0.1f;
@@ -17,6 +17,5 @@ public class Cung extends Projectile {
     @Override
     public void reset() {
         super.reset();
-        // Nếu có thêm dữ liệu đặc trưng cho Cung, reset ở đây
     }
 }

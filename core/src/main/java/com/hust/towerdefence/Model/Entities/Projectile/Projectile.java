@@ -10,7 +10,7 @@ public class Projectile extends BaseEntity {
 
     public CombatEntity target; // Mục tiêu mà projectile hướng đến
 
-    public boolean active; // Trạng thái hoạt động (được sử dụng trong pool để xác định nếu projectile đang được sử dụng hay có thể tái sử dụng)
+
 
     public Projectile() {
         super();
