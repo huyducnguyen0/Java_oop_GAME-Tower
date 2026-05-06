@@ -6,7 +6,7 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
 public class Healer extends Soldier {
 
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    private static final int MAX_LEVEL = 3;
+
     private static final float[] HEAL_AMOUNT = {20f, 40f, 80f}; // Lượng máu hồi mỗi lần - cố định progression
     private static final float[] HEAL_RANGE = {2.5f, 3.0f, 3.5f}; // Phạm vi tìm đồng đội
     private static final int[] UPGRADE_COST_DATA = {100, 250, 0};

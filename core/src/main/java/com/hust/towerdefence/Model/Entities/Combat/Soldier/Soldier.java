@@ -17,7 +17,6 @@ public abstract class   Soldier extends CombatEntity {
     public Soldier() {
         super();
         this.level = 1;
-
         this.team = Team.SOLDIER;
         this.currentState = State.IDLE;
     }

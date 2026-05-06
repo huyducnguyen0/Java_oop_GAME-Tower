@@ -8,7 +8,6 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
 public class Archer extends Soldier {
 
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    private static final int MAX_LEVEL = 3;
     private static final float[] HEALTH_DATA = {80f, 150f, 300f};
     private static final float[] DAMAGE_DATA = {12f, 28f, 65f};
     private static final float[] RANGE_DATA = {4.0f, 5.0f, 6.0f}; // Tầm bắn xa

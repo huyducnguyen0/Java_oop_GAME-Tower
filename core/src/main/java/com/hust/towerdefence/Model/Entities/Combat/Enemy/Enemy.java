@@ -4,19 +4,14 @@ import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 
 public abstract class Enemy extends CombatEntity {
 
-
-
     protected int goldReward;
     protected float expReward;
-
-
     public Enemy() {
         super();
         this.team = Team.ENEMY;
         this.currentState = State.IDLE;
         this.level = 1; // Mặc định level 1 cho enemy base class
     }
-
     @Override
     public void reset() {
         super.reset();

@@ -8,7 +8,7 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
 public class Miner extends Soldier {
 
     // Thông số kinh tế cho 3 cấp độ
-    private static final int MAX_LEVEL = 3;
+
     private static final float[] HEALTH_DATA = {80f, 120f, 160f};  // Extracted: thợ mỏ yếu hơn Pawn
     private static final float[] GOLD_PER_MINE = {10f, 25f, 60f}; // Thay cho attackDamage
     private static final float[] MINING_SPEED = {0.5f, 0.8f, 1.2f}; // Lần đào mỗi giây

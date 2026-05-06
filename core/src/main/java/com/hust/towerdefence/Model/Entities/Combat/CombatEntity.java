@@ -15,27 +15,24 @@ public abstract class CombatEntity extends BaseEntity {
         SOLDIER,  // Quân lính (người chơi)
         ENEMY     // Kẻ thù
     }
-    protected int level;
-
+    public enum Role { WARRIOR, MINER }
     public enum State {
         IDLE, MOVING, ATTACKING, MINING, HEALING, DYING
     } // Trạng thái hành động hiện tại (có thể dùng để điều khiển animation, logic hành vi, v.v.)
-
+    protected int level ;
+    protected final int  MAX_LEVEL = 3;
     protected Team team; // Phe của entity (Soldier hoặc Enemy)
     protected State currentState; // Trạng thái hành động hiện tại (có thể dùng để điều khiển animation, logic hành vi, v.v.)
     // ===== Health =====
     protected float health; // Máu hiện tại
     protected float maxHealth; // Máu tối đa
-
-
     // ===== Combat =====
+
     protected float attackDamage; // Sát thương mỗi đòn tấn công
     protected float attackRange; // Khoảng cách tấn công
-
     protected float attackSpeed; // Tốc độ tấn công (đòn/phút)
     protected float cooldownTimer; // Thời gian còn lại cho đến khi có thể tấn công tiếp
     protected float cooldownDuration; // Thời gian giữa các đòn tấn công (tính bằng giây, = 60 / attackSpeed)
-
     // ===== Target =====
     protected long targetId; // ID của thực thể mục tiêu hiện tại (0 nếu không có mục tiêu)
 
@@ -43,16 +40,16 @@ public abstract class CombatEntity extends BaseEntity {
     protected Array<Vector2> waypoints; // Danh sách waypoints để di chuyển
     protected int currentWaypointIndex; // Chỉ số waypoint hiện tại
     protected float speed; // Tốc độ di chuyển (world units/giây)
-
     public CombatEntity() {
         super();
 
         targetId = 0;
         currentWaypointIndex = 0;
         speed = 50f; // Default speed
+
     }
 
-    public boolean isInRange(CombatEntity other) {
+    public boolean isInRange(CombatEntity other) { // đây là hàm tính xem có ở trong khoảng cách không tấn công hay không, dùng dst2 để tránh tính căn bậc hai
         float range2 = attackRange * attackRange;
         return this.dst2(other) <= range2;
     } // Kiểm tra nếu thực thể khác trong tầm tấn công
@@ -64,7 +61,7 @@ public abstract class CombatEntity extends BaseEntity {
     public boolean isEnemyOf(CombatEntity other) {
         if (this.team == null || other.team == null) return false;
         return !this.team.equals(other.team);
-    } // Kiểm tra xem có phải kẻ thù của entity khác không
+    } // Kiểm tra xem có phải kẻ thù của entity khác khôn
 
     // ===== Pool =====
 
@@ -131,9 +128,6 @@ public abstract class CombatEntity extends BaseEntity {
 
     public long getTargetId() { return targetId; }
     public void setTargetId(long targetId) { this.targetId = targetId; }
-
-    public Team getTeam() { return team; }
-    public void setTeam(Team team) { this.team = team; }
 
     public int getLevel() {
         return level;

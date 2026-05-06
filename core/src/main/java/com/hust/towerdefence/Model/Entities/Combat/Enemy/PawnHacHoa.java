@@ -7,7 +7,6 @@ package com.hust.towerdefence.Model.Entities.Combat.Enemy;
 public class PawnHacHoa extends Enemy {
 
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    private static final int MAX_LEVEL = 3;
     // Chỉ số được thiết kế nhỉnh hơn Pawn (Pawn: 150, 300, 600)
     private static final float[] HEALTH_DATA = {180f, 380f, 750f};
 

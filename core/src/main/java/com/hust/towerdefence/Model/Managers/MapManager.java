@@ -12,7 +12,6 @@ public class MapManager {
 
     // Lưới dữ liệu
     private TileType[][] tiles;
-
     // Danh sách các điểm waypoint (theo thứ tự từ START đến END)
     private Array<Vector2> waypoints;   // tọa độ thế giới (pixel) của từng điểm chính
 
@@ -143,4 +142,23 @@ public class MapManager {
     public Vector2 getEnemyBasePosition() {
         return gridToWorld(endGridPos);
     }
+    // Thêm vào MapManager
+    private void generatePath() {
+        waypoints.clear();
+        // Lấy tọa độ start và end
+        Vector2 startWorld = gridToWorld(startGridPos);
+        Vector2 endWorld = gridToWorld(endGridPos);
+
+        // Thêm start
+        waypoints.add(startWorld.cpy());
+
+        // Tạo 2-3 điểm trung gian dạng gấp khúc (để thấy rõ di chuyển)
+        float midX = (startWorld.x + endWorld.x) / 2;
+        waypoints.add(new Vector2(midX, startWorld.y + 50));
+        waypoints.add(new Vector2(midX, endWorld.y - 50));
+
+        // Thêm end
+        waypoints.add(endWorld.cpy());
+    }
+
 }

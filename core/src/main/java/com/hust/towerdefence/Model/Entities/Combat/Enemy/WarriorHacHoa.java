@@ -6,8 +6,6 @@ package com.hust.towerdefence.Model.Entities.Combat.Enemy;
  */
 public class WarriorHacHoa extends Enemy {
 
-    // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    private static final int MAX_LEVEL = 3;
 
     // Chỉ số nhỉnh hơn Warrior đồng minh (Warrior: 300, 650, 1200)
     private static final float[] HEALTH_DATA = {350f, 750f, 1500f};
@@ -44,7 +42,8 @@ public class WarriorHacHoa extends Enemy {
         this.goldReward = GOLD_REWARD_DATA[index];
         this.expReward = EXP_REWARD_DATA[index];
 
-        // Tốc độ đánh chậm hơn Pawn nhưng nhanh dần theo cấp độ
+            // Tốc độ đánh chậm hơn Warrior thường để tạo cảm giác "nặng nề" và "đáng sợ"
+            // Level 1: ~0.8 phát/giây, Level 3: ~1.1 phát/giây
         this.setAttackSpeed(0.8f + (index * 0.15f));
     }
 

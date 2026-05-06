@@ -7,7 +7,6 @@ package com.hust.towerdefence.Model.Entities.Combat.Enemy;
 public class TNT extends Enemy {
 
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    private static final int MAX_LEVEL = 3;
     private static final float[] HEALTH_DATA = {60f, 150f, 400f};
     private static final float[] DAMAGE_DATA = {30f, 70f, 150f};
     private static final float[] RANGE_DATA = {3.0f, 3.8f, 4.5f};

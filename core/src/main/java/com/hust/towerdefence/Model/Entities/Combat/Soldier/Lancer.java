@@ -8,7 +8,7 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
 public class Lancer extends Soldier {
 
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    private static final int MAX_LEVEL = 3;
+
     private static final float[] HEALTH_DATA = {120f, 250f, 500f};
     private static final float[] DAMAGE_DATA = {25f, 55f, 120f}; // Sát thương mỗi nhát đâm khá cao
     private static final float[] RANGE_DATA = {1.5f, 1.6f, 1.8f}; // Gấp đôi hoặc gấp ba Pawn (64px)
