@@ -2,163 +2,187 @@ package com.hust.towerdefence.Model.Managers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.PointMapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapManager {
     // Kích thước bản đồ (số ô)
-    private int width, height;
-    // Kích thước mỗi ô pixel (thường 32x32 hoặc 64x64)
+    private TiledMap tiledMap;
+    private int mapWidth, mapHeight;
+
     private int tileSize;
 
-    // Lưới dữ liệu
     private TileType[][] tiles;
     // Danh sách các điểm waypoint (theo thứ tự từ START đến END)
     private Array<Vector2> waypoints;   // tọa độ thế giới (pixel) của từng điểm chính
-
+    private Vector2 playerMainTower;    // tháp chính của người chơi
+    private Vector2 enemyMainTower;     // tháp chính của địch
+    private Array<Vector2> playerTowers; // các tháp phụ của người chơi (không bao gồm tháp chính)
+    private Array<Vector2> enemyTowers;  // các tháp phụ của địch
     // Điểm start và end (tọa độ ô)
     private Vector2 startGridPos;
     private Vector2 endGridPos;
 
-    public MapManager(int width, int height, int tileSize) {
-        this.width = width;
-        this.height = height;
-        this.tileSize = tileSize;
-        tiles = new TileType[width][height];
-        waypoints = new Array<>();
-        startGridPos = new Vector2();
-        endGridPos = new Vector2();
-    }
+    public MapManager(String mapPath) {
+        loadMap(mapPath);
+        extractWaypoints();
+        extractTowerPositions();
 
-    /**
-     * Khởi tạo bản đồ từ file (bạn sẽ đọc từ TiledMap hoặc file txt)
-     * Tạm thời tạo bản đồ mẫu.
-     */
-    public void loadMapFromFile(String mapPath) {
-        // TODO: Đọc file, ví dụ đọc mảng int từ .txt hoặc dùng LibGDX TiledMap
-        // Ở đây tạo bản đồ demo 10x10:
-        createDemoMap();
-        // Sau khi có tiles, tính toán waypoints tự động hoặc đọc từ file
-        calculateWaypoints();
     }
+    private void loadMap(String mapPath) {
+        try {
+            tiledMap = new TmxMapLoader().load(mapPath);
+        } catch (Exception e) {
+            throw new RuntimeException("Không thể load map: " + mapPath, e);
 
-    private void createDemoMap() {
-        // Khởi tạo tất cả là ROAD
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                tiles[x][y] = TileType.ROAD;
-            }
         }
-        // Đặt START
-        startGridPos.set(0, 2);
-        tiles[(int)startGridPos.x][(int)startGridPos.y] = TileType.START;
-        // Đặt END
-        endGridPos.set(width - 1, height - 3);
-        tiles[(int)endGridPos.x][(int)endGridPos.y] = TileType.END;
-        // Rải một vài platform để xây tháp
-        tiles[3][4] = TileType.TOWER_PLATFORM;
-        tiles[5][6] = TileType.TOWER_PLATFORM;
-        // ...
+        tileSize = tiledMap.getProperties().get("tilewidth", Integer.class);
+        mapWidth = tiledMap.getProperties().get("width", Integer.class);
+        mapHeight = tiledMap.getProperties().get("height", Integer.class);
     }
 
-    /**
-     * Tính toán các waypoint dọc theo đường đi (thường là các điểm uốn)
-     * Bạn có thể dùng BFS từ start đến end, sau đó lấy tất cả các ô trên đường đi.
-     * Tối ưu hơn: chỉ lấy các điểm mà hướng di chuyển thay đổi.
-     */
-    private void calculateWaypoints() {
-        waypoints.clear();
-        // Giả định: dùng pathfinding đơn giản (BFS) để tìm lộ trình các ô từ start đến end
-        // Sau đó chuyển các ô đó thành tọa độ thế giới (pixel) và thêm vào waypoints.
-        // Dưới đây là giả lập:
-        waypoints.add(gridToWorld(startGridPos));
-        // ... thêm các điểm trung gian
-        waypoints.add(gridToWorld(endGridPos));
+
+
+    private void extractWaypoints() {
+        waypoints = new Array<>();
+        MapLayer waypointLayer = tiledMap.getLayers().get("waypoint");
+        if (waypointLayer == null) {
+            System.err.println("MapManager: Không tìm thấy layer 'waypoint'.");
+            return;
+        }
+
+        Map<String, Vector2> pointMap = new HashMap<>();
+        for (MapObject obj : waypointLayer.getObjects()) {
+            if (!(obj instanceof PointMapObject)) continue;
+            PointMapObject pointObj = (PointMapObject) obj;
+            String name = obj.getName();
+            if (name == null || !name.matches("p\\d+")) continue;
+
+            pointMap.put(name, pointObj.getPoint());
+        }
+
+        // Sắp xếp theo số thứ tự
+        int index = 0;
+        while (pointMap.containsKey("p" + index)) {
+            waypoints.add(pointMap.get("p" + index));
+            index++;
+        }
+
+        if (waypoints.size == 0) {
+            System.err.println("MapManager: Không tìm thấy waypoint nào (p0, p1,...).");
+        }
     }
 
-    // Chuyển đổi tọa độ ô -> tọa độ pixel (trung tâm ô)
-    public Vector2 gridToWorld(Vector2 gridPos) {
-        return new Vector2(gridPos.x * tileSize + tileSize/2f,
-            gridPos.y * tileSize + tileSize/2f);
+
+
+    private void extractTowerPositions() {
+        playerTowers = new Array<>();
+        enemyTowers = new Array<>();
+
+        // Player tower group
+        MapLayer playerLayer = tiledMap.getLayers().get("towermain");
+        if (playerLayer != null) {
+            for (MapObject obj : playerLayer.getObjects()) {
+                if (!(obj instanceof RectangleMapObject)) continue;
+                RectangleMapObject rect = (RectangleMapObject) obj;
+                String name = obj.getName();
+                Vector2 pos = new Vector2(rect.getRectangle().x, rect.getRectangle().y);
+                if ("maintower".equals(name)) {
+                    playerMainTower = pos;
+                } else {
+                    playerTowers.add(pos);
+                }
+            }
+        } else {
+            System.err.println("MapManager: Không tìm thấy layer 'towermain'.");
+        }
+
+        // Enemy tower group
+        MapLayer enemyLayer = tiledMap.getLayers().get("towerdich");
+        if (enemyLayer != null) {
+            for (MapObject obj : enemyLayer.getObjects()) {
+                if (!(obj instanceof RectangleMapObject)) continue;
+                RectangleMapObject rect = (RectangleMapObject) obj;
+                String name = obj.getName();
+                Vector2 pos = new Vector2(rect.getRectangle().x, rect.getRectangle().y);
+                if ("enemymaintower".equals(name)) {
+                    enemyMainTower = pos;
+                } else {
+                    enemyTowers.add(pos);
+                }
+            }
+        } else {
+            System.err.println("MapManager: Không tìm thấy layer 'towerdich'.");
+        }
+
+        // Fallback nếu không tìm thấy
+        if (playerMainTower == null) playerMainTower = new Vector2(0, 0);
+        if (enemyMainTower == null) enemyMainTower = new Vector2(0, 0);
     }
 
-    // Chuyển đổi tọa độ pixel -> tọa độ ô
-    public Vector2 worldToGrid(Vector2 worldPos) {
-        int gridX = (int)(worldPos.x / tileSize);
-        int gridY = (int)(worldPos.y / tileSize);
-        // Clamp trong biên
-        gridX = Math.max(0, Math.min(width - 1, gridX));
-        gridY = Math.max(0, Math.min(height - 1, gridY));
-        return new Vector2(gridX, gridY);
-    }
-
-    // Kiểm tra một ô có xây được tháp không
-    public boolean canBuildTowerAt(int gridX, int gridY) {
-        if (!isWithinBounds(gridX, gridY)) return false;
-        TileType tile = tiles[gridX][gridY];
-        return tile.isBuildable();
-    }
-
-    // Kiểm tra ô có thể đi qua (cho enemy)
-    public boolean isWalkable(int gridX, int gridY) {
-        if (!isWithinBounds(gridX, gridY)) return false;
-        return tiles[gridX][gridY].isWalkable();
-    }
-
-    // Lấy loại tile
-    public TileType getTile(int gridX, int gridY) {
-        return tiles[gridX][gridY];
-    }
-
-    // Lấy danh sách waypoint (sao chép để tránh chỉnh sửa ngoài ý muốn)
     public Array<Vector2> getWaypoints() {
         Array<Vector2> copy = new Array<>();
-        for (Vector2 wp : waypoints) {
-            copy.add(wp.cpy());
-        }
+        for (Vector2 wp : waypoints) copy.add(wp.cpy());
         return copy;
     }
 
-    private boolean isWithinBounds(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height;
-    }
-
-    // Getters
-    public int getWidth() { return width; }
-    public int getHeight() { return height; }
-    public int getTileSize() { return tileSize; }
-    public Vector2 getStartGridPos() { return startGridPos.cpy(); }
-    public Vector2 getEndGridPos() { return endGridPos.cpy(); }
-
-    /**
-     * Lấy vị trí Player Castle (Start Point của map)
-     */
+    /** Vị trí tháp chính của người chơi (pixel) */
     public Vector2 getPlayerCastlePosition() {
-        return gridToWorld(startGridPos);
+        return playerMainTower.cpy();
     }
 
-    /**
-     * Lấy vị trí Enemy Base (End Point của map)
-     */
+    /** Vị trí tháp chính của địch (pixel) */
     public Vector2 getEnemyBasePosition() {
-        return gridToWorld(endGridPos);
-    }
-    // Thêm vào MapManager
-    private void generatePath() {
-        waypoints.clear();
-        // Lấy tọa độ start và end
-        Vector2 startWorld = gridToWorld(startGridPos);
-        Vector2 endWorld = gridToWorld(endGridPos);
-
-        // Thêm start
-        waypoints.add(startWorld.cpy());
-
-        // Tạo 2-3 điểm trung gian dạng gấp khúc (để thấy rõ di chuyển)
-        float midX = (startWorld.x + endWorld.x) / 2;
-        waypoints.add(new Vector2(midX, startWorld.y + 50));
-        waypoints.add(new Vector2(midX, endWorld.y - 50));
-
-        // Thêm end
-        waypoints.add(endWorld.cpy());
+        return enemyMainTower.cpy();
     }
 
+    /** Danh sách tháp phụ của người chơi (các tower cố định, không phải tháp chính) */
+    public Array<Vector2> getPlayerTowers() {
+        Array<Vector2> copy = new Array<>();
+        for (Vector2 t : playerTowers) copy.add(t.cpy());
+        return copy;
+    }
+
+    /** Danh sách tháp phụ của địch */
+    public Array<Vector2> getEnemyTowers() {
+        Array<Vector2> copy = new Array<>();
+        for (Vector2 t : enemyTowers) copy.add(t.cpy());
+        return copy;
+    }
+
+    /** Chuyển đổi tọa độ pixel → ô lưới (grid) */
+    public Vector2 worldToGrid(Vector2 worldPos) {
+        int gx = (int)(worldPos.x / tileSize);
+        int gy = (int)(worldPos.y / tileSize);
+        gx = Math.max(0, Math.min(mapWidth - 1, gx));
+        gy = Math.max(0, Math.min(mapHeight - 1, gy));
+        return new Vector2(gx, gy);
+    }
+
+    /** Chuyển đổi ô lưới → tọa độ pixel (tâm ô) */
+    public Vector2 gridToWorld(Vector2 gridPos) {
+        return new Vector2(gridPos.x * tileSize + tileSize / 2f,
+            gridPos.y * tileSize + tileSize / 2f);
+    }
+
+    // Getters thuần túy
+    public TiledMap getTiledMap() { return tiledMap; }
+    public int getTileSize() { return tileSize; }
+    public int getMapWidth() { return mapWidth; }
+    public int getMapHeight() { return mapHeight; }
+
+    /** Giải phóng tài nguyên TiledMap */
+    public void dispose() {
+        if (tiledMap != null) tiledMap.dispose();
+    }
 }
+

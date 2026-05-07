@@ -293,16 +293,4 @@ public class MovementSystem {
             entity.setTargetId(0);
         }
     }
-
-    /**
-     * Static variant cho tiện sử dụng (caller không cần instance MovementSystem)
-     */
-    public static void setPathStatic(CombatEntity entity, Array<Vector2> waypoints) {
-        if (entity != null) {
-            entity.setWaypoints(waypoints);
-            entity.setCurrentWaypointIndex(0);
-            entity.setState(CombatEntity.State.MOVING);
-            entity.setTargetId(0);
-        }
-    }
 }
