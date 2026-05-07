@@ -17,6 +17,8 @@ import com.badlogic.gdx.math.Vector2;
  */
 public abstract class SteerableEntity extends InteractableEntity implements Steerable<Vector2> {
 
+    private SteeringBehavior<Vector2> followPathBehavior;
+
     // --- Steering & Physics (Thông số di chuyển nâng cao) ---
     protected float maxLinearSpeed;        // Tốc độ di chuyển tối đa
     protected float maxLinearAcceleration; // Độ bốc khi tăng tốc (giúp lính phản ứng nhanh)
@@ -123,4 +125,14 @@ public abstract class SteerableEntity extends InteractableEntity implements Stee
     @Override public float getMaxAngularAcceleration() { return 10f; }
     @Override public void setMaxAngularAcceleration(float maxAngularAcceleration) {}
     @Override public Location<Vector2> newLocation() { return null; }
+
+    public SteeringBehavior<Vector2> getFollowPathBehavior() {
+        return followPathBehavior;
+    }
+
+    public void setFollowPathBehavior(SteeringBehavior<Vector2> behavior) {
+        this.followPathBehavior = behavior;
+        // Tự động kích hoạt luôn khi set
+        this.setSteeringBehavior(behavior);
+    }
 }

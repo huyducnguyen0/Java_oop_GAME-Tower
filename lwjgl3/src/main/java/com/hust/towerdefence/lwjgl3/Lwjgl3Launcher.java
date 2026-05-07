@@ -6,27 +6,27 @@ import com.hust.towerdefence.MainGame;
 
 public class Lwjgl3Launcher {
     public static void main(String[] args) {
-        if (StartupHelper.startNewJvmIfRequired()) return;
-        createApplication();
+        try {
+            createApplication();
+        } catch (Exception e) {
+            e.printStackTrace(); // Ép in lỗi ra console
+        }
     }
 
     private static Lwjgl3Application createApplication() {
-        // Chạy lớp MainGame từ module core
         return new Lwjgl3Application(new MainGame(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("HUST Tower Defence - Test Logic");
+        configuration.setTitle("HUST Tower Defence - Pro AI Test");
         configuration.useVsync(true);
-
-        // Giới hạn FPS để máy không quá nóng
         configuration.setForegroundFPS(60);
 
-        // Kích thước cửa sổ khớp với WORLD_WIDTH và WORLD_HEIGHT trong BoovGameScreen
-        configuration.setWindowedMode(800, 480);
+        // Thiết lập kích thước cửa sổ HD cho sướng mắt
+        configuration.setWindowedMode(1600, 900);
 
-        // Icon (nếu bro có ảnh icon thì dùng, không thì kệ nó)
+        // Tự động nhận diện icons nếu có trong assets
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
 
         return configuration;
