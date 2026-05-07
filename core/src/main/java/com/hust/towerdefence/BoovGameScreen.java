@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class BoovGameScreen implements Screen {
+    private final MainGame game;
 
     private static final float WORLD_WIDTH = 800;
     private static final float WORLD_HEIGHT = 480;
@@ -33,7 +34,8 @@ public class BoovGameScreen implements Screen {
     private Vector2 velocity;
     private float stateTime;
 
-    public BoovGameScreen() {
+    public BoovGameScreen(MainGame game) {
+        this.game = game;
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         viewport = new ExtendViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);

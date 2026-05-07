@@ -1,0 +1,132 @@
+{
+    "activeFile": "shop.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "Archer_Idle.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Avatars_01.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Gold_Resource.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Heal.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Icon_02.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Icon_03.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Icon_04.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Icon_09.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Lancer_Down_Attack.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Lancer_Idle.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Meat Resource.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Pawn_Idle Axe.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "RegularPaper.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "SpecialPaper.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Tool_01.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Warrior_Attack1.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Wood Resource.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "WoodTable.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "WoodTable_Slots.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "shop.tmx": {
+            "scale": 1.0341145833333334,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 494.14253336691,
+                "y": 277.5321077814152
+            }
+        },
+        "untitled.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 450.6666666666666,
+                "y": 362.6666666666667
+            }
+        }
+    },
+    "last.externalTilesetPath": "C:/Users/User/OneDrive/Desktop/OOP LAB",
+    "last.imagePath": "D:/gameoop/ (Free Pack)/ (Free Pack)/Units/Blue Units/Warrior",
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "Archer_Idle.tsx",
+        "WoodTable.tsx",
+        "WoodTable_Slots.tsx",
+        "Lancer_Down_Attack.tsx",
+        "Lancer_Idle.tsx",
+        "Heal.tsx",
+        "Pawn_Idle Axe.tsx",
+        "Warrior_Attack1.tsx",
+        "Gold_Resource.tsx",
+        "shop.tmx"
+    ],
+    "project": "untitled.tiled-project",
+    "recentFiles": [
+        "Archer_Idle.tsx",
+        "WoodTable.tsx",
+        "WoodTable_Slots.tsx",
+        "Lancer_Down_Attack.tsx",
+        "Lancer_Idle.tsx",
+        "Heal.tsx",
+        "Pawn_Idle Axe.tsx",
+        "Warrior_Attack1.tsx",
+        "Gold_Resource.tsx",
+        "shop.tmx",
+        "untitled.tmx",
+        "Avatars_01.tsx"
+    ],
+    "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx"
+}
