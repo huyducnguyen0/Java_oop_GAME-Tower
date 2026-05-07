@@ -9,6 +9,7 @@ public class MainGame extends Game {
     @Override
     public void create() {
         // Chuyển ngay sang màn hình chơi
-        setScreen(new BoovGameScreen());
+        //setScreen(new BoovGameScreen());
+        setScreen(new MainMenuScreen(this));
     }
 }
