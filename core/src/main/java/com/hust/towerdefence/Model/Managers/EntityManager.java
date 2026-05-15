@@ -24,7 +24,7 @@ public class EntityManager {
     private final SnapshotArray<GoldMine> goldMines;    // Tất cả mỏ vàng
     private final SnapshotArray<Projectile> projectiles;  // Tất cả đạn (nếu có)
 
-    // ===== Danh sách tổng hợp =====
+
     private final SnapshotArray<BaseEntity> allEntities;
 
     // ===== Hàng đợi xóa =====

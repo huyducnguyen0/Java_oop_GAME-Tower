@@ -38,6 +38,7 @@ public class MapManager {
         extractTowerPositions();
 
     }
+    // lấy map từ file
     private void loadMap(String mapPath) {
         try {
             tiledMap = new TmxMapLoader().load(mapPath);
@@ -81,7 +82,6 @@ public class MapManager {
             System.err.println("MapManager: Không tìm thấy waypoint nào (p0, p1,...).");
         }
     }
-
 
 
     private void extractTowerPositions() {

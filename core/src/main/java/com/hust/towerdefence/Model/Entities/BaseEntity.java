@@ -1,38 +1,29 @@
 package com.hust.towerdefence.Model.Entities;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Pool.Poolable;
 
-public abstract class BaseEntity implements Poolable {
+
+public abstract class BaseEntity  {
     protected long id; //dùng để định danh đối tượng
+    private static long nextId = 0;
     protected final Vector2 position; // vị trí của đối tượng
-    protected final Vector2 velocity; // tinh vận tốc của đối tượng qua đơn vị world
     protected float width; // dùng để render và tính va chạm
     protected float height; // dùng để render và tính va chạm
     protected float rotation; // (độ)
 
-    protected boolean active; // dùng để xác định xem entity có đang hoạt động hay không (ví dụ: đã chết, đã hoàn thành nhiệm vụ, v.v.)
-    protected boolean removed; // dùng để đánh dấu entity đã bị xóa khỏi game world (ví dụ: sau khi chết, hoặc sau khi hoàn thành nhiệm vụ)
-
+    protected boolean active; // dùng để xác định xem entity có đang hoạt động hay không (ví dụ: đã chết)
+    protected boolean removed; // dùng để đánh dấu entity đã bị xóa khỏi game world (ví dụ: sau khi chết)
+    protected enum Team {
+        SOLDIER,  // Quân lính (người chơi)
+        ENEMY     // Kẻ thù
+    }
+    protected Team team;
     public BaseEntity() {
+        this.id = nextId++;
         this.position = new Vector2();
-        this.velocity = new Vector2();
         this.active = true;
         this.removed = false;
     }
 
-    @Override
-    public void reset() {
-        id = 0;
-        position.set(0, 0);
-        velocity.set(0, 0);
-        width = 0;
-        height = 0;
-        rotation = 0;
-        active = false;
-        removed = false;
-    } // thực hiện reset tất cả thuộc tính về giá trị mặc định khi được trả về pool
-
-    // ==================== Getter / Setter ====================
 
     public long getId() {
         return id;
@@ -46,10 +37,10 @@ public abstract class BaseEntity implements Poolable {
         return position;
     }
 
-    public void setPosition(float x, float y) {
-        this.position.set(x, y);
+    public void setPosition(Vector2 position) {
+        this.position.set(position);
     }
-
+    public Team getTeam() { return team; };
     public float getX() {
         return position.x;
     }
@@ -73,8 +64,8 @@ public abstract class BaseEntity implements Poolable {
         this.height = height;
     }
 
-    public boolean isActive() {
-        return active;
+    public boolean isDead() {
+        return !active;
     }
     public void setActive(boolean active) {
         this.active = active;
@@ -87,7 +78,7 @@ public abstract class BaseEntity implements Poolable {
     public void markRemoved() {
         this.removed = true;
     }
-    public boolean overlaps(BaseEntity other) {
+    public boolean overlaps(BaseEntity other) { // kiểm tra va chạm AABB đơn giản
         return this.position.x < other.position.x + other.width &&
             this.position.x + this.width > other.position.x &&
             this.position.y < other.position.y + other.height &&
@@ -107,10 +98,6 @@ public abstract class BaseEntity implements Poolable {
     /**
      * Kiểm tra va chạm AABB đơn giản
      */
-    public Vector2 getVelocity() {
-        return velocity;
-    }
-
     public float getRotation() {
         return rotation;
     }

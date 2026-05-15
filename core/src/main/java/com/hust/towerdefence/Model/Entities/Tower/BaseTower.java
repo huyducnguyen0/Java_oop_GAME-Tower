@@ -1,39 +1,24 @@
 package com.hust.towerdefence.Model.Entities.Tower;
 
+import com.badlogic.gdx.math.Vector2;
 import com.hust.towerdefence.Model.Entities.BaseEntity;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 
 
 public abstract class BaseTower extends BaseEntity {
-    // Chỉ chứa các dữ liệu mà Nhà chính & Trụ đều có
-    protected float maxHealth;
-    protected float currentHealth;
 
-    public BaseTower(float x, float y, float width, float height, float maxHealth, CombatEntity.Team team) {
+    public BaseTower(Vector2 position , float width, float height, CombatEntity.Team team) {
         super();
-        // Set position
-        this.setPosition(x, y);
-        // Set dimensions
+        this.position.set(position);
+        this.
         this.width = width;
         this.height = height;
-        // Set health
-        this.maxHealth = maxHealth;
-        this.currentHealth = maxHealth;
     }
 
     // Getters/Setters cho máu
-    public float getMaxHealth() {
-        return maxHealth;
-    }
-
-   public float getCurrentHealth() {
-        return currentHealth;
-    }
 
     @Override
     public void reset() {
         super.reset();
-        this.maxHealth = 0;
-        this.currentHealth = 0;
     }
 }

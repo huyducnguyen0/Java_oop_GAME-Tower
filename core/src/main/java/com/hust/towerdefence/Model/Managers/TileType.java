@@ -1,9 +1,6 @@
 package com.hust.towerdefence.Model.Managers;
 
 public enum TileType {
-    ROAD(0, true, false),      // Đường đi – enemy đi được, không xây tháp
-    TOWER_PLATFORM(1, false, true), // Nền xây tháp – không đi qua, được xây
-    OBSTACLE(2, false, false), // Vật cản – không đi, không xây
     START(3, true, false),     // Điểm xuất phát của enemy
     END(4, true, false);       // Điểm đích (mất mạng)
 

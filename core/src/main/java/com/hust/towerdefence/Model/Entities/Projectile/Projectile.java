@@ -1,19 +1,19 @@
 package com.hust.towerdefence.Model.Entities.Projectile;
 
+import com.badlogic.gdx.math.Vector2;
 import com.hust.towerdefence.Model.Entities.BaseEntity;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
-
+import com.hust.towerdefence.Model.Entities.Combat.CombatEntity.Team;
 public class Projectile extends BaseEntity {
-
     public float damage; // Lượng sát thương
     public float speed; // Tốc độ di chuyển
-
-    public CombatEntity target; // Mục tiêu mà projectile hướng đến
-
+    private Team team; // Phe của projectile (theo phe của người bắn ra)
+    private CombatEntity target;
 
 
     public Projectile() {
         super();
+
     }
 
     /**

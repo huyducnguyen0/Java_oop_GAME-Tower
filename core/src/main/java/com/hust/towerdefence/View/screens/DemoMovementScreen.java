@@ -21,7 +21,7 @@ import com.hust.towerdefence.Model.Entities.Combat.Soldier.Warrior;
 import com.hust.towerdefence.Model.Managers.EntityManager;
 import com.hust.towerdefence.Model.Managers.MapManager;
 import com.hust.towerdefence.Model.Systems.MovementSystem;
-
+/*
 public class DemoMovementScreen extends ScreenAdapter {
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -187,3 +187,4 @@ public class DemoMovementScreen extends ScreenAdapter {
     @Override public void resume() {}
     @Override public void hide() {}
 }
+*/

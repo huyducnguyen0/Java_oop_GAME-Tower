@@ -1,11 +1,14 @@
 package com.hust.towerdefence.Model.Entities.Combat.Enemy;
 
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 
 public abstract class Enemy extends CombatEntity {
 
     protected int goldReward;
     protected float expReward;
+    protected int currentWaypointIndex; // Chỉ số waypoint hiện tại
     public Enemy() {
         super();
         this.team = Team.ENEMY;
@@ -16,13 +19,16 @@ public abstract class Enemy extends CombatEntity {
     public void reset() {
         super.reset();
         this.level = 1;
-        this.goldReward = 0;// Mặc định không có phần thưởng, sẽ được set cụ thể trong từng loại enemy
+        this.goldReward = 0;
         this.expReward = 0;
         this.team = Team.ENEMY;
         this.currentState = State.IDLE;
     }
 
-    // ===== Getter / Setter =====
+
+
+    public int getCurrentWaypointIndex() { return currentWaypointIndex; }
+    public void setCurrentWaypointIndex(int currentWaypointIndex) { this.currentWaypointIndex = currentWaypointIndex; }
 
     public int getGoldReward() { return goldReward; }
 
