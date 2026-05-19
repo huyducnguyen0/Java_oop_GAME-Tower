@@ -199,4 +199,7 @@ public class GameWorld {
         entityManager.clear();
         EconomyManager.dispose(); // reset singleton nếu cần
     }
+    public MainTower getEnemyTower() {
+        return enemyTower;
+    }
 }

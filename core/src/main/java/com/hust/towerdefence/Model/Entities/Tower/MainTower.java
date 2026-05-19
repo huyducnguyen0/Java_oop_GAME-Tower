@@ -21,5 +21,7 @@ public class MainTower extends BaseTower {
         return this.health = Math.max(0, health);
     };
     public float getHealth() { return health; }
-
+    public boolean isEnemy() {
+        return getTeam() == CombatEntity.Team.ENEMY;
+    }
 }

@@ -15,7 +15,7 @@ import com.hust.towerdefence.View.screens.DemoModelScreen;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import com.hust.towerdefence.View.screens.DemoModelScreen;
 public class MainGame extends Game {
     public static final float WORLD_HEIGHT = 9f;// đây là chiều cao của thế giới ảo, có thể điều chỉnh tùy theo nhu cầu của bạn
     public static final float WORLD_WIDTH = 16f;// đây là chiều rộng của thế giới
