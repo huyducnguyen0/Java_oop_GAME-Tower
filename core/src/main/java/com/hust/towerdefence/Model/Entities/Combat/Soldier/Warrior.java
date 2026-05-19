@@ -11,7 +11,7 @@ public class Warrior extends Soldier {
     private static final float[] RANGE_DATA = {1.0f, 1.1f, 1.2f}; // cần chuyển sang World Unit (Ví dụ: 1.0f tương đương 100 pixel)
     private static final int[] UPGRADE_COST_DATA = {120, 300, 0};
 
-    public Warrior(Vector2 playerCastlePosition) {
+    public Warrior() {
         super();
         this.width = 0.9f; // Lớn hơn Pawn để trông vững chãi hơn, nhưng vẫn nhỏ hơn 1.0f để không chiếm quá nhiều diện tích
         this.height = 0.9f; // Cùng chiều cao để tạo cảm giác đồng đều, nhưng có thể điều chỉnh nếu muốn tạo sự khác biệt rõ ràng hơn

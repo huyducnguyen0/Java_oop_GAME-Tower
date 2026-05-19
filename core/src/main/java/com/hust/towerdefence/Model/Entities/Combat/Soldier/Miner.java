@@ -8,10 +8,10 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
 public class Miner extends Soldier {
 
     // Thông số kinh tế cho 3 cấp độ
-
+    private float miningTimer;
+    private int carriedGold;
     private static final float[] HEALTH_DATA = {80f, 120f, 160f};  // Extracted: thợ mỏ yếu hơn Pawn
     private static final float[] GOLD_PER_MINE = {10f, 25f, 60f}; // Thay cho attackDamage
-    private static final float[] MINING_SPEED = {0.5f, 0.8f, 1.2f}; // Lần đào mỗi giây
     private static final float[] RANGE_DATA = {0.5f, 0.5f, 0.5f};  // Standardize to world units
     private static final int[] UPGRADE_COST_DATA = {80, 200, 0};
 
@@ -21,7 +21,7 @@ public class Miner extends Soldier {
         this.height = 0.8f;
 
         this.team = Team.SOLDIER; // Xác định phe
-        this.currentState = State.IDLE; // Trạng thái mặc định
+        this.currentState = State.GOING_TO_MINE; // Trạng thái mặc định
         applyLevelData();
     }
 
@@ -38,9 +38,6 @@ public class Miner extends Soldier {
 
         // Tái định nghĩa biến: Damage -> Vàng mỗi lần đào
         this.attackDamage = GOLD_PER_MINE[index];
-
-        // Tái định nghĩa biến: Attack Speed -> Tốc độ đào
-        this.setAttackSpeed(MINING_SPEED[index]);
 
         this.upgradeCost = UPGRADE_COST_DATA[index];
 
@@ -65,4 +62,8 @@ public class Miner extends Soldier {
     public float getGoldPerCycle() {
         return attackDamage;
     }
+    public float getMiningTimer() { return miningTimer; }
+    public void setMiningTimer(float time) { this.miningTimer = time; }
+    public int getCarriedGold() { return carriedGold; }
+    public void setCarriedGold(int gold) { this.carriedGold = gold; }
 }

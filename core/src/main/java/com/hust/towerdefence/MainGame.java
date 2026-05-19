@@ -10,7 +10,8 @@ import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.hust.towerdefence.View.screens.DemoMovementScreen;
+import com.hust.towerdefence.View.screens.DemoModelScreen;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +34,8 @@ public class MainGame extends Game {
         Gdx.input.setInputProcessor(inputMultiplexer);
         batch = new SpriteBatch();
 
-        addScreen(new DemoMovementScreen(this));// đây là phương thức khởi tạo
-        setScreen(DemoMovementScreen.class);
+        addScreen(new DemoModelScreen(this));// đây là phương thức khởi tạo
+        setScreen(DemoModelScreen.class);
 
     }
     public void addScreen(Screen screen) {

@@ -8,8 +8,9 @@ import com.badlogic.gdx.maps.objects.PointMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
+import com.hust.towerdefence.Model.Entities.BaseEntity;
+import com.hust.towerdefence.Model.Entities.Combat.Enemy.Enemy;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Miner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +24,10 @@ public class MapManager {
 
     private TileType[][] tiles;
     // Danh sách các điểm waypoint (theo thứ tự từ START đến END)
-    private Array<Vector2> waypoints;   // tọa độ thế giới (pixel) của từng điểm chính
+    private Array<Vector2> waypoints;
+    private Array<Vector2> waypoints_miner;
     private Vector2 playerMainTower;    // tháp chính của người chơi
-    private Vector2 enemyMainTower;     // tháp chính của địch
+    private Vector2 enemyMainTower;
     private Array<Vector2> playerTowers; // các tháp phụ của người chơi (không bao gồm tháp chính)
     private Array<Vector2> enemyTowers;  // các tháp phụ của địch
     // Điểm start và end (tọa độ ô)
@@ -60,7 +62,6 @@ public class MapManager {
             System.err.println("MapManager: Không tìm thấy layer 'waypoint'.");
             return;
         }
-
         Map<String, Vector2> pointMap = new HashMap<>();
         for (MapObject obj : waypointLayer.getObjects()) {
             if (!(obj instanceof PointMapObject)) continue;
@@ -77,17 +78,42 @@ public class MapManager {
             waypoints.add(pointMap.get("p" + index));
             index++;
         }
-
         if (waypoints.size == 0) {
             System.err.println("MapManager: Không tìm thấy waypoint nào (p0, p1,...).");
         }
+        waypoints_miner = new Array<>();
+        MapLayer waypoint_minerLayer= tiledMap.getLayers().get("waypoint_miner");
+        if (waypoint_minerLayer == null) {
+            System.err.println("MapManager: Không tìm thấy layer 'waypoint_miner'.");
+            return;
+        }
+        Map<String, Vector2> point_miner_Map = new HashMap<>();
+        for (MapObject obj : waypoint_minerLayer.getObjects()) {
+            if (!(obj instanceof PointMapObject)) continue;
+            PointMapObject pointObj = (PointMapObject) obj;
+            String name = obj.getName();
+            if (name == null || !name.matches("path\\d+")) continue;
+
+            point_miner_Map.put(name, pointObj.getPoint());
+        }
+
+        // Sắp xếp theo số thứ tự
+        int index_1 = 1;
+        while (point_miner_Map.containsKey("path" + index_1)) {
+            waypoints_miner.add(point_miner_Map.get("path" + index_1));
+            index_1++;
+        }
+
+        if (waypoints_miner.size == 0) {
+            System.err.println("MapManager: Không tìm thấy waypoint_miner nào (p0, p1,...).");
+        }
+
     }
 
 
     private void extractTowerPositions() {
         playerTowers = new Array<>();
         enemyTowers = new Array<>();
-
         // Player tower group
         MapLayer playerLayer = tiledMap.getLayers().get("towermain");
         if (playerLayer != null) {
@@ -124,14 +150,29 @@ public class MapManager {
             System.err.println("MapManager: Không tìm thấy layer 'towerdich'.");
         }
 
-        // Fallback nếu không tìm thấy
+
         if (playerMainTower == null) playerMainTower = new Vector2(0, 0);
         if (enemyMainTower == null) enemyMainTower = new Vector2(0, 0);
     }
 
-    public Array<Vector2> getWaypoints() {
+    public Array<Vector2> getWaypoints(BaseEntity entity) {
         Array<Vector2> copy = new Array<>();
-        for (Vector2 wp : waypoints) copy.add(wp.cpy());
+        if(entity instanceof Enemy){
+            for (int i = waypoints.size - 1; i >= 0; i--) {
+                copy.add(waypoints.get(i));
+            }
+        }
+        else if(entity instanceof Miner){
+            for (Vector2 wp : waypoints_miner) {
+                copy.add(wp.cpy());
+            }
+        }
+        else{
+            for (Vector2 wp : waypoints) {
+
+                copy.add(wp.cpy());
+            }
+        }
         return copy;
     }
 

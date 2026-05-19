@@ -12,7 +12,7 @@ public abstract class BaseEntity  {
 
     protected boolean active; // dùng để xác định xem entity có đang hoạt động hay không (ví dụ: đã chết)
     protected boolean removed; // dùng để đánh dấu entity đã bị xóa khỏi game world (ví dụ: sau khi chết)
-    protected enum Team {
+    public enum Team {
         SOLDIER,  // Quân lính (người chơi)
         ENEMY     // Kẻ thù
     }

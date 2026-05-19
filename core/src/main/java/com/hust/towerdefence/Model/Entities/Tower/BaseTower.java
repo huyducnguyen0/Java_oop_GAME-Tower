@@ -7,18 +7,10 @@ import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 
 public abstract class BaseTower extends BaseEntity {
 
-    public BaseTower(Vector2 position , float width, float height, CombatEntity.Team team) {
+    public BaseTower(Vector2 position) {
         super();
         this.position.set(position);
-        this.
-        this.width = width;
-        this.height = height;
     }
 
-    // Getters/Setters cho máu
 
-    @Override
-    public void reset() {
-        super.reset();
-    }
 }

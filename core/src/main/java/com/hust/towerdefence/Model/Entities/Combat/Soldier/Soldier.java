@@ -7,7 +7,7 @@ import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
  * Lớp cơ sở cho tất cả các loại quân lính phe người chơi (Archer, Miner, Healer).
  * Giúp Systems phân biệt giữa quân đồng minh và kẻ thù (Enemy).
  */
-public abstract class   Soldier extends CombatEntity {
+public abstract class  Soldier extends CombatEntity {
 
     // ==================== Thông số kinh tế & Phát triển ====================
 

@@ -1,5 +1,7 @@
 package com.hust.towerdefence.Model.Entities.Combat;
 
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.hust.towerdefence.Model.Entities.BaseEntity;
 
@@ -12,7 +14,7 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
     // ===== Team =====
 
     public enum State {
-        IDLE, MOVING, ATTACKING, MINING, HEALING, DYING
+        IDLE, MOVING, ATTACKING, HEALING, DYING,GOING_TO_MINE, MINING, RETURNING_HOME
     } // Trạng thái hành động hiện tại (có thể dùng để điều khiển animation, logic hành vi, v.v.)
     protected int level ;
     protected final int  MAX_LEVEL = 3;
@@ -34,12 +36,17 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
     protected long targetId; // ID của thực thể mục tiêu hiện tại (0 nếu không có mục tiêu)
 
     // ===== Movement =====
+    protected Array<Vector2> path;
+    protected int currentPathIndex;
+
 
     protected float speed; // Tốc độ di chuyển (world units/giây)
     public CombatEntity() {
         super();
-        targetId = 0;
-        speed = 50f; // Default speed
+        targetId = -1;
+        speed = 50f;
+        this.path = new Array<>();
+        this.currentPathIndex = 0;// Default speed
 
     }
 
@@ -51,13 +58,6 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
     public boolean hasTarget() {
         return targetId != 0;
     } // Kiểm tra nếu có mục tiêu hiện tại
-    public float takeDamage(float damage) {
-        setHealth(health - damage);
-        return health;
-    }
-
-    // ===== Pool ====
-
     @Override
     public void reset() {
         health = 0;
@@ -69,7 +69,7 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
         cooldownTimer = 0;
         cooldownDuration = 0;
 
-        targetId = 0;
+        targetId = -1;// để là -1 để mà khi kiểm tra có target hay không thì sẽ check != -1, vì 0 có thể là một ID hợp lệ của một thực thể khác
         team = null;
 
 
@@ -101,11 +101,26 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
         this.attackSpeed = attackSpeed;
         this.cooldownDuration = attackSpeed > 0 ? 1f / attackSpeed : 0;
     }
+    public Array<Vector2> getPath() {
+        return path;
+    }
 
-    public float getCooldownTimer() { return cooldownTimer; }
+    public void setPath(Array<Vector2> path) {
+        this.path = path;
+        this.currentPathIndex = 0; // luôn bắt đầu từ điểm đầu
+    }
+
+    public int getCurrentPathIndex() {
+        return currentPathIndex;
+    }
+
+    public void setCurrentPathIndex(int index) {
+        this.currentPathIndex = index;
+    }
+    public float getCooldownTimer() { return cooldownTimer; } // lấy thời gian đếm ngược để có thể tấn công tiếp
     public void setCooldownTimer(float t) { this.cooldownTimer = t; }
 
-    public float getCooldownDuration() { return cooldownDuration; }
+    public float getCooldownDuration() { return cooldownDuration; } // lấy thời gian giữa các đòn tấn công (tính bằng giây, = 60 / attackSpeed)
     public void setCooldownDuration(float cooldownDuration) {
         this.cooldownDuration = cooldownDuration;
     }

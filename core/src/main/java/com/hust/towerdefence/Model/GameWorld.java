@@ -1,124 +1,202 @@
 package com.hust.towerdefence.Model;
 
+import com.badlogic.gdx.math.Vector2;
 import com.hust.towerdefence.Model.Entities.BaseEntity;
+import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
+import com.hust.towerdefence.Model.Entities.Combat.Enemy.PawnHacHoa;
+import com.hust.towerdefence.Model.Entities.Combat.Enemy.TNT;
+import com.hust.towerdefence.Model.Entities.Combat.Enemy.WarriorHacHoa;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.*;
 import com.hust.towerdefence.Model.Entities.Tower.MainTower;
-import com.hust.towerdefence.Model.Managers.EntityManager;
-import com.hust.towerdefence.Model.Managers.MapManager;
-import com.hust.towerdefence.Model.Managers.EconomyManager;
-import com.hust.towerdefence.Model.Systems.MovementSystem;
-import com.hust.towerdefence.Model.Systems.TargetingSystem;
-import com.hust.towerdefence.Model.Systems.AttackSystem;
-import com.hust.towerdefence.Model.Systems.EffectSystem;
-import com.hust.towerdefence.Model.Systems.PathfindingSystem;
-public class GameWorld {
-    // Trạng thái game
-    public enum GameState { PLAYING, PAUSED, GAME_OVER, VICTORY }
-    private GameState state;
+import com.hust.towerdefence.Model.Managers.*;
+import com.hust.towerdefence.Model.Systems.*;
 
-    // Managers
+public class GameWorld {
+
+    public enum GameState {
+        PLAYING,
+        PAUSED,
+        GAME_OVER,
+        VICTORY
+    }
+
+    // ===== Managers =====
     private final EntityManager entityManager;
     private final MapManager mapManager;
     private final EconomyManager economyManager;
 
-    // Systems (theo thứ tự ưu tiên cập nhật)
+    // ===== Systems =====
     private final MovementSystem movementSystem;
     private final TargetingSystem targetingSystem;
     private final AttackSystem attackSystem;
     private final HealthSystem healthSystem;
-    private final EffectSystem effectSystem;
-    private final PathfindingSystem pathfindingSystem;
 
-    // AI Controller (dùng cho enemy nếu cần)
-    private final AIController aiController;
+    // ===== Trạng thái game =====
+    private GameState state;
 
-    /**
-     * Khởi tạo GameWorld với các tham số cơ bản.
-     * @param mapWidth  chiều rộng bản đồ (số tile)
-     * @param mapHeight chiều cao bản đồ (số tile)
-     */
-    public GameWorld(int mapWidth, int mapHeight) {
+    // ===== Các thực thể đặc biệt =====
+    private MainTower mainTower;
+    private MainTower enemyTower;// nhà chính người chơi
+
+    public GameWorld(String mapPath, int initialGold, int maxGold) {
+        // ===== Tham số khởi tạo =====
         this.state = GameState.PLAYING;
 
-        // Khởi tạo Managers
-        this.mapManager = new MapManager(mapWidth, mapHeight);
-        this.entityManager = new EntityManager();
-        this.economyManager = new EconomyManager();
+        // 1. Khởi tạo Manager (MapManager cần đầu tiên)
+        mapManager = new MapManager(mapPath);
+        entityManager = new EntityManager();
+        economyManager = EconomyManager.getInstance(initialGold, maxGold);
 
-        // Khởi tạo AI (có thể cấu hình chiến lược)
-        this.aiController = new AIController();
+        // 2. Tạo thực thể cố định (dùng biến cục bộ lấy từ mapManager)
+        createFixedEntities();
 
-        // Khởi tạo Systems với tham chiếu đến GameWorld này
-        this.movementSystem = new MovementSystem(this);
-        this.targetingSystem = new TargetingSystem(this);
-        this.attackSystem = new AttackSystem(this);
-        this.healthSystem = new HealthSystem(this);
-        this.effectSystem = new EffectSystem(this);
-        this.pathfindingSystem = new PathfindingSystem(this);
-
-        // TODO: Thiết lập bản đồ, wave, nhà chính, ... (gọi từ bên ngoài hoặc phương thức init)
+        // 3. Khởi tạo System (theo thứ tự phụ thuộc)
+        healthSystem = new HealthSystem(entityManager, this); // tạm thời null poolManager, sẽ set sau
+        attackSystem = new AttackSystem(entityManager, healthSystem);
+        targetingSystem = new TargetingSystem(entityManager);
+        movementSystem = new MovementSystem(entityManager, mainTower,enemyTower, mapManager);
+        // movementSystem sẽ tự gọi EconomyManager.getInstance().addGold() khi Miner về
     }
 
-    /**
-     * Cập nhật toàn bộ thế giới game mỗi frame.
-     * @param delta thời gian trôi qua từ frame trước (giây)
-     */
+    private void createFixedEntities() {
+        // Lấy vị trí từ MapManager (đã khởi tạo)
+        Vector2 mainTowerPos = mapManager.getPlayerCastlePosition();
+        Vector2 enemyBasePos = mapManager.getEnemyBasePosition();
+
+        // Tạo MainTower người chơi
+        mainTower = new MainTower(mainTowerPos, BaseEntity.Team.SOLDIER, 1000);
+
+        // Tạo nhà chính địch (dùng MainTower hoặc class riêng)
+        // nhà chính địch (có thể dùng class riêng)
+        enemyTower = new MainTower(enemyBasePos, BaseEntity.Team.ENEMY, 5000);
+    }
+
+    // ==================== VÒNG LẶP CHÍNH ====================
+
     public void update(float delta) {
         if (state != GameState.PLAYING) return;
-
-        // 1. Di chuyển tất cả entity có path/velocity
-        movementSystem.update(delta);
-
-        // 2. Cập nhật mục tiêu cho các entity có khả năng tấn công
         targetingSystem.update(delta);
-
-        // 3. Thực hiện tấn công khi đủ điều kiện
+        movementSystem.update(delta);
         attackSystem.update(delta);
+        healthSystem.update(delta);
+    }
 
-        // 4. Xử lý hiệu ứng (làm chậm, đốt, ...) - ưu tiên cuối vì có thể ảnh hưởng đến các frame sau
-        effectSystem.update(delta);
+    // ==================== API CHO CONTROLLER ====================
 
-        // 5. Dọn dẹp entity đã chết (có thể gọi sau HealthSystem nếu cần)
-        entityManager.removeMarkedEntities();
+    public void spawnPawn() {
+        if (!economyManager.canBuyPawn()) return;
+        economyManager.buyPawn();
+        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Pawn pawn = new Pawn();
+        pawn.setPosition(homePos);
+        pawn.setPath(mapManager.getWaypoints(pawn));
+        pawn.setState(CombatEntity.State.MOVING);
+        entityManager.addSoldier(pawn);
+    }
 
-        // 6. Kiểm tra điều kiện thắng/thua (có thể tách ra system riêng)
-        if (healthSystem.isGameOver()) {
+    public void spawnMiner() {
+        if (!economyManager.canBuyMiner()) return;
+        economyManager.buyMiner();
+        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Miner miner = new Miner();
+        // Miner luôn xuất phát từ nhà chính
+        miner.setPosition(homePos);
+        miner.setPath(mapManager.getWaypoints(miner));
+        miner.setState(CombatEntity.State.GOING_TO_MINE);
+        miner.setMiningTimer(0);
+        entityManager.addSoldier(miner);
+    }
+
+    public void spawnArcher() {
+        if (!economyManager.canBuyArcher()) return;
+        economyManager.buyArcher();
+        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Archer archer = new Archer();
+        archer.setPosition(homePos);
+        archer.setPath(mapManager.getWaypoints(archer));
+        archer.setState(CombatEntity.State.MOVING);
+        entityManager.addSoldier(archer);
+    }
+    public void spawnWarrior() {
+        if (!economyManager.canBuyWarrior()) return;
+        economyManager.buyWarrior();
+        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Warrior warrior = new Warrior();
+        warrior.setPosition(homePos);
+        warrior.setPath(mapManager.getWaypoints(warrior));
+        warrior.setState(CombatEntity.State.MOVING);
+        entityManager.addSoldier(warrior);
+    }
+    public void spawnTNT(){
+        Vector2 enemyPos = mapManager.getEnemyBasePosition();
+        TNT tnt = new TNT();
+        tnt.setPosition(enemyPos);
+        tnt.setPath(mapManager.getWaypoints(tnt));
+        tnt.setState(CombatEntity.State.IDLE);
+        entityManager.addEnemy(tnt);
+    }
+    public void spawnWarriorHacHoa(){
+        Vector2 enemyPos = mapManager.getEnemyBasePosition();
+        WarriorHacHoa warriorhachoa = new WarriorHacHoa();
+        warriorhachoa.setPosition(enemyPos);
+        warriorhachoa.setPath(mapManager.getWaypoints(warriorhachoa));
+        warriorhachoa.setState(CombatEntity.State.IDLE);
+        entityManager.addEnemy(warriorhachoa);
+    }
+    public void spawnPawnHacHoa(){
+        Vector2 enemyPos = mapManager.getEnemyBasePosition();
+        PawnHacHoa pawnHacHoa = new PawnHacHoa();
+        pawnHacHoa.setPosition(enemyPos);
+        pawnHacHoa.setPath(mapManager.getWaypoints(pawnHacHoa));
+        pawnHacHoa.setState(CombatEntity.State.IDLE);
+        entityManager.addEnemy(pawnHacHoa);
+    }
+
+
+    // ==================== ĐIỀU KHIỂN TRẠNG THÁI ====================
+
+    public GameState getState() {
+        return state;
+    }
+
+    public void setPaused(boolean paused) {
+        if (state == GameState.PLAYING && paused) {
+            state = GameState.PAUSED;
+        } else if (state == GameState.PAUSED && !paused) {
+            state = GameState.PLAYING;
+        }
+    }
+
+    public boolean isPaused() {
+        return state == GameState.PAUSED;
+    }
+
+    public void gameOver() {
+        if (state == GameState.PLAYING || state == GameState.PAUSED) {
             state = GameState.GAME_OVER;
         }
     }
 
-    // --------------------- Các phương thức truy cập Manager ---------------------
+    public void victory() {
+        if (state == GameState.PLAYING || state == GameState.PAUSED) {
+            state = GameState.VICTORY;
+        }
+    }
+
+    public boolean isGameOver() { return state == GameState.GAME_OVER; }
+    public boolean isVictory() { return state == GameState.VICTORY; }
+    public boolean isPlaying() { return state == GameState.PLAYING; }
+
+    // ==================== GETTER CHO VIEW ====================
     public EntityManager getEntityManager() { return entityManager; }
     public MapManager getMapManager() { return mapManager; }
     public EconomyManager getEconomyManager() { return economyManager; }
+    public MainTower getMainTower() { return mainTower; }
 
-    // --------------------- Các phương thức truy cập System ---------------------
-    public MovementSystem getMovementSystem() { return movementSystem; }
-    public TargetingSystem getTargetingSystem() { return targetingSystem; }
-    public AttackSystem getAttackSystem() { return attackSystem; }
-    public HealthSystem getHealthSystem() { return healthSystem; }
-    public EffectSystem getEffectSystem() { return effectSystem; }
-    public PathfindingSystem getPathfindingSystem() { return pathfindingSystem; }
-
-    // --------------------- Quản lý trạng thái game ---------------------
-    public GameState getState() { return state; }
-    public void setState(GameState state) { this.state = state; }
-    public boolean isPlaying() { return state == GameState.PLAYING; }
-
-    /**
-     * Được gọi khi nhà chính bị phá hủy.
-     */
-    public void onMainTowerDestroyed() {
-        state = GameState.GAME_OVER;
-        // Có thể kích hoạt hiệu ứng kết thúc game
-    }
-
-    /**
-     * Khởi tạo hoặc reset thế giới (nếu cần chơi lại).
-     */
-    public void reset() {
-        entityManager.clearAll();
-        economyManager.reset();
-        mapManager.reset(); // nếu có thay đổi địa hình
-        state = GameState.PLAYING;
+    /** Dọn dẹp khi chuyển màn hoặc thoát */
+    public void dispose() {
+        mapManager.dispose();
+        entityManager.clear();
+        EconomyManager.dispose(); // reset singleton nếu cần
     }
 }

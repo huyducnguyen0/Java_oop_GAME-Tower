@@ -1,62 +1,49 @@
-// ===================== AttackSystem.java =====================
 package com.hust.towerdefence.Model.Systems;
 
-import com.hust.towerdefence.Model.Entities.BaseEntity;
+import com.badlogic.gdx.utils.Array;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
-import com.hust.towerdefence.Model.Entities.Projectile.Projectile;
 import com.hust.towerdefence.Model.Managers.EntityManager;
-import com.hust.towerdefence.Model.GameWorld;
-
 public class AttackSystem {
-    private final GameWorld world;
+    private EntityManager entityManager;
+    private HealthSystem healthSystem;
 
-    public AttackSystem(GameWorld world) {
-        this.world = world;
+    public AttackSystem(EntityManager entityManager, HealthSystem healthSystem) {
+        this.entityManager = entityManager;
+        this.healthSystem = healthSystem;
     }
 
     public void update(float delta) {
-        EntityManager entityManager = world.getEntityManager();
-        TargetingSystem targeting = world.getTargetingSystem();
-
-        for (BaseEntity entity : entityManager.getAllEntities()) {
-            if (!entity.isActive() || !(entity instanceof CombatEntity)) continue;
-            CombatEntity combatant = (CombatEntity) entity;
+        Array<CombatEntity> combatants = entityManager.getAllActiveCombatUnits();
+        for (CombatEntity attacker : combatants) {
+            if (attacker.isDead() || attacker.getCurrentState() != CombatEntity.State.ATTACKING) {
+                continue;
+            }
 
             // Giảm cooldown
-            if (combatant.getCurrentCooldown() > 0) {
-                combatant.reduceCooldown(delta);
+            float cd = attacker.getCooldownTimer();
+            if (cd > 0) {
+                cd -= delta;
+                if (cd < 0) cd = 0;
+                attacker.setCooldownTimer(cd);
             }
 
-            // Kiểm tra điều kiện tấn công
-            BaseEntity target = combatant.getCurrentTarget();
-            if (target == null || !target.isActive() || target.isDead()) continue;
-
-            if (combatant.getCurrentCooldown() <= 0 && isWithinRange(combatant, target)) {
-                // Thực hiện tấn công
-                performAttack(combatant, target, entityManager);
-
-                // Reset cooldown
-                combatant.resetCooldown();
-            }
-        }
-    }
-
-    private boolean isWithinRange(CombatEntity attacker, BaseEntity target) {
-        float dx = target.getX() - attacker.getX();
-        float dy = target.getY() - attacker.getY();
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        return dist <= attacker.getAttackRange();
-    }
-
-    private void performAttack(CombatEntity attacker, BaseEntity target, EntityManager em) {
-        // Nếu là tấn công cận chiến (không có projectile)
-        if (attacker.isMelee()) {
-            world.getHealthSystem().applyDamage(target, attacker.getAttackDamage(), attacker);
-        } else {
-            // Tạo đạn và thêm vào thế giới
-            Projectile projectile = attacker.createProjectile(target); // Hàm factory trong CombatEntity
-            if (projectile != null) {
-                em.addEntity(projectile);
+            // Chỉ tấn công nếu hết cooldown
+            if (attacker.getCooldownTimer() <= 0) {
+                long targetId = attacker.getTargetId();
+                if (targetId != -1) {
+                    CombatEntity target = entityManager.getEntityById(targetId,CombatEntity.class);
+                    if(target != null && !target.isDead()){
+                        float dist = attacker.getPosition().dst(target.getPosition());
+                        if (dist <= attacker.getAttackRange()) {
+                            // Gây sát thương
+                            healthSystem.takeDamage(target, attacker.getAttackDamage());
+                            // Reset cooldown
+                            attacker.setCooldownTimer(attacker.getCooldownDuration());
+                        }
+                    }else  {
+                        attacker.setTargetId(-1);
+                    }
+                }
             }
         }
     }

@@ -3,8 +3,7 @@ package com.hust.towerdefence.Model.Entities.Projectile;
 import com.badlogic.gdx.math.Vector2;
 import com.hust.towerdefence.Model.Entities.BaseEntity;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
-import com.hust.towerdefence.Model.Entities.Combat.CombatEntity.Team;
-public class Projectile extends BaseEntity {
+public class Projectile extends CombatEntity {
     public float damage; // Lượng sát thương
     public float speed; // Tốc độ di chuyển
     private Team team; // Phe của projectile (theo phe của người bắn ra)
@@ -16,9 +15,7 @@ public class Projectile extends BaseEntity {
 
     }
 
-    /**
-     * Init từ pool
-     */
+
     public void init(float x, float y, CombatEntity target,
                      float damage, float speed) {
 

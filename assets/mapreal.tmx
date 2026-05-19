@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="20" nextobjectid="62">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="50" height="30" tilewidth="64" tileheight="64" infinite="0" nextlayerid="22" nextobjectid="76">
  <tileset firstgid="1" source="Water Background color.tsx"/>
  <tileset firstgid="2" source="Clouds_04.tsx"/>
  <tileset firstgid="38" source="Clouds_01.tsx"/>
@@ -55,7 +55,7 @@
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 </data>
  </layer>
- <layer id="13" name="ground0" width="50" height="30">
+ <layer id="13" name="ground0" width="50" height="30" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -123,7 +123,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="3" name="ground2" width="50" height="30">
+ <layer id="3" name="ground2" width="50" height="30" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -329,7 +329,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="14" name="bridge" width="50" height="30">
+ <layer id="14" name="bridge" width="50" height="30" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -363,7 +363,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="5" name="maintower" width="50" height="30">
+ <layer id="5" name="maintower" width="50" height="30" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -397,7 +397,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="15" name="towermain" offsetx="-3.0303" offsety="0">
+ <objectgroup id="15" name="towermain" locked="1" offsetx="-3.0303" offsety="0">
   <object id="12" name="maintower" x="2751.52" y="578.788" width="318.182" height="187.879"/>
   <object id="15" name="monastery" x="2890.91" y="260.606" width="169.697" height="169.697"/>
   <object id="17" name="house1" x="2757.58" y="263.636" width="115.152" height="163.636"/>
@@ -407,10 +407,10 @@
   <object id="28" name="tower1" x="2763.64" y="906.061" width="118.182" height="121.212"/>
   <object id="31" name="tower2" x="2945.45" y="1278.79" width="124.242" height="121.212"/>
  </objectgroup>
- <objectgroup id="17" name="goldmine">
+ <objectgroup id="17" name="goldmine" locked="1">
   <object id="22" name="goldmine" x="1345.45" y="1351.52" width="172.727" height="100"/>
  </objectgroup>
- <objectgroup id="16" name="towerdich" offsetx="0" offsety="-3.0303">
+ <objectgroup id="16" name="towerdich" locked="1" offsetx="0" offsety="-3.0303">
   <object id="8" name="enemymaintower" x="260.606" y="324.242" width="309.091" height="187.879"/>
   <object id="9" name="enemytower1" x="251.515" y="709.091" width="130.303" height="118.182"/>
   <object id="10" name="enemytower2" x="445.455" y="1287.88" width="130.303" height="115.152"/>
@@ -431,22 +431,16 @@
   <object id="36" name="p7" x="1902.7" y="1629.42">
    <point/>
   </object>
-  <object id="37" name="p8" x="1435.67" y="1607.75">
+  <object id="37" name="p8" x="850.822" y="1628.96">
    <point/>
   </object>
-  <object id="38" name="p9" x="1435.57" y="1455.2">
+  <object id="38" name="p9" x="747.691" y="1564.29">
    <point/>
   </object>
-  <object id="39" name="p10" x="1435.65" y="1633.25">
+  <object id="39" name="p10" x="417.468" y="1563.55">
    <point/>
   </object>
-  <object id="40" name="p11" x="847.963" y="1635.12">
-   <point/>
-  </object>
-  <object id="41" name="p12" x="753.81" y="1566.78">
-   <point/>
-  </object>
-  <object id="42" name="p13" x="416.448" y="1571.93">
+  <object id="40" name="p11" x="411.599" y="619.968">
    <point/>
   </object>
   <object id="47" name="p2" x="2583.11" y="1373.43">
@@ -458,10 +452,39 @@
   <object id="53" name="p0" x="2910.85" y="786.072">
    <point/>
   </object>
-  <object id="56" name="p14" x="418.58" y="574.766">
+  <object id="60" x="1743.04" y="-465.436">
    <point/>
   </object>
-  <object id="60" x="1743.04" y="-465.436">
+ </objectgroup>
+ <objectgroup id="21" name="waypoint_miner">
+  <object id="62" name="path1" x="2912.12" y="796.97">
+   <point/>
+  </object>
+  <object id="63" name="path2" x="2909.09" y="1360.61">
+   <point/>
+  </object>
+  <object id="64" name="path3" x="2581.82" y="1372.73">
+   <point/>
+  </object>
+  <object id="65" name="path4" x="2484.85" y="1436.36">
+   <point/>
+  </object>
+  <object id="66" name="path5" x="2260.61" y="1442.42">
+   <point/>
+  </object>
+  <object id="67" name="path6" x="2263.64" y="1563.64">
+   <point/>
+  </object>
+  <object id="68" name="path7" x="2009.09" y="1572.73">
+   <point/>
+  </object>
+  <object id="73" name="path8" x="1896.97" y="1630.3">
+   <point/>
+  </object>
+  <object id="74" name="path9" x="1436.36" y="1627.28">
+   <point/>
+  </object>
+  <object id="75" name="path10" x="1436.36" y="1463.64">
    <point/>
   </object>
  </objectgroup>

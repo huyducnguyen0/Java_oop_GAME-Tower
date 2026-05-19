@@ -1,85 +1,67 @@
-// ===================== TargetingSystem.java =====================
 package com.hust.towerdefence.Model.Systems;
 
-import com.hust.towerdefence.Model.Entities.BaseEntity;
+import com.badlogic.gdx.utils.Array;
+import com.hust.towerdefence.Model.Entities.BaseEntity.Team;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Miner;
 import com.hust.towerdefence.Model.Managers.EntityManager;
 
-import com.hust.towerdefence.Model.GameWorld;
-import java.util.List;
 
 public class TargetingSystem {
-    private final GameWorld world;
-    private AIController aiController; // Sử dụng AI nếu cần chiến lược phức tạp
+    private EntityManager entityManager;
 
-    public TargetingSystem(GameWorld world) {
-        this.world = world;
-        this.aiController = new AIController(); // hoặc inject từ world
+    public TargetingSystem(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     public void update(float delta) {
-        EntityManager entityManager = world.getEntityManager();
-
-        // Lọc tất cả thực thể có khả năng tấn công (CombatEntity có attackRange > 0)
-        for (BaseEntity entity : entityManager.getAllEntities()) {
-            if (!entity.isActive() || !(entity instanceof CombatEntity)) continue;
-            CombatEntity combatant = (CombatEntity) entity;
-
-            // Kiểm tra nếu thực thể này có thể tấn công
-            if (combatant.getAttackRange() <= 0) continue;
-
-            // Nếu đang có mục tiêu, kiểm tra còn hợp lệ không
-            BaseEntity currentTarget = combatant.getCurrentTarget();
-            if (currentTarget != null && isTargetValid(combatant, currentTarget)) {
-                continue; // Giữ nguyên mục tiêu
+        Array<CombatEntity> combatants = entityManager.getAllActiveCombatUnits();
+        for (CombatEntity entity : combatants) {
+            // Bỏ qua nếu đã chết (active=false) hoặc removed
+            if (entity.isDead() || entity.isRemoved() || entity instanceof Miner) continue;
+            long targetId = entity.getTargetId();
+            CombatEntity currentTarget = null;
+            if(targetId != -1){
+                currentTarget = entityManager.getEntityById(targetId, CombatEntity.class);
+            }
+            // Kiểm tra mục tiêu hiện tại còn giá trị không
+            if (currentTarget != null) {
+                if (currentTarget.isDead() || currentTarget.isRemoved() || currentTarget.getTeam() == entity.getTeam() || currentTarget instanceof Miner) {
+                    entity.setTargetId(-1);
+                    currentTarget = null;
+                }
+            } else if (targetId != -1) {
+                // ID không tìm thấy -> xóa target
+                entity.setTargetId(-1);
             }
 
-            // Tìm mục tiêu mới
-            BaseEntity newTarget = findTarget(combatant, entityManager);
-            combatant.setCurrentTarget(newTarget);
+            // Nếu không có mục tiêu, tìm mới
+            if (entity.getTargetId() == -1) {
+                CombatEntity newTarget = findNearestEnemy(entity);
+                if (newTarget != null) {
+                    entity.setTargetId(newTarget.getId());
+                }
+            }
         }
     }
 
-    private boolean isTargetValid(CombatEntity attacker, BaseEntity target) {
-        return target != null
-            && target.isActive()
-            && !target.isDead()
-            && isEnemy(attacker, target)   // kẻ thù
-            && isWithinRange(attacker, target);
-    }
-
-    private boolean isEnemy(CombatEntity attacker, BaseEntity target) {
-        // Đơn giản: attacker là phe ta (Soldier, Tower) thì tìm Enemy; ngược lại attacker là Enemy thì tìm Soldier/Tower
-        // Có thể dựa vào type hoặc teamID
-        return attacker.isHostileTo(target);
-    }
-
-    private boolean isWithinRange(CombatEntity attacker, BaseEntity target) {
-        float dx = target.getX() - attacker.getX();
-        float dy = target.getY() - attacker.getY();
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        return dist <= attacker.getAttackRange();
-    }
-
-    private BaseEntity findTarget(CombatEntity attacker, EntityManager em) {
-        // Sử dụng AI targeting nếu có nhiều chiến lược (gần nhất, yếu nhất, ...)
-        // Ở đây mặc định lấy kẻ địch gần nhất
-        List<BaseEntity> candidates = em.getHostileEntities(attacker); // giả sử EntityManager có phương thức này
-        if (candidates.isEmpty()) return null;
-
-        BaseEntity closest = null;
+    public CombatEntity findNearestEnemy(CombatEntity source) {
+        Team myTeam = source.getTeam();
+        CombatEntity nearest = null;
         float minDist = Float.MAX_VALUE;
-        float ax = attacker.getX(), ay = attacker.getY();
-        for (BaseEntity e : candidates) {
-            if (!e.isActive() || e.isDead()) continue;
-            float dx = e.getX() - ax;
-            float dy = e.getY() - ay;
-            float dist = dx * dx + dy * dy;
-            if (dist < minDist) {
+
+        for (CombatEntity other : entityManager.getAllActiveCombatUnits()) {
+            if (other == source || other.isDead() || other.isRemoved()) continue;
+            if (other.getTeam() == myTeam) continue; // cùng phe -> bỏ qua
+            if (other instanceof Miner) continue;
+            float dist = source.getPosition().dst2(other.getPosition());
+            // Chỉ chọn nếu trong tầm tấn công (dùng bình phương để so sánh)
+            float rangeSq = source.getAttackRange() * source.getAttackRange();
+            if (dist <= rangeSq && dist < minDist) {
                 minDist = dist;
-                closest = e;
+                nearest = other;
             }
         }
-        return closest;
+        return nearest;
     }
 }

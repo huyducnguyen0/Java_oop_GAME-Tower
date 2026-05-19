@@ -3,6 +3,7 @@ package com.hust.towerdefence.Model.Managers;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SnapshotArray;
 import com.hust.towerdefence.Model.Entities.BaseEntity;
+import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.Soldier;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.Miner;
 import com.hust.towerdefence.Model.Entities.Combat.Enemy.Enemy;
@@ -104,7 +105,7 @@ public class EntityManager {
     /**
      * Xóa entity từ tất cả danh sách
      */
-    private void removeFromAllLists(BaseEntity entity) {
+    public void removeFromAllLists(BaseEntity entity) {
         allEntities.removeValue(entity, true);
 
         if (entity instanceof Soldier) {
@@ -125,16 +126,10 @@ public class EntityManager {
     public SnapshotArray<Enemy> getEnemies() {
         return enemies;
     }
-
-    public SnapshotArray<GoldMine> getGoldMines() {
-        return goldMines;
-    }
-
     public SnapshotArray<BaseEntity> getAllEntities() {
         return allEntities;
     }
 
-    // ===================== QUERY METHODS =====================
 
     /**
      * Lấy tất cả Soldiers còn sống
@@ -166,63 +161,12 @@ public class EntityManager {
      * Lấy tất cả combat units (Soldiers + Enemies)
      * Dùng cho TargetingSystem
      */
-    public Array<BaseEntity> getAllCombatUnits() {
-        Array<BaseEntity> units = new Array<>();
-        units.addAll(soldiers);
-        units.addAll(enemies);
+    public Array<CombatEntity> getAllActiveCombatUnits() {
+        Array<CombatEntity> units = new Array<>();
+        units.addAll(getAliveSoldiers());
+        units.addAll(getAliveEnemies());
         return units;
     }
-
-    /**
-     * Tìm Enemy gần nhất với vị trí (x, y)
-     * @param maxRange Tầm tìm kiếm tối đa
-     * @return Enemy gần nhất, hoặc null nếu không tìm thấy
-     */
-    public Enemy getNearestEnemy(float x, float y, float maxRange) {
-        Enemy nearest = null;
-        float minDistSq = maxRange * maxRange;
-
-        for (Enemy e : enemies) {
-            if (e == null || e.getHealth() <= 0) continue;
-
-            float dx = e.getX() - x;
-            float dy = e.getY() - y;
-            float distSq = dx * dx + dy * dy;
-
-            if (distSq < minDistSq) {
-                minDistSq = distSq;
-                nearest = e;
-            }
-        }
-
-        return nearest;
-    }
-
-    /**
-     * Tìm Soldier gần nhất với vị trí (x, y)
-     * @param maxRange Tầm tìm kiếm tối đa
-     * @return Soldier gần nhất, hoặc null nếu không tìm thấy
-     */
-    public Soldier getNearestSoldier(float x, float y, float maxRange) {
-        Soldier nearest = null;
-        float minDistSq = maxRange * maxRange;
-
-        for (Soldier s : soldiers) {
-            if (s == null || s.getHealth() <= 0) continue;
-
-            float dx = s.getX() - x;
-            float dy = s.getY() - y;
-            float distSq = dx * dx + dy * dy;
-
-            if (distSq < minDistSq) {
-                minDistSq = distSq;
-                nearest = s;
-            }
-        }
-
-        return nearest;
-    }
-
     /**
      * Lấy tất cả Miners
      */
@@ -250,13 +194,6 @@ public class EntityManager {
     }
 
     /**
-     * Đếm tổng số entities
-     */
-    public int getTotalEntityCount() {
-        return allEntities.size;
-    }
-
-    /**
      * Đếm số Soldiers còn sống
      */
     public int getAliveSoldierCount() {
@@ -276,5 +213,16 @@ public class EntityManager {
             if (e != null && e.getHealth() > 0) count++;
         }
         return count;
+    }
+    public <T extends BaseEntity> T getEntityById(long id, Class<T> type) {
+        for (BaseEntity e : allEntities) { // allEntities là danh sách quản lý
+            if (e.getId() == id && !e.isRemoved() && type.isInstance(e)) {
+                return type.cast(e);
+            }
+        }
+        return null;
+    }
+
+    public void clear() {
     }
 }
