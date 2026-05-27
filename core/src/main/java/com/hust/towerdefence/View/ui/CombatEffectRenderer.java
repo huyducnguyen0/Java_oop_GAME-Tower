@@ -17,7 +17,10 @@ public class CombatEffectRenderer {
     private static final String PLAYER_HEAL = "Units/Monk/Heal_Effect.png";
     private static final String ENEMY_HEAL = "EnemyUnits/Monk/Heal_Effect.png";
 
-    private static final float PROJECTILE_DURATION = 0.22f;
+    private static final float ARROW_SPEED = 720f;
+    private static final float DYNAMITE_SPEED = 420f;
+    private static final float MIN_PROJECTILE_DURATION = 0.16f;
+    private static final float MAX_PROJECTILE_DURATION = 0.55f;
     private static final float HEAL_DURATION = 0.55f;
 
     private final SpriteBatch batch;
@@ -123,6 +126,7 @@ public class CombatEffectRenderer {
         private final BaseEntity.Team team;
         private final Vector2 start;
         private final Vector2 end;
+        private final float duration;
         private float time;
 
         private ActiveEffect(CombatVisualEvent event) {
@@ -130,18 +134,23 @@ public class CombatEffectRenderer {
             team = event.getTeam();
             start = event.getStart();
             end = event.getEnd();
+            duration = computeDuration();
         }
 
-        private float duration() {
-            return type == CombatVisualEvent.Type.HEAL ? HEAL_DURATION : PROJECTILE_DURATION;
+        private float computeDuration() {
+            if (type == CombatVisualEvent.Type.HEAL) {
+                return HEAL_DURATION;
+            }
+            float speed = type == CombatVisualEvent.Type.DYNAMITE ? DYNAMITE_SPEED : ARROW_SPEED;
+            return MathUtils.clamp(start.dst(end) / speed, MIN_PROJECTILE_DURATION, MAX_PROJECTILE_DURATION);
         }
 
         private float progress() {
-            return Math.min(1f, time / duration());
+            return Math.min(1f, time / duration);
         }
 
         private boolean isFinished() {
-            return time >= duration();
+            return time >= duration;
         }
     }
 }

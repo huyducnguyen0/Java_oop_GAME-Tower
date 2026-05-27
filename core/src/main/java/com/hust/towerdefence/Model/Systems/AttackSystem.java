@@ -6,12 +6,17 @@ import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 import com.hust.towerdefence.Model.Entities.Combat.Enemy.TNT;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.Archer;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.Healer;
+import com.hust.towerdefence.Model.Entities.Tower.BaseTower;
 import com.hust.towerdefence.Model.Entities.Tower.DefenseTower;
 import com.hust.towerdefence.Model.Managers.EntityManager;
 
 public class AttackSystem {
     private static final float TILE_RANGE_SCALE = 64f;
     private static final float TILE_RANGE_THRESHOLD = 10f;
+    private static final float ARCHER_PROJECTILE_Y_OFFSET = 42f;
+    private static final float ARCHER_PROJECTILE_FORWARD_OFFSET = 16f;
+    private static final float TNT_PROJECTILE_Y_OFFSET = 34f;
+    private static final float TNT_PROJECTILE_FORWARD_OFFSET = 12f;
 
     private final EntityManager entityManager;
     private final HealthSystem healthSystem;
@@ -49,7 +54,7 @@ public class AttackSystem {
                 continue;
             }
 
-            float dist = attacker.getPosition().dst(target.getPosition());
+            float dist = attackDistance(attacker, target);
             if (dist > effectiveRange(attacker)) continue;
 
             if (healing) {
@@ -81,7 +86,7 @@ public class AttackSystem {
     }
 
     private void addVisualEvent(CombatEntity source, CombatEntity target, CombatVisualEvent.Type type) {
-        visualEvents.add(new CombatVisualEvent(type, source.getTeam(), getVisualStart(source), target.getPosition()));
+        visualEvents.add(new CombatVisualEvent(type, source.getTeam(), getVisualStart(source), getVisualEnd(source, target)));
     }
 
     private Vector2 getVisualStart(CombatEntity source) {
@@ -93,11 +98,49 @@ public class AttackSystem {
                 source.getY() - source.getHeight() / 2f + towerHeight * 0.58f + 42f
             );
         }
+        if (source instanceof Archer) {
+            return new Vector2(
+                source.getX() + source.getFacing().x * ARCHER_PROJECTILE_FORWARD_OFFSET,
+                source.getY() + ARCHER_PROJECTILE_Y_OFFSET
+            );
+        }
+        if (source instanceof TNT) {
+            return new Vector2(
+                source.getX() + source.getFacing().x * TNT_PROJECTILE_FORWARD_OFFSET,
+                source.getY() + TNT_PROJECTILE_Y_OFFSET
+            );
+        }
         return source.getPosition();
+    }
+
+    private Vector2 getVisualEnd(CombatEntity source, CombatEntity target) {
+        if (target instanceof BaseTower) {
+            return closestAttackPoint(source, target);
+        }
+        return target.getPosition();
     }
 
     private float effectiveRange(CombatEntity entity) {
         float rawRange = entity.getAttackRange();
         return rawRange <= TILE_RANGE_THRESHOLD ? rawRange * TILE_RANGE_SCALE : rawRange;
+    }
+
+    private float attackDistance(CombatEntity source, CombatEntity target) {
+        if (target instanceof BaseTower) {
+            return source.getPosition().dst(closestAttackPoint(source, target));
+        }
+        return source.getPosition().dst(target.getPosition());
+    }
+
+    private Vector2 closestAttackPoint(CombatEntity source, CombatEntity target) {
+        float halfWidth = target.getWidth() / 2f;
+        float halfHeight = target.getHeight() / 2f;
+        float minX = target.getX() - halfWidth;
+        float maxX = target.getX() + halfWidth;
+        float minY = target.getY() - halfHeight;
+        float maxY = target.getY() + halfHeight;
+        float closestX = Math.max(minX, Math.min(source.getX(), maxX));
+        float closestY = Math.max(minY, Math.min(source.getY(), maxY));
+        return new Vector2(closestX, closestY);
     }
 }

@@ -26,6 +26,7 @@ import com.hust.towerdefence.Model.Entities.Tower.BaseTower;
 public class UnitRenderer {
     private static final float UNIT_VISUAL_HEIGHT = 64f;
     private static final float FRAME_DURATION = 0.11f;
+    private static final float LANCER_REFERENCE_SOURCE_HEIGHT = 78f;
 
     private final SpriteBatch batch;
     private final ObjectMap<String, Clip> clips;
@@ -55,8 +56,16 @@ public class UnitRenderer {
         if (clip == null) return;
 
         TextureRegion frame = clip.getFrame(stateTime);
-        float height = UNIT_VISUAL_HEIGHT * heightMultiplier(entity);
-        float width = height * frame.getRegionWidth() / frame.getRegionHeight();
+        float height;
+        float width;
+        if (entity instanceof Lancer) {
+            float scale = UNIT_VISUAL_HEIGHT / LANCER_REFERENCE_SOURCE_HEIGHT;
+            width = frame.getRegionWidth() * scale;
+            height = frame.getRegionHeight() * scale;
+        } else {
+            height = UNIT_VISUAL_HEIGHT * heightMultiplier(entity);
+            width = height * frame.getRegionWidth() / frame.getRegionHeight();
+        }
         float x = entity.getX() - width / 2f;
         float y = entity.getY() - height * 0.18f;
 
@@ -94,7 +103,7 @@ public class UnitRenderer {
             return get(teamPrefix, "monk_idle");
         }
         if (entity instanceof Lancer) {
-            if (state == CombatEntity.State.ATTACKING) return get(teamPrefix, "lancer_attack");
+            if (state == CombatEntity.State.ATTACKING) return get(teamPrefix, lancerAttackClip(entity));
             if (state == CombatEntity.State.MOVING) return get(teamPrefix, "lancer_run");
             return get(teamPrefix, "lancer_idle");
         }
@@ -116,7 +125,22 @@ public class UnitRenderer {
     }
 
     private boolean shouldFaceLeft(CombatEntity entity) {
-        return entity.getTeam() == BaseEntity.Team.SOLDIER;
+        return entity.getFacing().x < -0.05f;
+    }
+
+    private String lancerAttackClip(CombatEntity entity) {
+        float x = entity.getFacing().x;
+        float y = entity.getFacing().y;
+        float absX = Math.abs(x);
+        float absY = Math.abs(y);
+
+        if (absY > absX * 1.4f) {
+            return y >= 0f ? "lancer_attack_up" : "lancer_attack_down";
+        }
+        if (absY > absX * 0.45f) {
+            return y >= 0f ? "lancer_attack_up_right" : "lancer_attack_down_right";
+        }
+        return "lancer_attack_right";
     }
 
     private float heightMultiplier(CombatEntity entity) {
@@ -147,7 +171,11 @@ public class UnitRenderer {
 
         put(prefix + "_lancer_idle", root + "/Lancer/Lancer_Idle.png", 320, 320);
         put(prefix + "_lancer_run", root + "/Lancer/Lancer_Run.png", 320, 320);
-        put(prefix + "_lancer_attack", root + "/Lancer/Lancer_Right_Attack.png", 320, 320);
+        put(prefix + "_lancer_attack_right", root + "/Lancer/Lancer_Right_Attack.png", 320, 320);
+        put(prefix + "_lancer_attack_up", root + "/Lancer/Lancer_Up_Attack.png", 320, 320);
+        put(prefix + "_lancer_attack_down", root + "/Lancer/Lancer_Down_Attack.png", 320, 320);
+        put(prefix + "_lancer_attack_up_right", root + "/Lancer/Lancer_UpRight_Attack.png", 320, 320);
+        put(prefix + "_lancer_attack_down_right", root + "/Lancer/Lancer_DownRight_Attack.png", 320, 320);
 
         put(prefix + "_miner_idle", root + "/Pawn/Pawn_Idle Pickaxe.png", 192, 192);
         put(prefix + "_miner_run", root + "/Pawn/Pawn_Run Pickaxe.png", 192, 192);

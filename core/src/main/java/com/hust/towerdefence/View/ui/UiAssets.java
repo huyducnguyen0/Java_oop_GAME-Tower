@@ -14,42 +14,85 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
  */
 public class UiAssets {
     private static final String HUD_BAR_BACKGROUND = "UI/Banners/Carved_3Slides.png";
-    private static final String BUTTON_UP = "UI/Buttons/Button_Hover_3Slides.png";
-    private static final String BUTTON_DOWN = "UI/Buttons/Button_Disable_3Slides.png";
-    private static final Color INK = new Color(0.18f, 0.10f, 0.05f, 1f);
+    private static final String PANEL_BACKGROUND = "UI/Banners/Carved_3Slides.png";
+    private static final String BUTTON_BLUE = "UI/Buttons/Button_Blue_3Slides.png";
+    private static final String BUTTON_BLUE_DOWN = "UI/Buttons/Button_Blue_3Slides_Pressed.png";
+    private static final String BUTTON_RED = "UI/Buttons/Button_Red_3Slides.png";
+    private static final String BUTTON_RED_DOWN = "UI/Buttons/Button_Red_3Slides_Pressed.png";
+    private static final String BUTTON_DISABLED = "UI/Buttons/Button_Disable_3Slides.png";
+    private static final Color INK = new Color(0.17f, 0.09f, 0.04f, 1f);
+    private static final Color TITLE = new Color(0.10f, 0.05f, 0.02f, 1f);
+    private static final Color MUTED = new Color(0.42f, 0.29f, 0.18f, 1f);
+    private static final Color WARNING = new Color(0.65f, 0.12f, 0.08f, 1f);
 
     private final Texture hudBarTexture;
-    private final Texture buttonUpTexture;
-    private final Texture buttonDownTexture;
+    private final Texture panelTexture;
+    private final Texture buttonBlueTexture;
+    private final Texture buttonBlueDownTexture;
+    private final Texture buttonRedTexture;
+    private final Texture buttonRedDownTexture;
+    private final Texture buttonDisabledTexture;
     private final BitmapFont font;
     private final NinePatchDrawable hudBarDrawable;
+    private final NinePatchDrawable panelDrawable;
     private final Label.LabelStyle defaultLabelStyle;
-    private final TextButton.TextButtonStyle pauseButtonStyle;
+    private final Label.LabelStyle titleLabelStyle;
+    private final Label.LabelStyle mutedLabelStyle;
+    private final Label.LabelStyle warningLabelStyle;
+    private final TextButton.TextButtonStyle primaryButtonStyle;
+    private final TextButton.TextButtonStyle redButtonStyle;
 
     public UiAssets() {
         hudBarTexture = new Texture(HUD_BAR_BACKGROUND);
-        buttonUpTexture = new Texture(BUTTON_UP);
-        buttonDownTexture = new Texture(BUTTON_DOWN);
+        panelTexture = new Texture(PANEL_BACKGROUND);
+        buttonBlueTexture = new Texture(BUTTON_BLUE);
+        buttonBlueDownTexture = new Texture(BUTTON_BLUE_DOWN);
+        buttonRedTexture = new Texture(BUTTON_RED);
+        buttonRedDownTexture = new Texture(BUTTON_RED_DOWN);
+        buttonDisabledTexture = new Texture(BUTTON_DISABLED);
 
         hudBarTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        buttonUpTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-        buttonDownTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        panelTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        buttonBlueTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        buttonBlueDownTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        buttonRedTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        buttonRedDownTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        buttonDisabledTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
         font = new BitmapFont();
         font.setColor(INK);
-        font.getData().setScale(1.12f);
+        font.getData().setScale(1.05f);
 
-        hudBarDrawable = new NinePatchDrawable(new NinePatch(hudBarTexture, 64, 64, 0, 0));
+        hudBarDrawable = horizontalDrawable(hudBarTexture);
+        panelDrawable = horizontalDrawable(panelTexture);
         defaultLabelStyle = new Label.LabelStyle(font, INK);
-        pauseButtonStyle = new TextButton.TextButtonStyle(
-            new NinePatchDrawable(new NinePatch(buttonUpTexture, 64, 64, 0, 0)),
-            new NinePatchDrawable(new NinePatch(buttonDownTexture, 64, 64, 0, 0)),
-            new NinePatchDrawable(new NinePatch(buttonDownTexture, 64, 64, 0, 0)),
+        titleLabelStyle = new Label.LabelStyle(font, TITLE);
+        mutedLabelStyle = new Label.LabelStyle(font, MUTED);
+        warningLabelStyle = new Label.LabelStyle(font, WARNING);
+        primaryButtonStyle = createButtonStyle(buttonBlueTexture, buttonBlueDownTexture);
+        redButtonStyle = createButtonStyle(buttonRedTexture, buttonRedDownTexture);
+    }
+
+    private TextButton.TextButtonStyle createButtonStyle(Texture up, Texture down) {
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle(
+            horizontalDrawable(up),
+            horizontalDrawable(down),
+            horizontalDrawable(buttonDisabledTexture),
             font
         );
-        pauseButtonStyle.fontColor = INK;
-        pauseButtonStyle.downFontColor = Color.WHITE;
-        pauseButtonStyle.checkedFontColor = Color.WHITE;
+        style.disabled = horizontalDrawable(buttonDisabledTexture);
+        style.fontColor = TITLE;
+        style.downFontColor = Color.WHITE;
+        style.checkedFontColor = Color.WHITE;
+        style.disabledFontColor = MUTED;
+        return style;
+    }
+
+    private NinePatchDrawable horizontalDrawable(Texture texture) {
+        NinePatchDrawable drawable = new NinePatchDrawable(new NinePatch(texture, 64, 64, 0, 0));
+        drawable.setMinWidth(0f);
+        drawable.setMinHeight(0f);
+        return drawable;
     }
 
     public NinePatchDrawable getHudBarDrawable() {
@@ -57,21 +100,41 @@ public class UiAssets {
     }
 
     public NinePatchDrawable getPanelDrawable() {
-        return hudBarDrawable;
+        return panelDrawable;
     }
 
     public Label.LabelStyle getDefaultLabelStyle() {
         return defaultLabelStyle;
     }
 
+    public Label.LabelStyle getTitleLabelStyle() {
+        return titleLabelStyle;
+    }
+
+    public Label.LabelStyle getMutedLabelStyle() {
+        return mutedLabelStyle;
+    }
+
+    public Label.LabelStyle getWarningLabelStyle() {
+        return warningLabelStyle;
+    }
+
     public TextButton.TextButtonStyle getPauseButtonStyle() {
-        return pauseButtonStyle;
+        return redButtonStyle;
+    }
+
+    public TextButton.TextButtonStyle getPrimaryButtonStyle() {
+        return primaryButtonStyle;
     }
 
     public void dispose() {
         hudBarTexture.dispose();
-        buttonUpTexture.dispose();
-        buttonDownTexture.dispose();
+        panelTexture.dispose();
+        buttonBlueTexture.dispose();
+        buttonBlueDownTexture.dispose();
+        buttonRedTexture.dispose();
+        buttonRedDownTexture.dispose();
+        buttonDisabledTexture.dispose();
         font.dispose();
     }
 }

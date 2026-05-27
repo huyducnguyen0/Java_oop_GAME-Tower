@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.hust.towerdefence.Model.GameWorld;
 import com.hust.towerdefence.Model.Managers.BuildingZone;
@@ -16,11 +17,11 @@ import com.hust.towerdefence.Model.Managers.BuildingZone;
  * It reads game state for presentation and does not own gameplay logic.
  */
 public class GameHud {
-    private static final float HUD_WIDTH_RATIO = 0.32f;
-    private static final float HUD_MIN_WIDTH = 360f;
-    private static final float HUD_MAX_WIDTH = 500f;
-    private static final float HUD_HEIGHT = 52f;
-    private static final float HUD_TOP_MARGIN = 10f;
+    private static final float HUD_WIDTH_RATIO = 0.34f;
+    private static final float HUD_MIN_WIDTH = 390f;
+    private static final float HUD_MAX_WIDTH = 520f;
+    private static final float HUD_HEIGHT = 50f;
+    private static final float HUD_TOP_MARGIN = 12f;
 
     private final GameWorld gameWorld;
     private final UiAssets assets;
@@ -43,7 +44,7 @@ public class GameHud {
 
         goldLabel = new Label("", assets.getDefaultLabelStyle());
         selectedBuildingLabel = new Label("", assets.getDefaultLabelStyle());
-        resultLabel = new Label("", assets.getDefaultLabelStyle());
+        resultLabel = new Label("", assets.getTitleLabelStyle());
         pauseButton = new TextButton("", assets.getPauseButtonStyle());
         purchasePanel = new PurchasePanel(stage, gameWorld, assets);
         towerInfoPanel = new TowerInfoPanel(stage, gameWorld, assets);
@@ -63,16 +64,22 @@ public class GameHud {
 
     private void buildLayout() {
         statusBar.setBackground(assets.getHudBarDrawable());
-        statusBar.defaults().padLeft(8).padRight(8).center();
+        statusBar.defaults().center();
+        statusBar.padLeft(18).padRight(18).padTop(6).padBottom(8);
 
-        statusBar.add(goldLabel).left().minWidth(112);
-        statusBar.add(selectedBuildingLabel).left().expandX().fillX().minWidth(92);
-        statusBar.add(pauseButton).width(72).height(30).padRight(10);
+        goldLabel.setAlignment(Align.left);
+        selectedBuildingLabel.setAlignment(Align.center);
+        pauseButton.getLabel().setAlignment(Align.center);
+
+        statusBar.add(goldLabel).left().minWidth(118).padRight(12);
+        statusBar.add(selectedBuildingLabel).center().expandX().fillX().minWidth(110);
+        statusBar.add(pauseButton).width(82).height(34).padLeft(12);
 
         stage.addActor(statusBar);
 
+        resultLabel.setAlignment(Align.center);
         resultOverlay.setBackground(assets.getPanelDrawable());
-        resultOverlay.add(resultLabel).center().pad(18);
+        resultOverlay.add(resultLabel).center().pad(24);
         resultOverlay.setVisible(false);
         stage.addActor(resultOverlay);
     }

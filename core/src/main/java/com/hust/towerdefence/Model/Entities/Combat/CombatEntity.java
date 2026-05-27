@@ -38,6 +38,7 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
     // ===== Movement =====
     protected Array<Vector2> path;
     protected int currentPathIndex;
+    protected final Vector2 facing;
 
 
     protected float speed; // Tốc độ di chuyển (world units/giây)
@@ -47,6 +48,7 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
         speed = 50f;
         this.path = new Array<>();
         this.currentPathIndex = 0;// Default speed
+        this.facing = new Vector2(1f, 0f);
 
     }
 
@@ -74,6 +76,7 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
 
 
         speed = 50f;
+        facing.set(1f, 0f);
     } // Đặt lại trạng thái để tái sử dụng từ pool
     public float getHealth() { return health; }
     public void setHealth(float health) {
@@ -139,6 +142,11 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
 
     public float getSpeed() { return speed; }
     public void setSpeed(float speed) { this.speed = speed; }
+    public Vector2 getFacing() { return facing; }
+    public void setFacing(float x, float y) {
+        if (Math.abs(x) < 0.001f && Math.abs(y) < 0.001f) return;
+        facing.set(x, y).nor();
+    }
 
     // ===== State Management =====
     public State getCurrentState() { return currentState; }

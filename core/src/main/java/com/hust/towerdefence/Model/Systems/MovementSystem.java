@@ -69,7 +69,7 @@ public class MovementSystem {
     private void updateTower(BaseTower tower) {
         long targetId = tower.getTargetId();
         CombatEntity target = targetId != -1 ? entityManager.getEntityById(targetId, CombatEntity.class) : null;
-        if (target != null && !target.isDead() && tower.getPosition().dst(target.getPosition()) <= effectiveRange(tower)) {
+        if (target != null && !target.isDead() && attackDistance(tower, target) <= effectiveRange(tower)) {
             tower.setState(State.ATTACKING);
         } else {
             tower.setState(State.IDLE);
@@ -82,10 +82,13 @@ public class MovementSystem {
         long targetId = entity.getTargetId();
         CombatEntity target = targetId != -1 ? entityManager.getEntityById(targetId, CombatEntity.class) : null;
         boolean hasValidTarget = target != null && !target.isDead();
+        if (hasValidTarget) {
+            faceTowards(entity, closestAttackPoint(entity, target));
+        }
 
         State newState;
         if (hasValidTarget) {
-            float dist = entity.getPosition().dst(target.getPosition());
+            float dist = attackDistance(entity, target);
             if (dist <= effectiveRange(entity)) {
                 newState = entity instanceof Healer ? State.HEALING : State.ATTACKING;
             } else {
@@ -114,7 +117,7 @@ public class MovementSystem {
                 if (entity.getPath() != null && entity.getPath().size > 0) {
                     followPath(entity, delta);
                 } else if (hasValidTarget) {
-                    moveTowards(entity, target.getPosition(), delta);
+                    moveTowards(entity, target, delta);
                 }
                 break;
             case ATTACKING:
@@ -184,6 +187,7 @@ public class MovementSystem {
             entity.setCurrentPathIndex(index + 1);
         } else {
             Vector2 direction = targetWaypoint.cpy().sub(pos).nor();
+            entity.setFacing(direction.x, direction.y);
             float step = entity.getSpeed() * delta;
             if (step >= dist) {
                 pos.set(targetWaypoint);
@@ -202,13 +206,15 @@ public class MovementSystem {
         }
     }
 
-    private void moveTowards(CombatEntity entity, Vector2 targetPos, float delta) {
+    private void moveTowards(CombatEntity entity, CombatEntity target, float delta) {
+        Vector2 targetPos = closestAttackPoint(entity, target);
         Vector2 pos = entity.getPosition();
-        float distance = pos.dst(targetPos);
+        float distance = attackDistance(entity, target);
         float range = effectiveRange(entity);
         if (distance <= range) return;
 
         Vector2 direction = targetPos.cpy().sub(pos).nor();
+        entity.setFacing(direction.x, direction.y);
         float step = entity.getSpeed() * delta;
         float stopDistance = Math.max(0, distance - range);
         if (step > stopDistance) {
@@ -220,6 +226,35 @@ public class MovementSystem {
     private float effectiveRange(CombatEntity entity) {
         float rawRange = entity.getAttackRange();
         return rawRange <= TILE_RANGE_THRESHOLD ? rawRange * TILE_RANGE_SCALE : rawRange;
+    }
+
+    private float attackDistance(CombatEntity source, CombatEntity target) {
+        if (target instanceof BaseTower) {
+            return source.getPosition().dst(closestAttackPoint(source, target));
+        }
+        return source.getPosition().dst(target.getPosition());
+    }
+
+    private Vector2 closestAttackPoint(CombatEntity source, CombatEntity target) {
+        if (!(target instanceof BaseTower)) {
+            return target.getPosition();
+        }
+
+        float halfWidth = target.getWidth() / 2f;
+        float halfHeight = target.getHeight() / 2f;
+        float minX = target.getX() - halfWidth;
+        float maxX = target.getX() + halfWidth;
+        float minY = target.getY() - halfHeight;
+        float maxY = target.getY() + halfHeight;
+        float closestX = Math.max(minX, Math.min(source.getX(), maxX));
+        float closestY = Math.max(minY, Math.min(source.getY(), maxY));
+        return new Vector2(closestX, closestY);
+    }
+
+    private void faceTowards(CombatEntity entity, Vector2 targetPos) {
+        float dx = targetPos.x - entity.getX();
+        float dy = targetPos.y - entity.getY();
+        entity.setFacing(dx, dy);
     }
 
     private static class PausedPath {
