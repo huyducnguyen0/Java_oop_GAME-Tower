@@ -1,12 +1,14 @@
 package com.hust.towerdefence.Model;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.hust.towerdefence.Model.Entities.BaseEntity;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
 import com.hust.towerdefence.Model.Entities.Combat.Enemy.PawnHacHoa;
 import com.hust.towerdefence.Model.Entities.Combat.Enemy.TNT;
 import com.hust.towerdefence.Model.Entities.Combat.Enemy.WarriorHacHoa;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.*;
+import com.hust.towerdefence.Model.Entities.Tower.DefenseTower;
 import com.hust.towerdefence.Model.Entities.Tower.MainTower;
 import com.hust.towerdefence.Model.Managers.*;
 import com.hust.towerdefence.Model.Systems.*;
@@ -59,16 +61,32 @@ public class GameWorld {
     }
 
     private void createFixedEntities() {
-        // Lấy vị trí từ MapManager (đã khởi tạo)
         Vector2 mainTowerPos = mapManager.getPlayerCastlePosition();
         Vector2 enemyBasePos = mapManager.getEnemyBasePosition();
 
-        // Tạo MainTower người chơi
         mainTower = new MainTower(mainTowerPos, BaseEntity.Team.SOLDIER, 1000);
-
-        // Tạo nhà chính địch (dùng MainTower hoặc class riêng)
-        // nhà chính địch (có thể dùng class riêng)
         enemyTower = new MainTower(enemyBasePos, BaseEntity.Team.ENEMY, 5000);
+        applyTowerBounds(mainTower, mapManager.getPlayerMainTowerZone());
+        applyTowerBounds(enemyTower, mapManager.getEnemyMainTowerZone());
+        entityManager.addTower(mainTower);
+        entityManager.addTower(enemyTower);
+        createDefenseTowers(mapManager.getPlayerTowerZones(), BaseEntity.Team.SOLDIER);
+        createDefenseTowers(mapManager.getEnemyTowerZones(), BaseEntity.Team.ENEMY);
+    }
+
+    private void createDefenseTowers(Array<BuildingZone> zones, BaseEntity.Team team) {
+        for (BuildingZone zone : zones) {
+            DefenseTower tower = new DefenseTower(zone.getName(), zone.getCenter(), team);
+            applyTowerBounds(tower, zone);
+            entityManager.addTower(tower);
+        }
+    }
+
+    private void applyTowerBounds(com.hust.towerdefence.Model.Entities.Tower.BaseTower tower, BuildingZone zone) {
+        if (tower == null || zone == null) return;
+        com.badlogic.gdx.math.Rectangle bounds = zone.getBounds();
+        tower.setWidth(bounds.width);
+        tower.setHeight(bounds.height);
     }
 
     // ==================== VÒNG LẶP CHÍNH ====================
@@ -86,7 +104,7 @@ public class GameWorld {
     public void spawnPawn() {
         if (!economyManager.canBuyPawn()) return;
         economyManager.buyPawn();
-        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Vector2 homePos = mapManager.getPlayerCastleSpawnPosition();
         Pawn pawn = new Pawn();
         pawn.setPosition(homePos);
         pawn.setPath(mapManager.getWaypoints(pawn));
@@ -97,7 +115,7 @@ public class GameWorld {
     public void spawnMiner() {
         if (!economyManager.canBuyMiner()) return;
         economyManager.buyMiner();
-        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Vector2 homePos = mapManager.getPlayerCastleSpawnPosition();
         Miner miner = new Miner();
         // Miner luôn xuất phát từ nhà chính
         miner.setPosition(homePos);
@@ -110,7 +128,7 @@ public class GameWorld {
     public void spawnArcher() {
         if (!economyManager.canBuyArcher()) return;
         economyManager.buyArcher();
-        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Vector2 homePos = mapManager.getPlayerCastleSpawnPosition();
         Archer archer = new Archer();
         archer.setPosition(homePos);
         archer.setPath(mapManager.getWaypoints(archer));
@@ -120,15 +138,38 @@ public class GameWorld {
     public void spawnWarrior() {
         if (!economyManager.canBuyWarrior()) return;
         economyManager.buyWarrior();
-        Vector2 homePos = mapManager.getPlayerCastlePosition();
+        Vector2 homePos = mapManager.getPlayerCastleSpawnPosition();
         Warrior warrior = new Warrior();
         warrior.setPosition(homePos);
         warrior.setPath(mapManager.getWaypoints(warrior));
         warrior.setState(CombatEntity.State.MOVING);
         entityManager.addSoldier(warrior);
     }
+
+    public void spawnHealer() {
+        if (!economyManager.canBuyHealer()) return;
+        economyManager.buyHealer();
+        Vector2 homePos = mapManager.getPlayerCastleSpawnPosition();
+        Healer healer = new Healer();
+        healer.setPosition(homePos);
+        healer.setPath(mapManager.getWaypoints(healer));
+        healer.setState(CombatEntity.State.MOVING);
+        entityManager.addSoldier(healer);
+    }
+
+    public void spawnLancer() {
+        if (!economyManager.canBuyLancer()) return;
+        economyManager.buyLancer();
+        Vector2 homePos = mapManager.getPlayerCastleSpawnPosition();
+        Lancer lancer = new Lancer();
+        lancer.setPosition(homePos);
+        lancer.setPath(mapManager.getWaypoints(lancer));
+        lancer.setState(CombatEntity.State.MOVING);
+        entityManager.addSoldier(lancer);
+    }
+
     public void spawnTNT(){
-        Vector2 enemyPos = mapManager.getEnemyBasePosition();
+        Vector2 enemyPos = mapManager.getEnemyBaseSpawnPosition();
         TNT tnt = new TNT();
         tnt.setPosition(enemyPos);
         tnt.setPath(mapManager.getWaypoints(tnt));
@@ -136,7 +177,7 @@ public class GameWorld {
         entityManager.addEnemy(tnt);
     }
     public void spawnWarriorHacHoa(){
-        Vector2 enemyPos = mapManager.getEnemyBasePosition();
+        Vector2 enemyPos = mapManager.getEnemyBaseSpawnPosition();
         WarriorHacHoa warriorhachoa = new WarriorHacHoa();
         warriorhachoa.setPosition(enemyPos);
         warriorhachoa.setPath(mapManager.getWaypoints(warriorhachoa));
@@ -144,12 +185,27 @@ public class GameWorld {
         entityManager.addEnemy(warriorhachoa);
     }
     public void spawnPawnHacHoa(){
-        Vector2 enemyPos = mapManager.getEnemyBasePosition();
+        Vector2 enemyPos = mapManager.getEnemyBaseSpawnPosition();
         PawnHacHoa pawnHacHoa = new PawnHacHoa();
         pawnHacHoa.setPosition(enemyPos);
         pawnHacHoa.setPath(mapManager.getWaypoints(pawnHacHoa));
         pawnHacHoa.setState(CombatEntity.State.IDLE);
         entityManager.addEnemy(pawnHacHoa);
+    }
+
+    public DefenseTower getDefenseTower(String mapName) {
+        return entityManager.getDefenseTowerByMapName(mapName);
+    }
+
+    public boolean upgradeDefenseTower(String mapName) {
+        DefenseTower tower = getDefenseTower(mapName);
+        if (tower == null || tower.getTeam() != BaseEntity.Team.SOLDIER || !tower.canUpgrade()) return false;
+        if (!economyManager.spendGold(tower.getUpgradeCost())) return false;
+        return tower.upgrade();
+    }
+
+    public com.badlogic.gdx.utils.Array<CombatVisualEvent> consumeCombatVisualEvents() {
+        return attackSystem.consumeVisualEvents();
     }
 
 

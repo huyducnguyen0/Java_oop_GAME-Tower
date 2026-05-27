@@ -3,12 +3,18 @@ package com.hust.towerdefence.Model.Systems;
 import com.badlogic.gdx.utils.Array;
 import com.hust.towerdefence.Model.Entities.BaseEntity.Team;
 import com.hust.towerdefence.Model.Entities.Combat.CombatEntity;
+import com.hust.towerdefence.Model.Entities.Combat.Enemy.Enemy;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Healer;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.Miner;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Soldier;
+import com.hust.towerdefence.Model.Entities.Tower.BaseTower;
 import com.hust.towerdefence.Model.Managers.EntityManager;
 
-
 public class TargetingSystem {
-    private EntityManager entityManager;
+    private static final float TILE_RANGE_SCALE = 64f;
+    private static final float TILE_RANGE_THRESHOLD = 10f;
+
+    private final EntityManager entityManager;
 
     public TargetingSystem(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -17,32 +23,61 @@ public class TargetingSystem {
     public void update(float delta) {
         Array<CombatEntity> combatants = entityManager.getAllActiveCombatUnits();
         for (CombatEntity entity : combatants) {
-            // Bỏ qua nếu đã chết (active=false) hoặc removed
             if (entity.isDead() || entity.isRemoved() || entity instanceof Miner) continue;
-            long targetId = entity.getTargetId();
+
+            boolean healer = entity instanceof Healer;
             CombatEntity currentTarget = null;
-            if(targetId != -1){
+            long targetId = entity.getTargetId();
+            if (targetId != -1) {
                 currentTarget = entityManager.getEntityById(targetId, CombatEntity.class);
             }
-            // Kiểm tra mục tiêu hiện tại còn giá trị không
+
             if (currentTarget != null) {
-                if (currentTarget.isDead() || currentTarget.isRemoved() || currentTarget.getTeam() == entity.getTeam() || currentTarget instanceof Miner) {
+                if (isInvalidTarget(entity, currentTarget, healer)) {
                     entity.setTargetId(-1);
-                    currentTarget = null;
                 }
             } else if (targetId != -1) {
-                // ID không tìm thấy -> xóa target
                 entity.setTargetId(-1);
             }
 
-            // Nếu không có mục tiêu, tìm mới
             if (entity.getTargetId() == -1) {
-                CombatEntity newTarget = findNearestEnemy(entity);
+                CombatEntity newTarget = healer ? findNearestInjuredAlly(entity) : findNearestEnemy(entity);
                 if (newTarget != null) {
                     entity.setTargetId(newTarget.getId());
                 }
             }
         }
+    }
+
+    private boolean isInvalidTarget(CombatEntity source, CombatEntity target, boolean healer) {
+        if (target.isDead() || target.isRemoved()) return true;
+        if (healer) {
+            return target == source
+                || target.getTeam() != source.getTeam()
+                || target.getHealth() >= target.getMaxHealth();
+        }
+        if (source instanceof BaseTower && !(target instanceof Soldier || target instanceof Enemy)) return true;
+        return target.getTeam() == source.getTeam() || target instanceof Miner;
+    }
+
+    public CombatEntity findNearestInjuredAlly(CombatEntity source) {
+        Team myTeam = source.getTeam();
+        CombatEntity nearest = null;
+        float minDist = Float.MAX_VALUE;
+
+        for (CombatEntity other : entityManager.getAllActiveCombatUnits()) {
+            if (other == source || other.isDead() || other.isRemoved()) continue;
+            if (other.getTeam() != myTeam) continue;
+            if (other.getHealth() >= other.getMaxHealth()) continue;
+
+            float dist = source.getPosition().dst2(other.getPosition());
+            float rangeSq = effectiveRange(source) * effectiveRange(source);
+            if (dist <= rangeSq && dist < minDist) {
+                minDist = dist;
+                nearest = other;
+            }
+        }
+        return nearest;
     }
 
     public CombatEntity findNearestEnemy(CombatEntity source) {
@@ -52,16 +87,22 @@ public class TargetingSystem {
 
         for (CombatEntity other : entityManager.getAllActiveCombatUnits()) {
             if (other == source || other.isDead() || other.isRemoved()) continue;
-            if (other.getTeam() == myTeam) continue; // cùng phe -> bỏ qua
+            if (other.getTeam() == myTeam) continue;
             if (other instanceof Miner) continue;
+            if (source instanceof BaseTower && !(other instanceof Soldier || other instanceof Enemy)) continue;
+
             float dist = source.getPosition().dst2(other.getPosition());
-            // Chỉ chọn nếu trong tầm tấn công (dùng bình phương để so sánh)
-            float rangeSq = source.getAttackRange() * source.getAttackRange();
+            float rangeSq = effectiveRange(source) * effectiveRange(source);
             if (dist <= rangeSq && dist < minDist) {
                 minDist = dist;
                 nearest = other;
             }
         }
         return nearest;
+    }
+
+    private float effectiveRange(CombatEntity entity) {
+        float rawRange = entity.getAttackRange();
+        return rawRange <= TILE_RANGE_THRESHOLD ? rawRange * TILE_RANGE_SCALE : rawRange;
     }
 }

@@ -195,7 +195,7 @@ public class AIController {
     private void executeDecision(SpawnDecision decision) {
         if (!decision.shouldSpawn()) return;
 
-        Vector2 castleEnemy = mapManager.getEnemyBasePosition();
+        Vector2 castleEnemy = mapManager.getEnemyBaseSpawnPosition();
         if (castleEnemy == null) {
             System.err.println("Enemy base position not found!");
             castleEnemy = new Vector2(100, 100);

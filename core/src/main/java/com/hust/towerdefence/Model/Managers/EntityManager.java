@@ -9,6 +9,8 @@ import com.hust.towerdefence.Model.Entities.Combat.Soldier.Miner;
 import com.hust.towerdefence.Model.Entities.Combat.Enemy.Enemy;
 
 import com.hust.towerdefence.Model.Entities.Projectile.Projectile;
+import com.hust.towerdefence.Model.Entities.Tower.BaseTower;
+import com.hust.towerdefence.Model.Entities.Tower.DefenseTower;
 import com.hust.towerdefence.Model.Entities.Tower.GoldMine;
 
 /**
@@ -26,6 +28,7 @@ public class EntityManager {
     private final SnapshotArray<Projectile> projectiles;  // Tất cả đạn (nếu có)
 
 
+    private final SnapshotArray<BaseTower> towers;
     private final SnapshotArray<BaseEntity> allEntities;
 
     // ===== Hàng đợi xóa =====
@@ -39,6 +42,7 @@ public class EntityManager {
         soldiers = new SnapshotArray<>();
         enemies = new SnapshotArray<>();
         goldMines = new SnapshotArray<>();
+        towers = new SnapshotArray<>();
         allEntities = new SnapshotArray<>();
         pendingRemovals = new Array<>();
     }
@@ -79,6 +83,13 @@ public class EntityManager {
         allEntities.add(p);
     }
 
+    public void addTower(BaseTower tower) {
+        if (tower != null) {
+            towers.add(tower);
+            allEntities.add(tower);
+        }
+    }
+
     // ===================== REMOVE METHODS =====================
 
     /**
@@ -114,7 +125,11 @@ public class EntityManager {
             enemies.removeValue((Enemy) entity, true);
         } else if (entity instanceof GoldMine) {
             goldMines.removeValue((GoldMine) entity, true);
-        }else if (entity instanceof Projectile) projectiles.removeValue((Projectile) entity, true);
+        } else if (entity instanceof Projectile) {
+            projectiles.removeValue((Projectile) entity, true);
+        } else if (entity instanceof BaseTower) {
+            towers.removeValue((BaseTower) entity, true);
+        }
     }
 
     // ===================== BASIC GETTERS =====================
@@ -128,6 +143,23 @@ public class EntityManager {
     }
     public SnapshotArray<BaseEntity> getAllEntities() {
         return allEntities;
+    }
+
+    public SnapshotArray<BaseTower> getTowers() {
+        return towers;
+    }
+
+    public DefenseTower getDefenseTowerByMapName(String mapName) {
+        if (mapName == null) return null;
+        for (BaseTower tower : towers) {
+            if (tower instanceof DefenseTower) {
+                DefenseTower defenseTower = (DefenseTower) tower;
+                if (mapName.equals(defenseTower.getMapName()) && !defenseTower.isRemoved()) {
+                    return defenseTower;
+                }
+            }
+        }
+        return null;
     }
 
 
@@ -157,6 +189,19 @@ public class EntityManager {
         return alive;
     }
 
+    public Array<DefenseTower> getAliveDefenseTowers() {
+        Array<DefenseTower> alive = new Array<>();
+        for (BaseTower tower : towers) {
+            if (tower instanceof DefenseTower) {
+                DefenseTower defenseTower = (DefenseTower) tower;
+                if (defenseTower.getHealth() > 0 && !defenseTower.isRemoved() && !defenseTower.isDestroying()) {
+                    alive.add(defenseTower);
+                }
+            }
+        }
+        return alive;
+    }
+
     /**
      * Lấy tất cả combat units (Soldiers + Enemies)
      * Dùng cho TargetingSystem
@@ -165,6 +210,7 @@ public class EntityManager {
         Array<CombatEntity> units = new Array<>();
         units.addAll(getAliveSoldiers());
         units.addAll(getAliveEnemies());
+        units.addAll(getAliveDefenseTowers());
         return units;
     }
     /**
@@ -189,6 +235,7 @@ public class EntityManager {
         soldiers.clear();
         enemies.clear();
         goldMines.clear();
+        towers.clear();
         allEntities.clear();
         pendingRemovals.clear();
     }
@@ -224,5 +271,6 @@ public class EntityManager {
     }
 
     public void clear() {
+        clearAll();
     }
 }
