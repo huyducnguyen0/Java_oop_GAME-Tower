@@ -52,15 +52,19 @@ Ngay cap nhat: 2026-05-27
 ### 2.3 Systems (dang dung)
 
 - `MovementSystem`: path follow, dung lai khi co target trong range, healer dung de heal, miner mining loop.
+  - Unit co target tower se tinh khoang cach den mep bounds tower, khong tinh den tam tower.
+  - Unit luu facing vector khi di path/duoi target/de attack; renderer doc facing de flip.
 - `TargetingSystem`:
   - Healer tim ally bi thuong trong range.
-  - Unit thuong tim enemy trong range.
+  - Unit thuong uu tien DefenseTower dich trong vung can thiep truoc unit/main tower.
+  - Tower priority detection dung `TOWER_PRIORITY_RADIUS` va khoang cach toi mep tower, nen melee cung dung lai danh tower ngoai.
   - Tower phu (DefenseTower) chi target soldier/enemy (khong target tower khac).
   - Range scale: neu `attackRange <= 10` thi coi la tile unit va nhan `*64`, nguoc lai coi la px world.
 - `AttackSystem`:
   - Ap dung damage/heal theo state.
   - Tao `CombatVisualEvent` de View render projectile/effect.
-  - Projectile start cua DefenseTower duoc offset len cho giong ban tu vi tri archer tren thap.
+  - Projectile start offset theo class: Archer/TNT/DefenseTower khong con bay tu chan.
+  - Projectile target tower bay den mep tower gan attacker, khong bay vao tam tower.
 - `HealthSystem`:
   - Giam mau, death handling:
     - MainTower player => GAME_OVER
@@ -125,8 +129,10 @@ Renderer: `core/src/main/java/com/hust/towerdefence/View/ui/DefenseTowerRenderer
 - Player tower: `assets/Buildings/Tower.png`
 - Enemy tower: `assets/EnemyBuildings/Wood_Tower/Tower.png`
 - Archer tren tower (visual):
-  - Player: `assets/Units/Archer/Archer_Idle.png` (crop 1 frame)
-  - Enemy: `assets/EnemyUnits/Archer/Archer_Idle.png` (crop 1 frame)
+  - Player: `assets/Units/Archer/Archer_Idle.png` va `Archer_Shoot.png`
+  - Enemy: `assets/EnemyUnits/Archer/Archer_Idle.png` va `Archer_Shoot.png`
+  - Chon idle/shoot theo state tower.
+  - Huong archer tren tower: 2 tower cung phe quay mat vao nhau theo vi tri X.
 - Destroy effect:
   - `assets/Destroyed_Effect/Explosion_02.png` (10 frames, 192x192/frame)
 - Archer tren tower scale = unit visual height 64px (de dong bo voi unit renderer sau nay).
@@ -140,12 +146,13 @@ Renderer: `core/src/main/java/com/hust/towerdefence/View/ui/UnitRenderer.java`
   - Archer: Idle/Run/Shoot
   - Warrior: Idle/Run/Attack1
   - Monk(Healer): Idle/Run/Heal
-  - Lancer: Idle/Run/Right_Attack
+  - Lancer: Idle/Run + attack theo huong (`Right`, `Up`, `Down`, `UpRight`, `DownRight`; huong trai flip tu asset right)
   - Miner: su dung Pawn sheet Pickaxe + Run Gold khi returning
   - Pawn/PawnHacHoa: dung Knife sheet (Idle/Run/Interact)
   - TNT: dung `EnemyUnits/TNT/Red/TNT_Red.png`
 - Auto-crop padding theo alpha bbox cua frame dau (giam vu de "frame 192 co nhieu khoang trong").
-- Flip left/right hien tai: `SOLDIER` flipX de nhin ve phia enemy (tam thoi).
+- Flip left/right hien tai doc `CombatEntity.facing`, khong flip theo team nua.
+- Lancer co scale rieng (`LANCER_REFERENCE_SOURCE_HEIGHT`) de tranh nho qua khi idle/run va khong phong to khi attack.
 
 ### 4.5 Combat effects (projectile/effect)
 
@@ -155,6 +162,7 @@ Renderer: `core/src/main/java/com/hust/towerdefence/View/ui/UnitRenderer.java`
   - Arrow: `Units/Archer/Arrow.png` + `EnemyUnits/Archer/Arrow.png`
   - Dynamite: `EnemyUnits/TNT/Dynamite/Dynamite.png`
   - Heal: `Units/Monk/Heal_Effect.png` + `EnemyUnits/Monk/Heal_Effect.png`
+  - Arrow/dynamite duration tinh theo distance + clamp min/max, khong con constant duy nhat.
 
 ---
 
@@ -166,11 +174,14 @@ File: `core/src/main/java/com/hust/towerdefence/View/ui/GameHud.java`
 - HUD bar nho, top-center, screen-space.
 - Hien: Player Gold + Selected zone name + Pause/Play.
 - Overlay: `GAME OVER` / `VICTORY` centered khi ket thuc.
+- Dang dung `UiAssets` de load UI assets tu `assets/UI`.
 
 ### 5.2 Purchase panel (click building)
 
 File: `core/src/main/java/com/hust/towerdefence/View/ui/PurchasePanel.java`
 - Click vao zone mua (barrack/archery/monastery/house1/house2) => panel gan building.
+- Panel duoc clamp trong man hinh.
+- Dang dung asset UI 3Slides cho panel/button. Luu y: da tung dung nham `*_9Slides` lam UI bi phong to xau; hien tai nen giu 3Slides cho panel nho.
 - Mapping:
   - barrack -> Warrior
   - archery -> Archer
@@ -184,6 +195,7 @@ File: `core/src/main/java/com/hust/towerdefence/View/ui/TowerInfoPanel.java`
 - Click tower1/tower2 => hien HP/DMG/RNG/Level + nut Upgrade (neu du vang).
 - Click enemytower1/enemytower2 => hien info (khong upgrade).
 - Upgrade logic o `GameWorld.upgradeDefenseTower(mapName)` su dung `EconomyManager.spendGold`.
+- Panel duoc clamp trong man hinh va dung chung button style voi purchase panel.
 
 ### 5.4 Click handling
 
@@ -226,20 +238,18 @@ File: `core/src/main/java/com/hust/towerdefence/Model/AI/AIController.java`
 Da lam:
 - Main castles: position tu map object + HP + gameover/victory + render sprite.
 - Defense towers: spawn tu map object, tu ban, target/attack, HP bar, destroy explosion -> remove.
+- Unit tower priority: unit uu tien DefenseTower dich trong vung can thiep, melee tinh range toi mep tower.
 - Tower upgrade UI + economy.
-- Unit sprites: co animation co ban theo state.
-- Combat visual: arrow/dynamite/heal effect.
+- Unit sprites: co animation co ban theo state, facing theo vector move/target, Lancer attack directional.
+- Combat visual: arrow/dynamite/heal effect, projectile start offset va duration theo distance.
 - Unit HP bar (chi hien khi mat mau).
-- HUD top-center + purchase panel + tower info panel.
+- HUD top-center + purchase panel + tower info panel, da polish bang `assets/UI` 3Slides.
 
 Chua lam / con thieu (uu tien):
 - Projectile logic "that" (hit timing, projectile va cham): hien tai chi la visual event.
-- Chuan huong (4 huong) va animation directional cho lancer (dang dung `Right_Attack` cho moi huong).
-- Chuan hoa flip direction theo vector move/target thay vi flip theo team.
 - Remove/disable spawn debug Pawn (hotkey P) neu muon bo Pawn khoi gameplay chinh.
-- Tower priority rule "danh tower gan nhat truoc main tower": chua fix xong; unit van co the chay thang toi main tower trong mot so case.
-- UI polish (visual quality) cho purchase/tower panels (dang dung shared panel drawable).
-- Projectile/attack effects cho archer/tower co animation shoot timing (sync voi frame).
+- UI polish can review lai truc tiep: hien da sua loi 9Slides, nhung visual final can user duyet them.
+- Projectile/attack effects cho archer/tower chua sync frame tan cong that su; hien tai spawn theo cooldown damage.
 - TNT explosion damage AOE (neu muon), hien tai TNT damage la direct.
 
 ---

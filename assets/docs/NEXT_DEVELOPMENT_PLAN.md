@@ -19,9 +19,112 @@ Thu tu doc cho chat moi:
 
 ---
 
-## 2) Issue uu tien cao nhat
+## 2) Trang thai phase hien tai
 
-### Phase A - Fix tower target priority
+Da hoan thanh:
+- Phase A - Tower target priority:
+  - Unit uu tien DefenseTower dich trong vung can thiep.
+  - Melee tinh khoang cach toi mep tower nen khong bo qua tower ngoai vi target center qua xa.
+  - DefenseTower van chi target unit, khong target tower.
+- Phase B - Direction and sprite correctness:
+  - `CombatEntity` co facing vector.
+  - `MovementSystem` cap nhat facing theo path/target.
+  - `UnitRenderer` flip theo facing, khong theo team.
+  - Lancer attack dung cac asset huong Right/Up/Down/UpRight/DownRight, huong trai flip.
+  - Lancer scale da chinh rieng de gan bang linh khac.
+- Phase C - Projectile polish:
+  - Archer/TNT/DefenseTower projectile co start offset hop ly hon.
+  - Projectile bay den mep tower khi target la tower.
+  - Arrow/dynamite duration tinh theo distance va clamp min/max.
+- Phase E - UI polish lan 1:
+  - `UiAssets` tach style HUD/panel/button.
+  - HUD/PurchasePanel/TowerInfoPanel dung asset `assets/UI`.
+  - Luu y quan trong: KHONG dung `*_9Slides` truc tiep cho panel/button nho; da gay UI phong to xau. Hien tai dung `*_3Slides` + min size drawable = 0.
+
+Con can lam tiep:
+- Phase D - Clean official gameplay controls.
+- UI polish lan 2 sau khi user review screenshot truc tiep.
+- Real projectile hit timing neu can gameplay chinh xac hon.
+- TNT AOE optional.
+- Death animation/rubble optional.
+
+---
+
+## 3) Issue uu tien cao nhat tiep theo
+
+### Phase D - Clean official gameplay controls
+
+Trang thai hien tai:
+- UI mua chinh:
+  - barrack -> Warrior
+  - archery -> Archer
+  - monastery -> Monk/Healer
+  - house1 -> Lancer
+  - house2 -> Miner
+- Hotkey debug van co:
+  - P spawn Pawn
+  - M/A/W spawn Miner/Archer/Warrior
+  - SPACE pause
+  - F1 AI status
+- User da noi Pawn khong nam trong flow mua chinh.
+
+Muc tieu:
+- Lam ro gameplay official khong co Pawn.
+- Quyet dinh co giu hotkey debug khong:
+  - Neu ban nop/demo final: nen remove/disable `P = Pawn` va log debug lien quan.
+  - Co the giu M/A/W neu van can debug, nhung nen an khoi huong dan console final.
+
+Files can xem/sua:
+- `core/src/main/java/com/hust/towerdefence/View/screens/DemoModelScreen.java`
+- `core/src/main/java/com/hust/towerdefence/Model/GameWorld.java`
+
+Huong implement de xuat:
+- Toi thieu:
+  - Remove case `Input.Keys.P` trong `handleInputKey`.
+  - Sua log ready khong nhac `P=Pawn`.
+- Neu muon sach hon:
+  - Doi debug hotkey thanh flag `DEBUG_HOTKEYS`.
+  - Khi flag false, tat M/A/W/P/F1, chi giu SPACE pause.
+
+Acceptance check:
+- Official purchase flow khong co Pawn.
+- Bam P trong game khong spawn Pawn nua neu da chon final mode.
+- Build pass bang `./gradlew build -x test`.
+
+---
+
+## 4) UI polish lan 2
+
+Trang thai hien tai:
+- UI da polish lan 1 bang `assets/UI`.
+- Da sua loi dung nham `*_9Slides`, hien tai panel/button nho dung `*_3Slides`.
+- Van can user review screenshot truc tiep vi visual taste khong bat duoc bang build.
+
+Muc tieu:
+- HUD/panel nho gon, khong che building/path.
+- Text doc duoc, button khong bi phong to.
+- Panel mua/tower nhin dong bo voi pixel fantasy map.
+
+Files can xem/sua:
+- `core/src/main/java/com/hust/towerdefence/View/ui/UiAssets.java`
+- `core/src/main/java/com/hust/towerdefence/View/ui/GameHud.java`
+- `core/src/main/java/com/hust/towerdefence/View/ui/PurchasePanel.java`
+- `core/src/main/java/com/hust/towerdefence/View/ui/TowerInfoPanel.java`
+
+Can tranh:
+- Khong dung `Button_*_9Slides.png` / `Carved_9Slides.png` cho button/panel nho neu khong xu ly nine-slice dung cach.
+- Khong de drawable min size mac dinh ep layout.
+
+Acceptance check:
+- Chup screenshot click barrack/house/tower/enemy tower.
+- Panel khong tran man hinh va khong che lane quan trong.
+- Button height khoang 28-34px, khong bi keo thanh doc.
+
+---
+
+## 5) Phase da hoan thanh chi tiet
+
+### Phase A - Fix tower target priority (DONE)
 
 Van de hien tai:
 - Tower phu da co combat va bi danh duoc.
@@ -49,7 +152,7 @@ Huong implement de xuat:
 - Neu target tower chet/destroying/removed thi clear target.
 - Can tranh cho Miner target tower/combat.
 
-Acceptance check:
+Acceptance check da dat:
 - Enemy di qua `tower1/tower2` se dung danh tower neu vao range.
 - Player unit di qua `enemytower1/enemytower2` se dung danh tower neu vao range.
 - Khi tower no xong bien mat, unit tiep tuc di path hoac danh target khac.
@@ -57,7 +160,7 @@ Acceptance check:
 
 ---
 
-## 3) Phase B - Direction and sprite correctness
+### Phase B - Direction and sprite correctness (DONE)
 
 Van de hien tai:
 - UnitRenderer dang flip theo team, chua theo vector di chuyen/target.
@@ -81,14 +184,14 @@ Huong implement de xuat:
   - Fallback theo team.
 - Neu can luu facing tot hon: them field `facingX/facingY` vao `CombatEntity`, update trong `MovementSystem`.
 
-Acceptance check:
+Acceptance check da dat/co ban:
 - Player/enemy khong bi quay nguoc khi di chuyen.
 - Archer/Warrior/Pawn attack nhin ve phia target.
 - Lancer toi thieu khong bi quay sai trai/phai.
 
 ---
 
-## 4) Phase C - Projectile polish
+### Phase C - Projectile polish (DONE)
 
 Trang thai hien tai:
 - Projectile/effect la visual event, damage apply ngay trong `AttackSystem`.
@@ -114,70 +217,14 @@ Huong implement de xuat:
 - Co the tinh duration theo distance thay vi constant:
   - `duration = clamp(distance / speedPxPerSecond, min, max)`
 
-Acceptance check:
+Acceptance check da dat/co ban:
 - Arrow khong bay tu chan/bung unit.
 - Tower arrow bay tu archer tren tower.
 - Dynamite bay nhin ro, khong qua nhanh.
 
 ---
 
-## 5) Phase D - Clean official gameplay controls
-
-Trang thai hien tai:
-- UI mua chinh:
-  - barrack -> Warrior
-  - archery -> Archer
-  - monastery -> Monk/Healer
-  - house1 -> Lancer
-  - house2 -> Miner
-- Hotkey debug van co:
-  - P spawn Pawn
-  - M/A/W spawn Miner/Archer/Warrior
-- User da noi Pawn khong nam trong flow mua chinh.
-
-Muc tieu:
-- Quyet dinh co giu hotkey debug khong.
-- Neu lam final UI hon: bo hoac an Pawn debug spawn.
-
-Files can xem/sua:
-- `core/src/main/java/com/hust/towerdefence/View/screens/DemoModelScreen.java`
-- `core/src/main/java/com/hust/towerdefence/Model/GameWorld.java`
-
-Huong implement de xuat:
-- De debug hotkey trong dev phase nhung ghi ro khong phai gameplay official.
-- Neu user muon final: remove `Input.Keys.P` va co the remove `spawnPawn()` khoi UI path, nhung khong can xoa class.
-
-Acceptance check:
-- Official purchase flow khong co Pawn.
-- Debug behavior neu giu thi khong gay nham lan trong HUD/UI.
-
----
-
-## 6) Phase E - UI polish
-
-Trang thai hien tai:
-- HUD top-center da on hon debug bar cu.
-- Purchase panel va tower info panel da dung duoc nhung visual con co ban.
-
-Muc tieu:
-- Panel mua linh va panel tower trong gon hon, doc de hon.
-- Nut pause/buy/upgrade dong bo asset UI.
-- Khong che path/chinh gameplay area.
-
-Files can xem/sua:
-- `core/src/main/java/com/hust/towerdefence/View/ui/GameHud.java`
-- `core/src/main/java/com/hust/towerdefence/View/ui/PurchasePanel.java`
-- `core/src/main/java/com/hust/towerdefence/View/ui/TowerInfoPanel.java`
-- `core/src/main/java/com/hust/towerdefence/View/ui/UiAssets.java`
-
-Acceptance check:
-- HUD khong che castle/path quan trong.
-- Purchase/tower panel gan object duoc click, khong vuot man hinh.
-- Text de doc, khong giong debug.
-
----
-
-## 7) Phase F - Optional gameplay extensions
+## 6) Phase F - Optional gameplay extensions
 
 Chi lam sau khi cac phase tren on:
 - TNT explosion AOE thay vi direct damage.
@@ -189,14 +236,13 @@ Chi lam sau khi cac phase tren on:
 
 ---
 
-## 8) Checklist cho chat moi bat dau lam
+## 7) Checklist cho chat moi bat dau lam
 
 Khi bat dau chat moi, dua prompt ngan:
 
 ```text
 Doc assets/docs/PROJECT_CONTEXT.md va assets/docs/NEXT_DEVELOPMENT_PLAN.md.
-Lam Phase A: fix tower target priority. Khong redesign gameplay. Sau khi sua, build bang ./gradlew build -x test va bao file da sua + cach test trong game.
+Lam Phase D: clean official gameplay controls. Khong redesign gameplay. Sau khi sua, build bang ./gradlew build -x test va bao file da sua + cach test trong game.
 ```
 
-Neu muon lam phase khac, thay `Phase A` bang phase tuong ung.
-
+Neu muon tiep tuc UI, thay Phase D bang "UI polish lan 2" va yeu cau chup/review screenshot trong game.
