@@ -88,8 +88,9 @@ public class UiAssets {
         return style;
     }
 
+    // Hưng
     private NinePatchDrawable horizontalDrawable(Texture texture) {
-        NinePatchDrawable drawable = new NinePatchDrawable(new NinePatch(texture, 64, 64, 0, 0));
+        NinePatchDrawable drawable = new NinePatchDrawable(new NinePatch(texture, 16, 16, 0, 0));
         drawable.setMinWidth(0f);
         drawable.setMinHeight(0f);
         return drawable;
