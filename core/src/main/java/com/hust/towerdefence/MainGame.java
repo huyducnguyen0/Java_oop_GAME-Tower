@@ -27,12 +27,25 @@ public class MainGame extends Game {
     private InputMultiplexer inputMultiplexer;
 
     private final Map<Class<? extends Screen>,Screen> screenCache  = new HashMap<>();// render chính của game
+
+    // Hưng
+    public com.hust.towerdefence.View.ui.UiAssets assets;
+    // Hưng
+    public com.hust.towerdefence.View.ui.AudioManager audioManager;
+
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         inputMultiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(inputMultiplexer);
         batch = new SpriteBatch();
+
+        // Hưng
+        assets = new com.hust.towerdefence.View.ui.UiAssets();
+        // Hưng
+        audioManager = new com.hust.towerdefence.View.ui.AudioManager(assets);
+        // Hưng
+        audioManager.playGameplayMusic();
 
         addScreen(new DemoModelScreen(this));// đây là phương thức khởi tạo
         setScreen(DemoModelScreen.class);
@@ -68,6 +81,11 @@ public class MainGame extends Game {
         screenCache.clear();
 
         batch.dispose();
+
+        // Hưng
+        if (assets != null) {
+            assets.dispose();
+        }
     }
 
     public Batch getBatch() { return batch; }

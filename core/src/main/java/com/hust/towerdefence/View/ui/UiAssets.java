@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 
 /**
  * Loads and owns UI-only assets.
@@ -42,6 +45,13 @@ public class UiAssets {
     private final TextButton.TextButtonStyle primaryButtonStyle;
     private final TextButton.TextButtonStyle redButtonStyle;
 
+    // Khai báo thêm tài nguyên Audio
+    public Music menuBgm;
+    public Music gameplayBgm;
+    public Sound screenClickSound;
+    public Sound buySuccessSound;
+    public Sound upgradeSuccessSound;
+
     public UiAssets() {
         hudBarTexture = new Texture(HUD_BAR_BACKGROUND);
         panelTexture = new Texture(PANEL_BACKGROUND);
@@ -71,6 +81,13 @@ public class UiAssets {
         warningLabelStyle = new Label.LabelStyle(font, WARNING);
         primaryButtonStyle = createButtonStyle(buttonBlueTexture, buttonBlueDownTexture);
         redButtonStyle = createButtonStyle(buttonRedTexture, buttonRedDownTexture);
+
+        menuBgm = Gdx.audio.newMusic(Gdx.files.internal("audio/music/menu_bgm.mp3"));
+        gameplayBgm = Gdx.audio.newMusic(Gdx.files.internal("audio/music/gameplay_bgm.mp3"));
+
+        screenClickSound = Gdx.audio.newSound(Gdx.files.internal("audio/sounds/screen_click.wav"));
+        //buySuccessSound = Gdx.audio.newSound(Gdx.files.internal("audio/sounds/buy_success.wav"));
+        //upgradeSuccessSound = Gdx.audio.newSound(Gdx.files.internal("audio/sounds/upgrade_success.wav"));
     }
 
     private TextButton.TextButtonStyle createButtonStyle(Texture up, Texture down) {
@@ -137,5 +154,11 @@ public class UiAssets {
         buttonRedDownTexture.dispose();
         buttonDisabledTexture.dispose();
         font.dispose();
+
+        if (menuBgm != null) menuBgm.dispose();
+        if (gameplayBgm != null) gameplayBgm.dispose();
+        if (screenClickSound != null) screenClickSound.dispose();
+        if (buySuccessSound != null) buySuccessSound.dispose();
+        if (upgradeSuccessSound != null) upgradeSuccessSound.dispose();
     }
 }
