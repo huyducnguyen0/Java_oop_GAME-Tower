@@ -7,7 +7,7 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
  */
 public class Miner extends Soldier {
 
-    // Thông số kinh tế cho 3 cấp độ
+    // --- CẤU HÌNH THÔNG SỐ KINH TẾ CHO 3 CẤP ĐỘ ---
     private float miningTimer;
     private int carriedGold;
     private static final float[] HEALTH_DATA = {80f, 120f, 160f};  // Extracted: thợ mỏ yếu hơn Pawn
@@ -15,6 +15,9 @@ public class Miner extends Soldier {
     private static final float[] RANGE_DATA = {0.5f, 0.5f, 0.5f};  // Standardize to world units
     private static final int[] UPGRADE_COST_DATA = {80, 200, 0};
 
+    /**
+     * Hàm khởi tạo Thợ mỏ (Miner)
+     */
     public Miner() {
         super();
         this.width = 0.8f;
@@ -45,6 +48,8 @@ public class Miner extends Soldier {
         this.attackRange = RANGE_DATA[index];
     }
 
+    // ==================== HỆ THỐNG OVERRIDE LOGIC ====================
+
     @Override
     public void reset() {
         super.reset();
@@ -58,12 +63,49 @@ public class Miner extends Soldier {
         applyLevelData();  // Tự động cập nhật stats khi level thay đổi
     }
 
-    // Getter mang tính ngữ nghĩa để System dễ đọc code
+    // ==================== GETTERS / SETTERS NGỮ NGHĨA ====================
+
     public float getGoldPerCycle() {
         return attackDamage;
     }
-    public float getMiningTimer() { return miningTimer; }
-    public void setMiningTimer(float time) { this.miningTimer = time; }
-    public int getCarriedGold() { return carriedGold; }
-    public void setCarriedGold(int gold) { this.carriedGold = gold; }
+
+    public float getMiningTimer() {
+        return miningTimer;
+    }
+
+    public void setMiningTimer(float time) {
+        this.miningTimer = time;
+    }
+
+    public int getCarriedGold() {
+        return carriedGold;
+    }
+
+    public void setCarriedGold(int gold) {
+        this.carriedGold = gold;
+    }
+
+    // ========================================================
+    // CÁC HÀM TRUY VẤN DỮ LIỆU TĨNH (STATIC GETTERS) CHO UI
+    // ========================================================
+
+    public static float getStaticMaxHealth(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return HEALTH_DATA[idx];
+    }
+
+    public static float getStaticDamage(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return GOLD_PER_MINE[idx];
+    }
+
+    public static float getStaticRange(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return RANGE_DATA[idx];
+    }
+
+    public static int getStaticUpgradeCost(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return UPGRADE_COST_DATA[idx];
+    }
 }

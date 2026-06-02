@@ -1,38 +1,40 @@
 package com.hust.towerdefence.Model.Entities.Combat.Soldier;
+
 import com.badlogic.gdx.math.Vector2;
+
 public class Warrior extends Soldier {
 
-    // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    // Máu của Warrior cao vượt trội so với các đơn vị khác
-    private static final float[] HEALTH_DATA = {300f, 650f, 1200f};// máu tăng mạnh để tạo cảm giác "trâu bò" và có thể đứng vững lâu hơn trên chiến trường
-    private static final float[] DAMAGE_DATA = {15f, 30f, 55f};
-    // Tầm đánh: Pawn (40-50), Warrior (75-80)
-    // Giúp Warrior có thể chạm vào địch sớm hơn một chút để "thu hút" sự chú ý.
-    private static final float[] RANGE_DATA = {1.0f, 1.1f, 1.2f}; // cần chuyển sang World Unit (Ví dụ: 1.0f tương đương 100 pixel)
-    private static final int[] UPGRADE_COST_DATA = {120, 300, 0};
+    // --- HE THONG DU LIEU CHI SO CO DINH THEO CAP DO ---
+    private static final float[] HEALTH_DATA = {300f, 650f, 1200f};       // Mau tang manh tao cam giac "trau bo"
+    private static final float[] DAMAGE_DATA = {15f, 30f, 55f};          // Sat thuong can chien
+    private static final float[] RANGE_DATA = {1.0f, 1.1f, 1.2f};         // Tam danh (World Unit)
+    private static final int[] UPGRADE_COST_DATA = {120, 300, 0};         // Chi phi nang cap theo tung cap (Lv3 dat max = 0)
 
+    /**
+     * Ham khoi tao don vi Chien binh (Warrior) - Mac dinh o Level 1
+     */
     public Warrior() {
         super();
-        this.width = 0.9f; // Lớn hơn Pawn để trông vững chãi hơn, nhưng vẫn nhỏ hơn 1.0f để không chiếm quá nhiều diện tích
-        this.height = 0.9f; // Cùng chiều cao để tạo cảm giác đồng đều, nhưng có thể điều chỉnh nếu muốn tạo sự khác biệt rõ ràng hơn
+        this.width = 0.9f;  // Lon hon Pawn de trong vung chai
+        this.height = 0.9f; // Chieu cao can doi
         applyLevelData();
     }
 
     /**
-     * Thiết lập chỉ số: Ưu tiên tối đa vào lượng máu và khả năng đứng vững.
+     * Thiet lap chi so noi bo thoi gian thuc dua vao bien level cua thuc the
      */
     public void applyLevelData() {
-        // Không cần validation ở đây vì level đã được validate trong setLevel()
+        // Chuyen doi tu Level (1,2,3) sang Index mang (0,1,2)
         int index = this.level - 1;
 
         this.maxHealth = HEALTH_DATA[index];
-        this.health = this.maxHealth; // Hồi đầy máu khi nâng cấp
+        this.health = this.maxHealth; // Hoi day mau lap tuc khi thuc the duoc nang cap
 
         this.attackDamage = DAMAGE_DATA[index];
         this.attackRange = RANGE_DATA[index];
         this.upgradeCost = UPGRADE_COST_DATA[index];
 
-        // Tốc độ đánh: Chậm hơn Pawn (1.2) một chút để nhấn mạnh sự nặng nề của giáp trụ
+        // Toc do danh: Nhan manh su nang ne cua giap tru (Lv1: 0.9, Lv2: 1.0, Lv3: 1.1)
         this.setAttackSpeed(0.9f + (index * 0.1f));
     }
 
@@ -46,8 +48,44 @@ public class Warrior extends Soldier {
 
     @Override
     public void setLevel(int level) {
-        super.setLevel(level);  // Gọi parent validation (level >= 1)
+        super.setLevel(level);  // Goi parent validation tu lop cha Soldier (dam bao level >= 1)
         if (this.level > MAX_LEVEL) this.level = MAX_LEVEL;
-        applyLevelData();  // Tự động cập nhật stats khi level thay đổi
+        applyLevelData();       // Tu dong dong bo lai chi so khi thuc the doi cap do
+    }
+
+    // ========================================================
+    // CAC HAM TRUY VAN DU LIEU TINH (STATIC GETTERS) CHO UI
+    // ========================================================
+
+    /**
+     * Lay luong mau toi da theo cap do ma khong can khoi tao thuc the
+     */
+    public static float getStaticMaxHealth(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return HEALTH_DATA[idx];
+    }
+
+    /**
+     * Lay sat thuong theo cap do ma khong can khoi tao thuc the
+     */
+    public static float getStaticDamage(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return DAMAGE_DATA[idx];
+    }
+
+    /**
+     * Lay tam danh theo cap do ma khong can khoi tao thuc the
+     */
+    public static float getStaticRange(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return RANGE_DATA[idx];
+    }
+
+    /**
+     * Lay chi phi nang cap len cap tiep theo tu cap do hien tai
+     */
+    public static int getStaticUpgradeCost(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return UPGRADE_COST_DATA[idx];
     }
 }

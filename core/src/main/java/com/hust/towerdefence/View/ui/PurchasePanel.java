@@ -366,42 +366,47 @@ import com.hust.towerdefence.Model.GameWorld;
 import com.hust.towerdefence.Model.Managers.BuildingZone;
 import com.hust.towerdefence.Model.Managers.EconomyManager;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.Soldier;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Warrior;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Archer;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Lancer;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Healer;
+import com.hust.towerdefence.Model.Entities.Combat.Soldier.Miner;
 
 /**
- * Bảng điều khiển mua lính và nâng cấp tháp/nhà công trình.
- * Đã được chuẩn hóa cấu trúc để rạch ròi giữa logic Buy và Upgrade.
+ * Bang dieu khien mua linh va nang cap thap/nha cong trinh.
+ * Da duoc chuan hoa de truy van thong so HOAN TOAN DONG tu cac mang du lieu static cua 5 class linh.
  */
 public class PurchasePanel {
-    // --- Các hằng số cấu hình kích thước và vị trí Giao diện ---
+    // --- Cac hang so cau hinh kich thuoc va vi tri Giao dien ---
     private static final float PANEL_WIDTH = 240f;
     private static final float PANEL_HEIGHT = 155f;
     private static final float PANEL_Y_OFFSET = 22f;
     private static final float SCREEN_MARGIN = 14f;
 
-    // --- Bảng Màu Hệ Thống Điều Khiển UI ---
-    private static final Color INK = new Color(0.17f, 0.09f, 0.04f, 1f);     // Nâu đậm (Đủ điều kiện, hiển thị rõ nét)
-    private static final Color MUTED = new Color(0.42f, 0.29f, 0.18f, 1f);   // Nâu mờ (Khi đã đạt cấp tối đa hoặc thiếu tiền)
-    private static final Color WARNING = new Color(0.65f, 0.12f, 0.08f, 1f); // Màu đỏ cảnh báo (Dành riêng cho khối Buy khi thiếu tiền)
+    // --- Bang Mau He Thong Dieu Khien UI ---
+    private static final Color INK = new Color(0.17f, 0.09f, 0.04f, 1f);     // Nau dam (Du dieu kien)
+    private static final Color MUTED = new Color(0.42f, 0.29f, 0.18f, 1f);   // Nau mo (Max cap hoac thieu tien)
+    private static final Color WARNING = new Color(0.65f, 0.12f, 0.08f, 1f); // Mau do canh bao (Thiieu tien mua linh)
 
-    // --- Thành phần Core Logic Kết Nối Mô Hình Game ---
+    // --- Thanh phan Core Logic Ket Noi Mo Hinh Game ---
     private final GameWorld gameWorld;
     private final Table panel;
     private PurchaseOption selectedOption;
     private BuildingZone selectedZone;
 
-    // --- Các Nhãn Hiển Thị Văn Bản (Labels) ---
+    // --- Cac Nhan Hien Thi Van Ban (Labels) ---
     private final Label titleLabel;
     private final Label buildingLabel;
     private final Label hpLabel;
-    private final Label statsLabel; // Nhãn dùng chung hiển thị DMG và RNG
+    private final Label statsLabel; // Nhan dung chung hien thi DMG va RNG
     private final Label costLabel;
     private final Label upgradeCostLabel;
 
-    // --- Các Nút Tương Tác (Buttons) ---
+    // --- Cac Nut Tuong Tac (Buttons) ---
     private final TextButton buyButton;
     private final TextButton upgradeButton;
 
-    // --- Lưu Trữ Trạng thái Cấp độ hiện tại của từng loại công trình ---
+    // --- Luu Tru Trang thai Cap do hien tai cua tung loai cong trinh ---
     private int warriorLevel = 1;
     private int archerLevel = 1;
     private int healerLevel = 1;
@@ -409,13 +414,13 @@ public class PurchasePanel {
     private int minerLevel = 1;
 
     /**
-     * Hàm khởi tạo PurchasePanel, thiết lập Listener tương tác và nạp UI vào Stage
+     * Ham khoi tao PurchasePanel, thiet lap Listener tuong tact va nap UI vao Stage
      */
     public PurchasePanel(Stage stage, GameWorld gameWorld, UiAssets assets) {
         this.gameWorld = gameWorld;
         this.panel = new Table();
 
-        // Khởi tạo các thành phần giao diện từ Assets hệ thống
+        // Khoi tao cac thanh phan giao dien tu Assets he thong
         this.titleLabel = new Label("", assets.getTitleLabelStyle());
         this.buildingLabel = new Label("", assets.getMutedLabelStyle());
         this.hpLabel = new Label("", assets.getDefaultLabelStyle());
@@ -425,16 +430,16 @@ public class PurchasePanel {
 
         this.buyButton = new TextButton("Buy", assets.getPrimaryButtonStyle());
 
-        // Tạo một Style riêng biệt hoàn toàn cho nút Upgrade bằng cách copy từ style gốc để tránh xung đột
+        // Tao mot Style rieng biet hoan toan cho nut Upgrade bang cach copy tu style goc de tranh xung dot
         TextButton.TextButtonStyle upgradeStyle = new TextButton.TextButtonStyle(assets.getPrimaryButtonStyle());
         this.upgradeButton = new TextButton("Upgrade", upgradeStyle);
 
-        // Xây dựng bố cục Layout và đưa vào Stage vẽ
+        // Xay dung bo cuc Layout va dua vao Stage ve
         buildLayout(assets);
         stage.addActor(panel);
         panel.setVisible(false);
 
-        // Đăng ký sự kiện nhấn nút Buy (Dùng ChangeListener truyền thống)
+        // Dang ky su kien nhan nut Buy (Dung ChangeListener truyen thong)
         buyButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -442,7 +447,7 @@ public class PurchasePanel {
             }
         });
 
-        // Đổi sang ClickListener để chỉ bắt chính xác sự kiện click chuột, tránh lặp loop tín hiệu khi đổi trạng thái nút
+        // Doi sang ClickListener de chi bat chinh xac su kien click chuot, tranh lap loop tin hieu khi doi trang thai nut
         upgradeButton.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
             @Override
             public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
@@ -452,7 +457,7 @@ public class PurchasePanel {
     }
 
     /**
-     * Sắp xếp lưới Layout ô bảng cho Panel bằng Table UI Component
+     * Sap xep luoi Layout o bang cho Panel bang Table UI Component
      */
     private void buildLayout(UiAssets assets) {
         panel.setBackground(assets.getPanelDrawable());
@@ -470,30 +475,30 @@ public class PurchasePanel {
         buyButton.getLabel().setAlignment(Align.center);
         upgradeButton.getLabel().setAlignment(Align.center);
 
-        // Hàng 1 & 2: Tiêu đề lính và tên công trình
+        // Hang 1 & 2: Tieu de linh va ten cong trinh
         panel.add(titleLabel).center().expandX().fillX().height(20).colspan(2);
         panel.row();
         panel.add(buildingLabel).center().expandX().fillX().height(16).colspan(2).padBottom(4);
         panel.row();
 
-        // Hàng 3 & 4: Thông số kỹ thuật chi tiết của đơn vị lính (HP, DMG, RNG)
+        // Hang 3 & 4: Thong so ky thuat chi tiet cua don vi linh (HP, DMG, RNG)
         panel.add(hpLabel).left().expandX().fillX().height(18).colspan(2);
         panel.row();
         panel.add(statsLabel).left().expandX().fillX().height(18).colspan(2).padBottom(6);
         panel.row();
 
-        // Hàng 5: Giá mua và nút Mua (Buy)
+        // Hang 5: Gia mua va nut Mua (Buy)
         panel.add(costLabel).left().expandX().fillX().height(26).padRight(4);
         panel.add(buyButton).width(88).height(26).padBottom(4);
         panel.row();
 
-        // Hàng 6: Giá nâng cấp và nút Nâng cấp (Upgrade)
+        // Hang 6: Gia nang cap va nut Nang cap (Upgrade)
         panel.add(upgradeCostLabel).left().expandX().fillX().height(26).padRight(4);
         panel.add(upgradeButton).width(88).height(26);
     }
 
     /**
-     * Hiển thị bảng điều khiển khi người chơi chọn vào một ô công trình hợp lệ
+     * Hien thi bang dieu khien khi nguoi choi chon vao mot o cong trinh hop le
      */
     public void show(BuildingZone zone) {
         selectedZone = zone;
@@ -507,7 +512,7 @@ public class PurchasePanel {
     }
 
     /**
-     * Ẩn bảng điều khiển và giải phóng các mục tiêu đang chọn
+     * An bang dieu khien va giai phong cac muc tieu dang chon
      */
     public void hide() {
         selectedZone = null;
@@ -516,15 +521,15 @@ public class PurchasePanel {
     }
 
     /**
-     * Hàm cập nhật chạy liên tục mỗi khung hình (render loop) để ghim tọa độ theo camera và quét dữ liệu realtime
+     * Ham cap nhat chay lien tuc moi khung hinh (render loop) de ghim toa do theo camera va quet du lieu realtime
      */
     public void update(OrthographicCamera worldCamera, float screenWidth, float screenHeight) {
         if (selectedZone == null || selectedOption == null) return;
 
-        // Quét và cập nhật màu sắc văn bản, bật/tắt trạng thái nền nút theo ví tiền hiện hành liên tục
+        // Quet va cap nhat mau sac van ban, bat/tat trang thai nen nut theo vi tien hien hanh lien tuc
         updateButtonStatesRealtime();
 
-        // Ghim vị trí Panel UI nổi theo tọa độ thế giới của ô công trình
+        // Ghim vi tri Panel UI noi theo toa do the gioi cua o cong trinh
         Vector2 center = selectedZone.getCenter();
         Vector3 projected = worldCamera.project(new Vector3(center.x, center.y, 0f));
         float x = MathUtils.clamp(projected.x - PANEL_WIDTH / 2f, SCREEN_MARGIN, screenWidth - PANEL_WIDTH - SCREEN_MARGIN);
@@ -533,7 +538,7 @@ public class PurchasePanel {
     }
 
     /**
-     * Quét lượng tiền của người chơi realtime để điều khiển chính xác trạng thái hiển thị của các nút bấm
+     * Quet luong tien cua nguoi choi realtime de dieu khien chinh xac trang thai hien thi cua cac nut bam
      */
     private void updateButtonStatesRealtime() {
         if (selectedOption == null) return;
@@ -541,44 +546,45 @@ public class PurchasePanel {
         int gold = gameWorld.getEconomyManager().getGold();
         int currentLv = getCurrentLevelOfSelectedOption();
 
-        // Thực hiện xử lý quét độc lập hoàn toàn cho hai khối Buy và Upgrade
+        // Thuc hien xu ly quet doc lap hoan toan cho hai khoi Buy va Upgrade
         handleBuyButtonRealtime(gold);
         handleUpgradeButtonRealtime(gold, currentLv);
     }
 
     /**
-     * Xử lý quét Realtime chuyên biệt cho khối BUY (Mua lính)
+     * Xu ly quet Realtime chuyen biet cho khoi BUY (Mua linh)
      */
     private void handleBuyButtonRealtime(int gold) {
         boolean canBuy = gold >= selectedOption.cost;
 
-        // Đủ tiền -> chữ màu nâu đậm (INK), Thiếu tiền -> chữ cảnh báo màu đỏ (WARNING)
+        // Du tien -> chu mau nau dam (INK), Thieu tien -> chu canh bao mau do (WARNING)
         costLabel.setColor(canBuy ? INK : WARNING);
 
-        // Cập nhật trạng thái kích hoạt nút để LibGDX tự động chuyển đổi giữa nền xanh tươi và xám mờ
+        // Cap nhat trang thai kich hoat nut de LibGDX tu dong chuyen doi giua nen xanh tuoi va xam mo
         if (buyButton.isDisabled() != !canBuy) {
             buyButton.setDisabled(!canBuy);
         }
     }
 
     /**
-     * Xử lý quét Realtime chuyên biệt cho khối UPGRADE (Nâng cấp) - Chỉ có đúng 2 dạng hiển thị rõ ràng
+     * Xu ly quet Realtime chuyen biet cho khoi UPGRADE (Nang cap) - Doc chi so tu mang static class linh con
      */
     private void handleUpgradeButtonRealtime(int gold, int currentLv) {
         if (currentLv >= 3) {
-            // TRẠNG THÁI 1: Đã kịch cấp tối đa -> Ép mờ nền (disabled = true) và đổi chữ sang màu mờ (MUTED)
+            // TRANG THAI 1: Da kich cap toi da -> Ep mo nen (disabled = true) va doi chu sang mau mo (MUTED)
             upgradeButton.setDisabled(true);
             upgradeCostLabel.setColor(MUTED);
         } else {
-            int upgradeCost = selectedOption.getUpgradeCostForLevel(currentLv);
+            // TUY BIEN DONG: Lay truc tiep chi phi nang cap tu file mang static cua con linh thong qua delegate enum
+            int upgradeCost = selectedOption.getStaticUpgradeCostForLevel(currentLv);
             boolean canUpgrade = gold >= upgradeCost;
 
             if (canUpgrade) {
-                // TRẠNG THÁI 2A: Chưa max + ĐỦ TIỀN -> Mở khóa nút nền xanh (disabled = false) và đặt chữ nâu đậm (INK)
+                // TRANG THAI 2A: Chua max + DU TIEN -> Mo khoa nut nen xanh (disabled = false) va dat chu nau dam (INK)
                 upgradeButton.setDisabled(false);
                 upgradeCostLabel.setColor(INK);
             } else {
-                // TRẠNG THÁI 2B: Chưa max + THIẾU TIỀN -> Khóa nút dạng nền mờ (disabled = true) và chuyển chữ về mờ (MUTED)
+                // TRANG THAI 2B: Chua max + THIEU TIEN -> Khoa nut dang nen mo (disabled = true) va chuyen chu ve mo (MUTED)
                 upgradeButton.setDisabled(true);
                 upgradeCostLabel.setColor(MUTED);
             }
@@ -586,74 +592,54 @@ public class PurchasePanel {
     }
 
     /**
-     * Thiết lập nội dung chữ văn bản tĩnh cho các Label khi mở bảng UI hoặc ngay sau khi hoàn thành nâng cấp
+     * Thiet lap noi dung chu van ban tinh cho cac Label khi mo bang UI hoac ngay sau khi hoan thanh nang cap
      */
     private void updateTextAndState() {
         if (selectedOption == null) return;
         int currentLv = getCurrentLevelOfSelectedOption();
 
-        // 1. Cập nhật các nội dung văn bản cơ bản
+        // 1. Cap nhat cac noi dung van ban co ban
         titleLabel.setText("Train " + selectedOption.unitName + " (Lv " + currentLv + ")");
         buildingLabel.setText(selectedZone == null ? "" : selectedZone.getDisplayName());
-        costLabel.setText("Gold " + selectedOption.cost);
+        costLabel.setText("Gold: " + selectedOption.cost);
 
-        // 2. Nạp lại thông số chỉ số sức mạnh của lính (HP, DMG, RNG) dựa trên cấp độ
+        // 2. Nap lai thong so chi so suc manh thuc te cua linh (HP, DMG, RNG) lay tu mang static trong class linh
         updateUnitStatsText(currentLv);
 
-        // 3. Xử lý chuỗi văn bản hiển thị cho giá nâng cấp công trình
+        // 3. Xu ly chuoi van ban hien thi cho gia nang cap cong trinh tu mang static
         if (currentLv >= 3) {
             upgradeCostLabel.setText("Upgrade: Max");
         } else {
-            int upgradeCost = selectedOption.getUpgradeCostForLevel(currentLv);
+            int upgradeCost = selectedOption.getStaticUpgradeCostForLevel(currentLv);
             upgradeCostLabel.setText("Upgrade: " + upgradeCost);
         }
 
-        // 4. Đồng bộ hóa ngay trạng thái nút bấm lập tức
+        // 4. Dong bo hoa ngay trang thai nut bam lap tuc
         updateButtonStatesRealtime();
     }
 
     /**
-     * Tính toán và hiển thị thông số chỉ số (HP, DMG, RNG) theo từng mốc cấp độ cụ thể của lính
+     * Truy van du lieu mang static tap trung tu class linh tuong ung de in chi so len panel (Xoa sach cong thuc khai khong cu)
      */
     private void updateUnitStatsText(int level) {
-        int hp = 0;
-        int dmg = 0;
-        int rng = 0;
-
-        switch (selectedOption) {
-            case WARRIOR:
-                hp = 120 + (level - 1) * 40;
-                dmg = 15 + (level - 1) * 5;
-                rng = 40;
-                break;
-            case ARCHER:
-                hp = 80 + (level - 1) * 25;
-                dmg = 12 + (level - 1) * 4;
-                rng = 180 + (level - 1) * 20;
-                break;
-            case HEALER:
-                hp = 90 + (level - 1) * 30;
-                dmg = 10 + (level - 1) * 3;
-                rng = 120;
-                break;
-            case LANCER:
-                hp = 110 + (level - 1) * 35;
-                dmg = 18 + (level - 1) * 6;
-                rng = 60;
-                break;
-            case MINER:
-                hp = 100 + (level - 1) * 30;
-                dmg = 8 + (level - 1) * 2;
-                rng = 35;
-                break;
-        }
+        int hp = (int) selectedOption.getStaticMaxHealth(level);
+        float dmg = selectedOption.getStaticDamage(level);
+        float rng = selectedOption.getStaticRange(level);
 
         hpLabel.setText("HP: " + hp);
-        statsLabel.setText("DMG: " + dmg + "      RNG: " + rng);
+
+        // Trinh bay nhan ngu nghia tieng viet khong dau theo tung kieu loai linh dac thu cua doi hinh
+        if (selectedOption == PurchaseOption.MINER) {
+            statsLabel.setText("EFF: " + (int)dmg + " Gold / cycle");
+        } else if (selectedOption == PurchaseOption.HEALER) {
+            statsLabel.setText("HEAL: " + (int)dmg + "      RNG: " + rng);
+        } else {
+            statsLabel.setText("ATK: " + (int)dmg + "      RNG: " + rng);
+        }
     }
 
     /**
-     * Lấy ra cấp độ hiện tại của loại công trình/lính đang được chọn
+     * Lay ra cap do hien tai cua loai cong trinh/linh dang duoc chon
      */
     private int getCurrentLevelOfSelectedOption() {
         if (selectedOption == null) return 1;
@@ -668,7 +654,7 @@ public class PurchasePanel {
     }
 
     /**
-     * Tăng cấp độ công trình lên 1 bậc (Tối đa là cấp 3)
+     * Tang cap do cong trinh len 1 bac (Toi da la cap 3)
      */
     private void incrementLevelOfSelectedOption() {
         if (selectedOption == null) return;
@@ -682,7 +668,7 @@ public class PurchasePanel {
     }
 
     /**
-     * Thực thi Logic gọi Spawn mua một đơn vị lính mới và gán cấp độ tương ứng
+     * Thuc thi Logic goi Spawn mua mot don vi linh moi va gan cap do tuong ung
      */
     private void buySelectedUnit() {
         if (selectedOption == null || buyButton.isDisabled()) return;
@@ -696,7 +682,7 @@ public class PurchasePanel {
             default: break;
         }
 
-        // Đồng bộ cấp độ cho lính vừa sinh ra nếu công trình đã được nâng cấp trước đó
+        // Dong bo cap do cho linh vua sinh ra neu cong trinh da duoc nang cap truoc do
         int currentLv = getCurrentLevelOfSelectedOption();
         if (currentLv > 1 && !gameWorld.getEntityManager().getSoldiers().isEmpty()) {
             Soldier newest = gameWorld.getEntityManager().getSoldiers().peek();
@@ -705,32 +691,33 @@ public class PurchasePanel {
             }
         }
 
-        // Nhả trạng thái dính chuột của LibGDX ngay lập tức để tạo hiệu ứng nhấp nháy phản hồi mượt mà
+        // Nha trang thai dinh chuot cua LibGDX ngay lap tuc de tao hieu ung nhap nhay phan hoi muot ma
         buyButton.setChecked(false);
         updateTextAndState();
     }
 
     /**
-     * Thực thi Logic trừ vàng nâng cấp công trình và đồng bộ cấp độ cho toàn bộ lính hiện có trên bản đồ
+     * Thuc thi Logic tru vang nang cap cong trinh va dong bo cap do cho toan bo linh hien co tren ban do
      */
     private void upgradeSelectedBuilding() {
-        // Chặn tương tác ngay từ đầu nếu nút đang hiển thị mờ dạng vô hiệu hóa (Khi thiếu tiền hoặc kịch cấp)
+        // Chan tuong tac ngay tu dau neu nut dang hien thi mo dang vo hieu hoa (Khi thieu tien hoac kich cap)
         if (selectedOption == null || upgradeButton.isDisabled()) return;
 
         int currentLv = getCurrentLevelOfSelectedOption();
         if (currentLv >= 3) return;
 
-        int cost = selectedOption.getUpgradeCostForLevel(currentLv);
+        // Doc gia nang cap thoi gian thuc tu mang tinh cua lop linh con thong qua trung gian delegate
+        int cost = selectedOption.getStaticUpgradeCostForLevel(currentLv);
         int gold = gameWorld.getEconomyManager().getGold();
 
-        // Kiểm tra điều kiện ví tiền hợp lệ trước khi thực hiện giao dịch trừ vàng nâng cấp
+        // Kiem tra dieu kien vi tien hop le truoc khi thuc hien giao dich tru vang nang cap
         if (gold >= cost && cost > 0) {
             gameWorld.getEconomyManager().spendGold(cost);
 
             incrementLevelOfSelectedOption();
             int newLevel = getCurrentLevelOfSelectedOption();
 
-            // Quét danh sách thực thể để nâng cấp chỉ số đồng loạt cho toàn bộ lính cùng loại đang chiến đấu
+            // Quet danh sach thuc the de nang cap chi so dong loat cho toan bo linh cung loai dang chien dau
             String targetOptionName = selectedOption.name();
             for (Soldier s : gameWorld.getEntityManager().getSoldiers()) {
                 if (s != null && s.getClass().getSimpleName().toUpperCase().contains(targetOptionName)) {
@@ -740,53 +727,90 @@ public class PurchasePanel {
                 }
             }
 
-            // CHỈ CẬP NHẬT CHỮ VĂN BẢN TẠI ĐÂY (Để hàm update vòng lặp sau tự quét ví tiền và quyết định màu nền nút)
+            // CAP NHAT NOI DUNG CHU VAN BAN DE HIEN THI CHUAN CAP DO MOI LAP TUC
             titleLabel.setText("Train " + selectedOption.unitName + " (Lv " + newLevel + ")");
             updateUnitStatsText(newLevel);
             if (newLevel >= 3) {
                 upgradeCostLabel.setText("Upgrade: Max");
             } else {
-                int nextUpgradeCost = selectedOption.getUpgradeCostForLevel(newLevel);
+                int nextUpgradeCost = selectedOption.getStaticUpgradeCostForLevel(newLevel);
                 upgradeCostLabel.setText("Upgrade: " + nextUpgradeCost);
             }
         }
 
-        // Ép nút nhả trạng thái Checked dính chuột của LibGDX ngay lập tức để tạo hiệu ứng nhấn nháy nảy lên chuẩn chỉ
+        // Ep nut nha trang thai Checked dinh chuot cua LibGDX ngay lap tuc de tao hieu ung nhan nhay nay len chuan chi
         upgradeButton.setChecked(false);
     }
 
     /**
-     * Bộ dữ liệu cấu hình thông tin định danh, giá mua lính và mảng chi phí nâng cấp của từng loại Tháp
+     * Bo du lieu cau hinh thong tin dinh danh va gia mua goc.
+     * Da duoc vut bo hoan toan mang so upgradeCosts cung cung cua Enum de chuyen giao tiep sang file linh.
      */
     private enum PurchaseOption {
-        WARRIOR("Warrior", EconomyManager.COST_WARRIOR, new int[]{120, 300, 0}),
-        ARCHER("Archer", EconomyManager.COST_ARCHER, new int[]{60, 180, 0}),
-        HEALER("Monk", EconomyManager.COST_HEALER, new int[]{100, 250, 0}),
-        LANCER("Lancer", EconomyManager.COST_LANCER, new int[]{70, 220, 0}),
-        MINER("Miner", EconomyManager.COST_MINER, new int[]{80, 200, 0});
+        WARRIOR("Warrior", EconomyManager.COST_WARRIOR),
+        ARCHER("Archer", EconomyManager.COST_ARCHER),
+        HEALER("Monk", EconomyManager.COST_HEALER),
+        LANCER("Lancer", EconomyManager.COST_LANCER),
+        MINER("Miner", EconomyManager.COST_MINER);
 
         private final String unitName;
         private final int cost;
-        private final int[] upgradeCosts;
 
-        PurchaseOption(String unitName, int cost, int[] upgradeCosts) {
+        PurchaseOption(String unitName, int cost) {
             this.unitName = unitName;
             this.cost = cost;
-            this.upgradeCosts = upgradeCosts;
         }
 
-        /**
-         * Trả về chi phí nâng cấp dựa trên mức cấp độ hiện hành của công trình (Chỉ số mảng bắt đầu từ 0)
-         */
-        public int getUpgradeCostForLevel(int currentLevel) {
-            if (currentLevel >= 1 && currentLevel <= upgradeCosts.length) {
-                return upgradeCosts[currentLevel - 1];
+        // ====================================================================
+        // HE THONG DELEGATE CHUYEN TIEP LOGIC GOI SANG CHUOI MANG TINH (STATIC)
+        // ====================================================================
+
+        public float getStaticMaxHealth(int level) {
+            switch (this) {
+                case WARRIOR: return Warrior.getStaticMaxHealth(level);
+                case ARCHER:  return Archer.getStaticMaxHealth(level);
+                case HEALER:  return Healer.getStaticMaxHealth(level);
+                case LANCER:  return Lancer.getStaticMaxHealth(level);
+                case MINER:   return Miner.getStaticMaxHealth(level);
+                default: return 0f;
             }
-            return 0;
+        }
+
+        public float getStaticDamage(int level) {
+            switch (this) {
+                case WARRIOR: return Warrior.getStaticDamage(level);
+                case ARCHER:  return Archer.getStaticDamage(level);
+                case HEALER:  return Healer.getStaticDamage(level);
+                case LANCER:  return Lancer.getStaticDamage(level);
+                case MINER:   return Miner.getStaticDamage(level);
+                default: return 0f;
+            }
+        }
+
+        public float getStaticRange(int level) {
+            switch (this) {
+                case WARRIOR: return Warrior.getStaticRange(level);
+                case ARCHER:  return Archer.getStaticRange(level);
+                case HEALER:  return Healer.getStaticRange(level);
+                case LANCER:  return Lancer.getStaticRange(level);
+                case MINER:   return Miner.getStaticRange(level);
+                default: return 0f;
+            }
+        }
+
+        public int getStaticUpgradeCostForLevel(int level) {
+            switch (this) {
+                case WARRIOR: return Warrior.getStaticUpgradeCost(level);
+                case ARCHER:  return Archer.getStaticUpgradeCost(level);
+                case HEALER:  return Healer.getStaticUpgradeCost(level);
+                case LANCER:  return Lancer.getStaticUpgradeCost(level);
+                case MINER:   return Miner.getStaticUpgradeCost(level);
+                default: return 0;
+            }
         }
 
         /**
-         * Ánh xạ định danh chuỗi tên vùng công trình từ TiledMap/Logic sang đối tượng enum tương ứng
+         * Anh xa dinh danh chuoi ten vung cong trinh tu TiledMap/Logic sang doi tuong enum tuong ung
          */
         private static PurchaseOption fromBuilding(BuildingZone zone) {
             if (zone == null) return null;

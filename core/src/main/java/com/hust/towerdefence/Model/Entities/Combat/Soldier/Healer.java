@@ -1,16 +1,19 @@
 package com.hust.towerdefence.Model.Entities.Combat.Soldier;
+
 /**
  * Healer
  * Đơn vị hỗ trợ, hồi máu cho đồng đội trong phạm vi.
  */
 public class Healer extends Soldier {
 
-    // Thông số cho 3 cấp độ (Level 1, 2, 3)
-
+    // --- CẤU HÌNH THÔNG SỐ CHO 3 CẤP ĐỘ (LEVEL 1, 2, 3) ---
     private static final float[] HEAL_AMOUNT = {20f, 40f, 80f}; // Lượng máu hồi mỗi lần - cố định progression
     private static final float[] HEAL_RANGE = {2.5f, 3.0f, 3.5f}; // Phạm vi tìm đồng đội
     private static final int[] UPGRADE_COST_DATA = {100, 250, 0};
 
+    /**
+     * Hàm khởi tạo Tu sĩ hồi máu (Healer)
+     */
     public Healer() {
         super();
         this.width = 0.7f;
@@ -37,9 +40,11 @@ public class Healer extends Soldier {
         // Level 1: ~2 giây/lần, Level 3: ~1.4 giây/lần
         this.setAttackSpeed(0.5f + (index * 0.1f));
 
-        this.maxHealth = 70 + (index * 30); // Healer thường có máu thấp
+        this.maxHealth = 70f + (index * 30f); // Healer thường có máu thấp
         this.health = this.maxHealth;
     }
+
+    // ==================== HỆ THỐNG OVERRIDE LOGIC ====================
 
     @Override
     public void reset() {
@@ -56,8 +61,33 @@ public class Healer extends Soldier {
         applyLevelData();  // Tự động cập nhật stats khi level thay đổi
     }
 
-    // Getter mang tính ngữ nghĩa để HealSystem sử dụng
+    // ==================== GETTERS NGỮ NGHĨA HỆ THỐNG ====================
+
     public float getHealAmount() {
         return attackDamage;
+    }
+
+    // ========================================================
+    // CÁC HÀM TRUY VẤN DỮ LIỆU TĨNH (STATIC GETTERS) CHO UI
+    // ========================================================
+
+    public static float getStaticMaxHealth(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return 70f + (idx * 30f); // Thực hiện đồng bộ chính xác công thức toán gốc
+    }
+
+    public static float getStaticDamage(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return HEAL_AMOUNT[idx];
+    }
+
+    public static float getStaticRange(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return HEAL_RANGE[idx];
+    }
+
+    public static int getStaticUpgradeCost(int level) {
+        int idx = Math.min(Math.max(level, 1), 3) - 1;
+        return UPGRADE_COST_DATA[idx];
     }
 }
