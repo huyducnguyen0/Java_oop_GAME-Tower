@@ -626,14 +626,15 @@ public class PurchasePanel {
         float dmg = selectedOption.getStaticDamage(level);
         float rng = selectedOption.getStaticRange(level);
 
-        hpLabel.setText("HP: " + hp);
-
         // Trinh bay nhan ngu nghia tieng viet khong dau theo tung kieu loai linh dac thu cua doi hinh
         if (selectedOption == PurchaseOption.MINER) {
+            hpLabel.setText("");
             statsLabel.setText("EFF: " + (int)dmg + " Gold / cycle");
         } else if (selectedOption == PurchaseOption.HEALER) {
+            hpLabel.setText("HP: " + hp);
             statsLabel.setText("HEAL: " + (int)dmg + "      RNG: " + rng);
         } else {
+            hpLabel.setText("HP: " + hp);
             statsLabel.setText("ATK: " + (int)dmg + "      RNG: " + rng);
         }
     }

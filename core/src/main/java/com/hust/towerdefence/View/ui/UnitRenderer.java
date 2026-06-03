@@ -285,6 +285,10 @@ import com.hust.towerdefence.Model.Entities.Combat.Soldier.Pawn;
 import com.hust.towerdefence.Model.Entities.Combat.Soldier.Warrior;
 import com.hust.towerdefence.Model.Entities.Tower.BaseTower;
 
+/**
+ * Lớp quản lý việc vẽ các đơn vị chiến đấu (CombatEntity) lên màn hình.
+ * Hỗ trợ bóc tách hoạt ảnh từ SpriteSheet đơn hàng (Single-row) và đa hàng (Multi-row).
+ */
 public class UnitRenderer {
     private static final float UNIT_VISUAL_HEIGHT = 64f;
     private static final float FRAME_DURATION = 0.11f;
@@ -317,24 +321,31 @@ public class UnitRenderer {
         Clip clip = selectClip(entity);
         if (clip == null) return;
 
-        // Hưng
         TextureRegion frame;
+        CombatEntity.State state = entity.getCurrentState();
+
+        // Xử lý cắt khung hình đặc thù cho các SpriteSheet đa hàng tổng hợp
         if (entity instanceof TNT) {
-            CombatEntity.State state = entity.getCurrentState();
             if (state == CombatEntity.State.ATTACKING) {
-                // Hàng 3: Chỉ lấy từ frame 14 đến 17 (4 frame đầu có hình, bỏ các ô trống phía sau)
-                frame = clip.getFrame(stateTime, 14, 17);
+                frame = clip.getFrameTNT(stateTime, 14, 17);
             } else if (state == CombatEntity.State.MOVING) {
-                // Hàng 2: Chỉ lấy từ frame 7 đến 11 (5 frame đầu có hình, bỏ các ô trống phía sau)
-                frame = clip.getFrame(stateTime, 7, 11);
+                frame = clip.getFrameTNT(stateTime, 7, 11);
             } else {
-                // Hàng 1: Chỉ lấy từ frame 0 đến 5 (6 frame đầu)
-                frame = clip.getFrame(stateTime, 0, 5);
+                frame = clip.getFrameTNT(stateTime, 0, 5);
+            }
+        } else if (entity instanceof PawnHacHoa) {
+            if (state == CombatEntity.State.ATTACKING) {
+                frame = clip.getFramePawnHacHoa(stateTime, 14, 19);
+            } else if (state == CombatEntity.State.MOVING) {
+                frame = clip.getFramePawnHacHoa(stateTime, 7, 12);
+            } else {
+                frame = clip.getFramePawnHacHoa(stateTime, 0, 6);
             }
         } else {
             frame = clip.getFrame(stateTime);
         }
 
+        // Tính toán kích thước hiển thị (Kéo giãn theo tỷ lệ khung gốc)
         float height;
         float width;
         if (entity instanceof Lancer) {
@@ -348,6 +359,7 @@ public class UnitRenderer {
         float x = entity.getX() - width / 2f;
         float y = entity.getY() - height * 0.18f;
 
+        // Xử lý lật ảnh theo hướng di chuyển/nhìn của Entity
         boolean flipX = shouldFaceLeft(entity);
         if (flipX) {
             batch.draw(frame, x + width, y, -width, height);
@@ -389,7 +401,10 @@ public class UnitRenderer {
         if (entity instanceof TNT) {
             return get(teamPrefix, "tnt");
         }
-        if (entity instanceof Pawn || entity instanceof PawnHacHoa) {
+        if (entity instanceof PawnHacHoa) {
+            return clips.get("enemy_pawn_hachoa");
+        }
+        if (entity instanceof Pawn) {
             if (state == CombatEntity.State.ATTACKING) return get(teamPrefix, "pawn_attack");
             if (state == CombatEntity.State.MOVING) return get(teamPrefix, "pawn_run");
             return get(teamPrefix, "pawn_idle");
@@ -432,7 +447,10 @@ public class UnitRenderer {
     private void loadClips() {
         loadTeam("player", "Units");
         loadTeam("enemy", "EnemyUnits");
+
+        // Load các SpriteSheet tổng hợp đa hàng
         put("enemy_tnt", "EnemyUnits/TNT/Red/TNT_Red.png", 192, 192);
+        put("enemy_pawn_hachoa", "EnemyUnits/Torch/Red/Torch_Red.png", 192, 192);
     }
 
     private void loadTeam(String prefix, String root) {
@@ -479,15 +497,24 @@ public class UnitRenderer {
         batch.dispose();
     }
 
+    /**
+     * Lớp đóng gói kết cấu hình ảnh (Texture) và mảng các vùng cắt (TextureRegion).
+     */
     private static class Clip {
         private final Texture texture;
         private final TextureRegion[] frames;
+        private final int frameWidth;
+        private final int frameHeight;
 
         private Clip(String path, int frameWidth, int frameHeight) {
-            texture = new Texture(path);
-            texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            this.texture = new Texture(path);
+            this.frameWidth = frameWidth;
+            this.frameHeight = frameHeight;
+
+            this.texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             int frameCount = Math.max(1, texture.getWidth() / frameWidth);
             Rectangle crop = computeCrop(path, frameWidth, frameHeight);
+
             frames = new TextureRegion[frameCount];
             for (int i = 0; i < frameCount; i++) {
                 frames[i] = new TextureRegion(
@@ -500,29 +527,45 @@ public class UnitRenderer {
             }
         }
 
+        // Lấy frame tự động cho SpriteSheet đơn hàng (Single-row)
         private TextureRegion getFrame(float stateTime) {
             int index = (int) (stateTime / FRAME_DURATION) % frames.length;
             return frames[index];
         }
 
-        // Hưng
-        private TextureRegion getFrame(float stateTime, int startFrame, int endFrame) {
-            // Tự tính toán số lượng cột dựa trên chiều rộng ảnh và frameWidth (192)
+        // Lấy frame và bóp nhỏ khung riêng cho TNT (Phóng to kích thước hiển thị)
+        private TextureRegion getFrameTNT(float stateTime, int startFrame, int endFrame) {
             int cols = Math.max(1, texture.getWidth() / 192);
             int totalActionFrames = endFrame - startFrame + 1;
-
             int currentIndex = startFrame + ((int) (stateTime / FRAME_DURATION) % totalActionFrames);
 
-            // Tính toán vị trí x, y trực tiếp theo hàng và cột trên ảnh lưới tổng hợp
             int col = currentIndex % cols;
             int row = currentIndex / cols;
 
             return new TextureRegion(
                 texture,
-                col * 192 + 63,  // Tăng offset X để dịch sát vào người con lính
-                row * 192 + 73,  // Tăng offset Y để dịch sát xuống đầu con lính
-                66,              // Thu hẹp chiều rộng khung cắt (chỉ lấy vừa đủ thân người)
-                66               // Thu hẹp chiều cao khung cắt
+                col * 192 + 63,
+                row * 192 + 73,
+                66,
+                66
+            );
+        }
+
+        // Lấy frame và bóp nhỏ khung riêng cho PawnHacHoa để tăng kích cỡ lính trong game
+        private TextureRegion getFramePawnHacHoa(float stateTime, int startFrame, int endFrame) {
+            int cols = Math.max(1, texture.getWidth() / 192);
+            int totalActionFrames = endFrame - startFrame + 1;
+            int currentIndex = startFrame + ((int) (stateTime / FRAME_DURATION) % totalActionFrames);
+
+            int col = currentIndex % cols;
+            int row = currentIndex / cols;
+
+            return new TextureRegion(
+                texture,
+                col * 192 + 50,
+                row * 192 + 60,
+                80,
+                80
             );
         }
 
@@ -530,12 +573,14 @@ public class UnitRenderer {
             texture.dispose();
         }
 
+        // Tính toán loại bỏ vùng trống trong suốt quanh frame hình bằng thuật toán quét Pixel Alpha
         private static Rectangle computeCrop(String path, int frameWidth, int frameHeight) {
             Pixmap pixmap = new Pixmap(Gdx.files.internal(path));
             int minX = frameWidth;
             int minY = frameHeight;
             int maxX = -1;
             int maxY = -1;
+
             for (int y = 0; y < frameHeight && y < pixmap.getHeight(); y++) {
                 for (int x = 0; x < frameWidth && x < pixmap.getWidth(); x++) {
                     int alpha = pixmap.getPixel(x, y) & 0xff;
@@ -548,6 +593,7 @@ public class UnitRenderer {
                 }
             }
             pixmap.dispose();
+
             if (maxX < minX || maxY < minY) {
                 return new Rectangle(0, 0, frameWidth, frameHeight);
             }
@@ -555,6 +601,3 @@ public class UnitRenderer {
         }
     }
 }
-
-
-
