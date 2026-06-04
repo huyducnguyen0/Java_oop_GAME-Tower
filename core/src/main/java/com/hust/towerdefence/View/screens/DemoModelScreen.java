@@ -194,7 +194,10 @@ public class DemoModelScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         gameWorld.update(delta);
-        aiController.update(delta);
+        if (!gameWorld.isPaused()) {
+            aiController.update(delta);
+        }
+
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
