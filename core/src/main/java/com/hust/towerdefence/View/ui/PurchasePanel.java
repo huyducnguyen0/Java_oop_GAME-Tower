@@ -439,11 +439,14 @@ public class PurchasePanel {
         stage.addActor(panel);
         panel.setVisible(false);
 
-        // Dang ky su kien nhan nut Buy (Dung ChangeListener truyen thong)
-        buyButton.addListener(new ChangeListener() {
+        // Đăng ký sự kiện nhấn nút Buy bằng ClickListener để bắt chính xác một lần click
+        buyButton.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                buySelectedUnit();
+            public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+                // Kiểm tra xem nút có đang bị disable không trước khi chạy logic
+                if (!buyButton.isDisabled()) {
+                    buySelectedUnit();
+                }
             }
         });
 
