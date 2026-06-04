@@ -9,20 +9,24 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.hust.towerdefence.MainGame;
 import com.hust.towerdefence.Model.GameWorld;
 import com.hust.towerdefence.Model.Managers.BuildingZone;
+import com.hust.towerdefence.View.screens.MainMenuScreen;
 
 /**
  * Screen-space HUD layer for gameplay.
  * It reads game state for presentation and does not own gameplay logic.
  */
 public class GameHud {
-    private static final float HUD_WIDTH_RATIO = 0.34f;
-    private static final float HUD_MIN_WIDTH = 390f;
-    private static final float HUD_MAX_WIDTH = 520f;
+    // Tăng chiều rộng HUD lên một chút để đủ chỗ nhét 2 nút cạnh nhau
+    private static final float HUD_WIDTH_RATIO = 0.38f;
+    private static final float HUD_MIN_WIDTH = 450f;
+    private static final float HUD_MAX_WIDTH = 580f;
     private static final float HUD_HEIGHT = 50f;
     private static final float HUD_TOP_MARGIN = 12f;
 
+    private final MainGame game; // Thêm biến game để có quyền chuyển màn hình
     private final GameWorld gameWorld;
     private final UiAssets assets;
     private final Stage stage;
@@ -33,27 +37,50 @@ public class GameHud {
     private final Label selectedBuildingLabel;
     private final Label resultLabel;
     private final TextButton pauseButton;
+    private final TextButton quitButton; // Khai báo Nút Quit
     private final PurchasePanel purchasePanel;
     private final TowerInfoPanel towerInfoPanel;
     private String selectedBuildingName;
 
-    public GameHud(GameWorld gameWorld) {
+    // Cập nhật Constructor: Nhận thêm MainGame game
+    public GameHud(GameWorld gameWorld, MainGame game) {
         this.gameWorld = gameWorld;
+        this.game = game;
         this.assets = new UiAssets();
         this.stage = new Stage(new ScreenViewport());
 
         goldLabel = new Label("", assets.getDefaultLabelStyle());
         selectedBuildingLabel = new Label("", assets.getDefaultLabelStyle());
         resultLabel = new Label("", assets.getTitleLabelStyle());
+
         pauseButton = new TextButton("", assets.getPauseButtonStyle());
-        purchasePanel = new PurchasePanel(stage, gameWorld, assets);
-        towerInfoPanel = new TowerInfoPanel(stage, gameWorld, assets);
         pauseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 gameWorld.setPaused(!gameWorld.isPaused());
             }
         });
+
+        // ==========================================
+        // KHỞI TẠO NÚT MENU (QUIT)
+        // ==========================================
+        quitButton = new TextButton("Menu", assets.getPauseButtonStyle());
+        quitButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Xử lý chuyển đổi âm thanh chuẩn chỉ
+                if (game.audioManager != null) {
+                    game.audioManager.playScreenClick();
+                    game.audioManager.stopGameplayMusic();
+                    game.audioManager.playMenuMusic();
+                }
+                // Đá văng người chơi về lại Menu
+                game.setScreen(new MainMenuScreen(game));
+            }
+        });
+
+        purchasePanel = new PurchasePanel(stage, gameWorld, assets);
+        towerInfoPanel = new TowerInfoPanel(stage, gameWorld, assets);
 
         statusBar = new Table();
         resultOverlay = new Table();
@@ -70,10 +97,13 @@ public class GameHud {
         goldLabel.setAlignment(Align.left);
         selectedBuildingLabel.setAlignment(Align.center);
         pauseButton.getLabel().setAlignment(Align.center);
+        quitButton.getLabel().setAlignment(Align.center);
 
+        // Sắp xếp bố cục nhét nút Menu vào cạnh nút Play
         statusBar.add(goldLabel).left().minWidth(118).padRight(12);
         statusBar.add(selectedBuildingLabel).center().expandX().fillX().minWidth(110);
-        statusBar.add(pauseButton).width(82).height(34).padLeft(12);
+        statusBar.add(pauseButton).width(75).height(34).padLeft(12);
+        statusBar.add(quitButton).width(75).height(34).padLeft(8);
 
         stage.addActor(statusBar);
 

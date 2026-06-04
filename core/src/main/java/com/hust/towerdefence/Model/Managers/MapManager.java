@@ -36,7 +36,7 @@ public class MapManager {
     private BuildingZone enemyMainTowerZone;
     private Vector2 startGridPos;
     private Vector2 endGridPos;
-
+    private Vector2 minerSpawnPosition;
     public MapManager(String mapPath) {
         loadMap(mapPath);
         extractWaypoints();
@@ -137,7 +137,26 @@ public class MapManager {
         } else {
             System.err.println("MapManager: Khong tim thay layer 'towermain'.");
         }
-
+        if (playerLayer != null) {
+            for (MapObject obj : playerLayer.getObjects()) {
+                if ("house2".equals(obj.getName())) {
+                    if (obj instanceof RectangleMapObject) {
+                        Rectangle rect = ((RectangleMapObject) obj).getRectangle();
+                        minerSpawnPosition = new Vector2(rect.x + rect.width/2, rect.y + rect.height/2);
+                    } else if (obj instanceof PointMapObject) {
+                        minerSpawnPosition = ((PointMapObject) obj).getPoint();
+                    }
+                    break;
+                }
+            }
+        }
+        if (minerSpawnPosition == null) {
+            // fallback: nếu không có house2, dùng vị trí đầu tiên của waypoints_miner hoặc playerMainTower
+            if (waypoints_miner != null && waypoints_miner.size > 0)
+                minerSpawnPosition = waypoints_miner.first().cpy();
+            else
+                minerSpawnPosition = playerMainTower.cpy();
+        }
         MapLayer enemyLayer = tiledMap.getLayers().get("towerdich");
         if (enemyLayer != null) {
             for (MapObject obj : enemyLayer.getObjects()) {
@@ -195,6 +214,10 @@ public class MapManager {
 
     public Vector2 getEnemyBaseSpawnPosition() {
         return getBottomCenter(enemyMainTowerZone, enemyMainTower);
+    }
+
+    public Vector2 getMinerSpawnPosition() {
+        return minerSpawnPosition.cpy();
     }
 
     public Array<Vector2> getPlayerTowers() {

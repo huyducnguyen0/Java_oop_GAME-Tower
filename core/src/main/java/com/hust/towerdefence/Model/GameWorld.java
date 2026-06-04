@@ -115,9 +115,8 @@ public class GameWorld {
     public void spawnMiner() {
         if (!economyManager.canBuyMiner()) return;
         economyManager.buyMiner();
-        Vector2 homePos = mapManager.getPlayerCastleSpawnPosition();
+        Vector2 homePos = mapManager.getMinerSpawnPosition(); // ← sửa dòng này
         Miner miner = new Miner();
-        // Miner luôn xuất phát từ nhà chính
         miner.setPosition(homePos);
         miner.setPath(mapManager.getWaypoints(miner));
         miner.setState(CombatEntity.State.GOING_TO_MINE);

@@ -12,6 +12,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,8 +29,8 @@ import com.hust.towerdefence.MainGame;
 
 /**
  * Màn hình Menu chính của trò chơi (Main Menu Screen).
- * Đã nâng cấp: Tích hợp 3 cơ chế cuộn (Vuốt kéo, Thanh Scrollbar bên phải, Giữ đè phím mũi tên UP/DOWN liên tục).
- * Bố cục được tối ưu lại không gian hiển thị lớn và chuyên nghiệp hơn.
+ * Đã nâng cấp: Tích hợp 3 cơ chế cuộn, fix Font Tiếng Việt.
+ * Nút bấm tiếng Anh, nội dung mô tả tiếng Việt có dấu.
  */
 public class MainMenuScreen implements Screen {
     private final MainGame game;
@@ -43,7 +45,7 @@ public class MainMenuScreen implements Screen {
     private final BitmapFont buttonFont;
     private final BitmapFont textFont;
     private final Texture overlayTex;
-    private final Texture scrollKnobTex; // Tài nguyên vẽ thanh cuộn dọc nhỏ nhỏ bên phải
+    private final Texture scrollKnobTex;
 
     private final Stage stage;
     private final Table mainTable;
@@ -52,9 +54,7 @@ public class MainMenuScreen implements Screen {
     private final Table tutorialTable;
     private final Table aboutTable;
 
-    // Chuyển scrollPane thành biến toàn cục để hàm render truy cập thời gian thực
     private ScrollPane aboutScrollPane;
-
     private ScrollPane wikiScrollPane;
     private Texture minerSheet, warriorSheet, archerSheet, lancerSheet, monkSheet;
 
@@ -78,14 +78,28 @@ public class MainMenuScreen implements Screen {
         }
         bgAnimation = new Animation<>(1f / 12f, animFrames);
 
-        buttonFont = new BitmapFont();
-        buttonFont.getData().setScale(3f);
-        textFont = new BitmapFont();
-        textFont.getData().setScale(2f);
+        // ========================================================
+        // TÍCH HỢP FONT TIẾNG VIỆT ROBOTO
+        // ========================================================
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Roboto-Regular.ttf"));
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+
+        String vietnameseChars = "aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ0123456789!@#$%^&*()_+-=[]{}|;':,./<>?\"\\";
+        parameter.characters = vietnameseChars;
+
+        // Font chữ to cho nút bấm và tiêu đề
+        parameter.size = 45;
+        buttonFont = generator.generateFont(parameter);
+
+        // Font chữ nhỏ hơn cho mô tả văn bản
+        parameter.size = 28;
+        textFont = generator.generateFont(parameter);
+
+        generator.dispose(); // Giải phóng bộ nhớ
+        // ========================================================
 
         stage = new Stage(new FitViewport(1600, 900));
 
-        // Tạo nền đen mờ cho hộp thoại UI
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(new Color(0f, 0f, 0f, 0.35f));
         pixmap.fill();
@@ -93,9 +107,8 @@ public class MainMenuScreen implements Screen {
         pixmap.dispose();
         TextureRegionDrawable darkBox = new TextureRegionDrawable(new TextureRegion(overlayTex));
 
-        // TẠO ĐỒ HỌA CHO THANH SCROLLBAR BÊN PHẢI (Màu trắng mờ, bo góc gọn gàng)
         Pixmap scrollPixmap = new Pixmap(6, 1, Pixmap.Format.RGBA8888);
-        scrollPixmap.setColor(new Color(1f, 1f, 1f, 0.4f)); // Trắng đục 40% nhìn cực sang
+        scrollPixmap.setColor(new Color(1f, 1f, 1f, 0.4f));
         scrollPixmap.fill();
         scrollKnobTex = new Texture(scrollPixmap);
         scrollPixmap.dispose();
@@ -111,7 +124,7 @@ public class MainMenuScreen implements Screen {
         Label.LabelStyle subTitleStyle = new Label.LabelStyle(buttonFont, Color.GOLD);
 
         // ========================================================
-        // GIAO DIỆN CHỨC NĂNG 1: BẢNG MENU CHÍNH (MAIN TABLE)
+        // GIAO DIỆN CHỨC NĂNG 1: MENU CHÍNH
         // ========================================================
         mainTable = new Table();
         mainTable.setFillParent(true);
@@ -121,6 +134,7 @@ public class MainMenuScreen implements Screen {
         box1.setBackground(darkBox);
         box1.pad(30f, 80f, 30f, 80f);
 
+        // ĐỂ LẠI NÚT TIẾNG ANH
         TextButton playBtn = createAnimatedButton("PLAY GAME", btnStyle);
         TextButton aboutBtn = createAnimatedButton("ABOUT GAME", btnStyle);
         TextButton wikiBtn = createAnimatedButton("TOWER INFO", btnStyle);
@@ -135,7 +149,7 @@ public class MainMenuScreen implements Screen {
         mainTable.add(box1);
 
         // ========================================================
-        // GIAO DIỆN CHỨC NĂNG 2: BẢNG CHỌN MÀN CHƠI (LEVEL TABLE)
+        // GIAO DIỆN CHỨC NĂNG 2: CHỌN MÀN CHƠI
         // ========================================================
         levelTable = new Table();
         levelTable.setFillParent(true);
@@ -158,7 +172,7 @@ public class MainMenuScreen implements Screen {
         levelTable.add(box2);
 
         // ========================================================
-        // GIAO DIỆN CHỨC NĂNG 3: BẢNG GIỚI THIỆU CÓ CUỘN ĐA NĂNG (ABOUT TABLE)
+        // GIAO DIỆN CHỨC NĂNG 3: GIỚI THIỆU (NỘI DUNG TIẾNG VIỆT CÓ DẤU)
         // ========================================================
         aboutTable = new Table();
         aboutTable.setFillParent(true);
@@ -174,16 +188,17 @@ public class MainMenuScreen implements Screen {
         Table scrollContent = new Table();
         scrollContent.left().top();
 
-        String introText = "Day la do an nghien cuu va phat trien bieu dien cua nhom chung minh tai SOICT HUST.\n\n"
-            + "Tro choi ket hop giua chien thuat tha quan, xay dung cac thap phong thu chien luoc doc dao "
-            + "va he thong luu tru thong tin ket qua tran dau thong qua co so du lieu SQL Server hien dai.\n\n"
-            + "He thong AI doi thu cap do manh me se tu dong phan tich luong vang, khao sat tuyen duong "
-            + "va sinh ra quai vat theo cac dot (waves) thach thuc kha nang bay binh bo tran cua ban.\n\n"
-            + "Moi hanh dong mua linh, xay thap deu tieu ton tai nguyen. Hay quan ly kinh te that thong minh, "
-            + "khai thac toi da suc manh cua Xa Thu hay Hiep Si de bao ve nha chinh khoi cuoc can quet huy diet!\n\n"
-            + "San pham duoc xay dung tren nen tang LibGDX framework, phat huy tu duy lap trinh huong doi tuong "
-            + "va cac mo hinh quan ly thuc the nang cao dung chuan mo hinh thiet ke hien hanh.\n\n"
-            + "Chuc cac ban va cac thay co co nhung trai nghiem tuyet voi nhat voi tua game cua chung minh!";
+        // GIỮ TIẾNG VIỆT CÓ DẤU XỊN SÒ Ở ĐÂY
+        String introText = "Đây là đồ án nghiên cứu và phát triển biểu diễn của nhóm chúng mình tại SOICT HUST.\n\n"
+            + "Trò chơi kết hợp giữa chiến thuật thả quân, xây dựng các tháp phòng thủ chiến lược độc đáo "
+            + "và hệ thống lưu trữ thông tin kết quả trận đấu thông qua cơ sở dữ liệu SQL Server hiện đại.\n\n"
+            + "Hệ thống AI đối thủ cấp độ mạnh mẽ sẽ tự động phân tích lượng vàng, khảo sát tuyến đường "
+            + "và sinh ra quái vật theo các đợt (waves) thách thức khả năng bày binh bố trận của bạn.\n\n"
+            + "Mỗi hành động mua lính, xây tháp đều tiêu tốn tài nguyên. Hãy quản lý kinh tế thật thông minh, "
+            + "khai thác tối đa sức mạnh của Xạ Thủ hay Hiệp Sĩ để bảo vệ nhà chính khỏi cuộc càn quét hủy diệt!\n\n"
+            + "Sản phẩm được xây dựng trên nền tảng LibGDX framework, phát huy tư duy lập trình hướng đối tượng "
+            + "và các mô hình quản lý thực thể nâng cao đúng chuẩn thiết kế hiện hành.\n\n"
+            + "Chúc các bạn và các thầy cô có những trải nghiệm tuyệt vời nhất với tựa game của chúng mình!";
 
         Label longTextLabel = new Label(introText, textStyle);
         longTextLabel.setWrap(true);
@@ -193,13 +208,11 @@ public class MainMenuScreen implements Screen {
         ScrollPane.ScrollPaneStyle scrollStyle = new ScrollPane.ScrollPaneStyle();
         scrollStyle.vScrollKnob = scrollKnobDrawable;
 
-        // Khởi tạo gán trực tiếp vào thuộc tính class toàn cục
         aboutScrollPane = new ScrollPane(scrollContent, scrollStyle);
         aboutScrollPane.setScrollingDisabled(true, false);
         aboutScrollPane.setFadeScrollBars(false);
         aboutScrollPane.setFlickScroll(true);
 
-        // Đưa vùng cuộn lớn vào layout
         boxAbout.add(aboutScrollPane).width(1120f).height(420f).padBottom(25f).row();
 
         TextButton backFromAboutBtn = createAnimatedButton("BACK", btnStyle);
@@ -208,7 +221,7 @@ public class MainMenuScreen implements Screen {
         aboutTable.add(boxAbout);
 
         // ========================================================
-        // GIAO DIEN CHUC NANG 4: BANG TRA CUU CONG TRINH (WIKI TABLE)
+        // GIAO DIỆN CHỨC NĂNG 4: WIKI THÁP & QUÂN ĐỘI (TIẾNG VIỆT CÓ DẤU)
         // ========================================================
         wikiTable = new Table();
         wikiTable.setFillParent(true);
@@ -224,9 +237,6 @@ public class MainMenuScreen implements Screen {
         Table wikiScrollContent = new Table();
         wikiScrollContent.left().top();
 
-        // --------------------------------------------------------
-        // NAP TEXTURE VA CAT FRAME DAU TIEN LAM ICON CHINH XAC
-        // --------------------------------------------------------
         minerSheet = new Texture(Gdx.files.internal("Units/Pawn/Pawn_Idle Gold.png"));
         TextureRegion minerIcon = TextureRegion.split(minerSheet, 192, 192)[0][0];
         com.badlogic.gdx.scenes.scene2d.ui.Image minerImg = new com.badlogic.gdx.scenes.scene2d.ui.Image(minerIcon);
@@ -247,73 +257,60 @@ public class MainMenuScreen implements Screen {
         TextureRegion monkIcon = TextureRegion.split(monkSheet, 192, 192)[0][0];
         com.badlogic.gdx.scenes.scene2d.ui.Image monkImg = new com.badlogic.gdx.scenes.scene2d.ui.Image(monkIcon);
 
-        // --------------------------------------------------------
-        // THAY DOI MANH TAY KICH THUOC MAX TAM THEO Y ONG
-        // --------------------------------------------------------
-        float descWidth = 630f;   // Can doi lai do rong de chu to khong bi xuong dong qua vut vat
-        float rowGap = 50f;       // Tang khoang cach giua cac hang cho thoai mai, chu to khong de len nhau
-        float imgSize = 250f;     // TIEP TUC PHONG TO ANH LINH len 250f nhìn cuc ky ham ho
-        float nameScale = 1.7f;   // PHONG TO MANH TAY tieu de ten linh
-        float descScale = 1.5f;   // PHONG TO CHU MO TA doc sieu ro rang
+        float descWidth = 630f;
+        float rowGap = 50f;
+        float imgSize = 250f;
 
-        // --- 1. MINER ---
+        // --- 1. THỢ MỎ ---
         Table mTable = new Table().left();
-        Label lblMName = new Label("ACADEMY MINER (Train Miner)", subTitleStyle); lblMName.setFontScale(nameScale);
-        Label lblMDesc = new Label("Don vi hau can cot loi cua doi hinh. Chuyen trach khai thac va dao vang tren ban do, cung cap nguon tai nguyen doi dao de toi uu hoa kinh te, giup ban de dang day nhanh tien do mua linh va xay dung phong tuyen.", textStyle);
-        lblMDesc.setFontScale(descScale); lblMDesc.setWrap(true);
+        Label lblMName = new Label("ACADEMY MINER (Thợ Mỏ)", subTitleStyle);
+        Label lblMDesc = new Label("Đơn vị hậu cần cốt lõi của đội hình. Chuyên trách khai thác và đào vàng trên bản đồ, cung cấp nguồn tài nguyên dồi dào để tối ưu hóa kinh tế, giúp bạn dễ dàng đẩy nhanh tiến độ mua lính và xây dựng phòng tuyến.", textStyle);
+        lblMDesc.setWrap(true);
         mTable.add(lblMName).left().padBottom(10f).row();
         mTable.add(lblMDesc).width(descWidth).left();
-
         wikiScrollContent.add(minerImg).size(imgSize, imgSize).padRight(45f).padBottom(rowGap).left();
         wikiScrollContent.add(mTable).expandX().fillX().padBottom(rowGap).row();
 
-        // --- 2. WARRIOR ---
+        // --- 2. CHIẾN BINH ---
         Table wTable = new Table().left();
-        Label lblWName = new Label("TRAIN WARRIOR (Train Warrior)", subTitleStyle); lblWName.setFontScale(nameScale);
-        Label lblWDesc = new Label("Luc luong can chien tien phong dung manh. Chuyen lam khac tinh chan cac nut that giao tranh nho so huu luong mau (HP) cuc ky trau bo, mac du sat thuong (DMG) gay ra co phan yeu hon.", textStyle);
-        lblWDesc.setFontScale(descScale); lblWDesc.setWrap(true);
+        Label lblWName = new Label("TRAIN WARRIOR (Chiến Binh)", subTitleStyle);
+        Label lblWDesc = new Label("Lực lượng cận chiến tiên phong dũng mãnh. Chuyên làm khắc tinh chặn các nút thắt giao tranh nhờ sở hữu lượng máu (HP) cực kỳ trâu bò, mặc dù sát thương (DMG) gây ra có phần yếu hơn.", textStyle);
+        lblWDesc.setWrap(true);
         wTable.add(lblWName).left().padBottom(10f).row();
         wTable.add(lblWDesc).width(descWidth).left();
-
         wikiScrollContent.add(warriorImg).size(imgSize, imgSize).padRight(45f).padBottom(rowGap).left();
         wikiScrollContent.add(wTable).expandX().fillX().padBottom(rowGap).row();
 
-        // --- 3. ARCHER ---
+        // --- 3. XẠ THỦ ---
         Table aTable = new Table().left();
-        Label lblAName = new Label("TOWER ARCHER (Train Archer)", subTitleStyle); lblAName.setFontScale(nameScale);
-        Label lblADesc = new Label("Don vi xa thu voi tam ban cuc xa va toc do ban on dinh. So huu luong sat thuong (DMG) va luong mau (HP) o muc trung binh, thich hop dat tren cao de ban tia quai vat bay hoac ke dich toc do cao.", textStyle);
-        lblADesc.setFontScale(descScale); lblADesc.setWrap(true);
+        Label lblAName = new Label("TOWER ARCHER (Xạ Thủ)", subTitleStyle);
+        Label lblADesc = new Label("Đơn vị xạ thủ với tầm bắn cực xa và tốc độ bắn ổn định. Sở hữu lượng sát thương (DMG) và lượng máu (HP) ở mức trung bình, thích hợp đặt trên cao để bắn tỉa quái vật bay hoặc kẻ địch tốc độ cao.", textStyle);
+        lblADesc.setWrap(true);
         aTable.add(lblAName).left().padBottom(10f).row();
         aTable.add(lblADesc).width(descWidth).left();
-
         wikiScrollContent.add(archerImg).size(imgSize, imgSize).padRight(45f).padBottom(rowGap).left();
         wikiScrollContent.add(aTable).expandX().fillX().padBottom(rowGap).row();
 
-        // --- 4. LANCER ---
+        // --- 4. GIÁO BINH ---
         Table lTable = new Table().left();
-        Label lblLName = new Label("BARRACKS LANCER (Train Lancer)", subTitleStyle); lblLName.setFontScale(nameScale);
-        Label lblLDesc = new Label("Chien binh thiet thuong voi don dam xuyen thau dien rong. So huu luong sat thuong (DMG) cuc ky to de can quet quai vat di theo cum, tuy nhien luong mau (HP) lai khong duoc trau bo nhu Chien Binh.", textStyle);
-        lblLDesc.setFontScale(descScale); lblLDesc.setWrap(true);
+        Label lblLName = new Label("BARRACKS LANCER (Giáo Binh)", subTitleStyle);
+        Label lblLDesc = new Label("Chiến binh thiết thương với đòn đâm xuyên thấu diện rộng. Sở hữu lượng sát thương (DMG) cực kỳ to để càn quét quái vật đi theo cụm, tuy nhiên lượng máu (HP) lại không được trâu bò như Chiến Binh.", textStyle);
+        lblLDesc.setWrap(true);
         lTable.add(lblLName).left().padBottom(10f).row();
         lTable.add(lblLDesc).width(descWidth).left();
-
         wikiScrollContent.add(lancerImg).size(imgSize, imgSize).padRight(45f).padBottom(rowGap).left();
         wikiScrollContent.add(lTable).expandX().fillX().padBottom(rowGap).row();
 
-        // --- 5. MONK (HEALER) ---
+        // --- 5. TU SĨ ---
         Table moTable = new Table().left();
-        Label lblMoName = new Label("ALTAR MONK (Train Monk)", subTitleStyle); lblMoName.setFontScale(nameScale);
-        Label lblMoDesc = new Label("Thay phap ho tro va phuc hoi tinh than. Co kha nang trien khai cac vong ma phap hao quang chua lanh (Heal) de lien tuc hoi phuc trang thai, duy tri su song cho quan ta tai cac diem nong giao tranh.", textStyle);
-        lblMoDesc.setFontScale(descScale); lblMoDesc.setWrap(true);
+        Label lblMoName = new Label("ALTAR MONK (Tu Sĩ Hỗ Trợ)", subTitleStyle);
+        Label lblMoDesc = new Label("Thầy pháp hỗ trợ và phục hồi tinh thần. Có khả năng triển khai các vòng ma pháp hào quang chữa lành (Heal) để liên tục hồi phục trạng thái, duy trì sự sống cho quân ta tại các điểm nóng giao tranh.", textStyle);
+        lblMoDesc.setWrap(true);
         moTable.add(lblMoName).left().padBottom(10f).row();
         moTable.add(lblMoDesc).width(descWidth).left();
-
         wikiScrollContent.add(monkImg).size(imgSize, imgSize).padRight(45f).padBottom(25f).left();
         wikiScrollContent.add(moTable).expandX().fillX().padBottom(25f).row();
 
-        // --------------------------------------------------------
-        // DUA NOI DUNG VAO THANH CUON SCROLLPANE VA ADD VAO BOX LON
-        // --------------------------------------------------------
         ScrollPane.ScrollPaneStyle wikiScrollStyle = new ScrollPane.ScrollPaneStyle();
         wikiScrollStyle.vScrollKnob = scrollKnobDrawable;
 
@@ -330,7 +327,7 @@ public class MainMenuScreen implements Screen {
         wikiTable.add(box3);
 
         // ========================================================
-        // GIAO DIỆN CHỨC NĂNG 5: BẢNG HƯỚNG DẪN LUẬT CHƠI (TUTORIAL TABLE)
+        // GIAO DIỆN CHỨC NĂNG 5: HƯỚNG DẪN LUẬT CHƠI (TIẾNG VIỆT)
         // ========================================================
         tutorialTable = new Table();
         tutorialTable.setFillParent(true);
@@ -343,10 +340,12 @@ public class MainMenuScreen implements Screen {
 
         Label tutorialTitle = new Label("- HOW TO PLAY -", subTitleStyle);
         box4.add(tutorialTitle).padBottom(30f).center().row();
-        box4.add(new Label("1. Mua thap va dat canh duong di de chan quai vat.", textStyle)).padBottom(15f).left().row();
-        box4.add(new Label("2. Tieu diet quai vat de kiem them Vang (Gold).", textStyle)).padBottom(15f).left().row();
-        box4.add(new Label("3. Su dung Vang de nang cap thap manh hon.", textStyle)).padBottom(15f).left().row();
-        box4.add(new Label("4. Khong de quai vat di den nha chinh!", textStyle)).padBottom(30f).left().row();
+
+        // HƯỚNG DẪN TIẾNG VIỆT CÓ DẤU
+        box4.add(new Label("1. Mua tháp và đặt dọc theo đường đi để chặn quái vật.", textStyle)).padBottom(15f).left().row();
+        box4.add(new Label("2. Tiêu diệt quái vật để kiếm thêm Vàng (Gold).", textStyle)).padBottom(15f).left().row();
+        box4.add(new Label("3. Sử dụng Vàng để mua thêm lính và nâng cấp căn cứ.", textStyle)).padBottom(15f).left().row();
+        box4.add(new Label("4. Tuyệt đối không để quái vật đi đến Nhà Chính!", textStyle)).padBottom(30f).left().row();
 
         TextButton backFromTutorialBtn = createAnimatedButton("BACK", btnStyle);
         box4.add(backFromTutorialBtn).center();
@@ -359,17 +358,8 @@ public class MainMenuScreen implements Screen {
         stage.addActor(tutorialTable);
 
         playBtn.addListener(new ChangeListener() { @Override public void changed(ChangeEvent event, Actor actor) { playClickSound(); mainTable.setVisible(false); levelTable.setVisible(true); } });
-        // Đoạn gộp focus bàn phím của nhóm ông giữ nguyên để các xử lý bổ trợ hoạt động tốt nhất
         aboutBtn.addListener(new ChangeListener() { @Override public void changed(ChangeEvent event, Actor actor) { playClickSound(); mainTable.setVisible(false); aboutTable.setVisible(true); stage.setKeyboardFocus(aboutScrollPane); } });
-        wikiBtn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                playClickSound();
-                mainTable.setVisible(false);
-                wikiTable.setVisible(true);
-                stage.setKeyboardFocus(wikiScrollPane); // Thêm dòng này để nhận phím cuộn ngay lập tức
-            }
-        });
+        wikiBtn.addListener(new ChangeListener() { @Override public void changed(ChangeEvent event, Actor actor) { playClickSound(); mainTable.setVisible(false); wikiTable.setVisible(true); stage.setKeyboardFocus(wikiScrollPane); } });
         tutorialBtn.addListener(new ChangeListener() { @Override public void changed(ChangeEvent event, Actor actor) { playClickSound(); mainTable.setVisible(false); tutorialTable.setVisible(true); } });
         quitBtn.addListener(new ChangeListener() { @Override public void changed(ChangeEvent event, Actor actor) { playClickSound(); Gdx.app.exit(); } });
 
@@ -430,9 +420,8 @@ public class MainMenuScreen implements Screen {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // [MỚI TÍCH HỢP] Kiểm tra đè giữ phím liên tục theo thời gian thực (real-time delta)
         if (aboutTable != null && aboutTable.isVisible() && aboutScrollPane != null) {
-            float scrollSpeed = 250f * delta; // Đồng bộ hóa mượt mà dựa trên FPS của máy tính
+            float scrollSpeed = 250f * delta;
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
                 aboutScrollPane.setScrollY(aboutScrollPane.getScrollY() + scrollSpeed);
             } else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {

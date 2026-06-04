@@ -10,7 +10,7 @@ import com.hust.towerdefence.Model.Entities.Tower.MainTower;
  */
 public class MainTowerRenderer {
     private static final String PLAYER_CASTLE = "Buildings/Castle.png";
-    private static final String ENEMY_CASTLE = "EnemyBuildings/Wood_main/Castle.png";
+    private static final String ENEMY_CASTLE = "EnemyBuildings/Castle_Red.png";
 
     private final Texture playerCastle;
     private final Texture enemyCastle;

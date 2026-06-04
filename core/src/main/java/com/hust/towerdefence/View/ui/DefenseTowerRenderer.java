@@ -15,7 +15,8 @@ import com.hust.towerdefence.Model.Entities.Tower.DefenseTower;
 
 public class DefenseTowerRenderer {
     private static final String PLAYER_TOWER = "Buildings/Tower.png";
-    private static final String ENEMY_TOWER = "EnemyBuildings/Wood_Tower/Tower.png";
+    private static final String ENEMY_TOWER = "EnemyBuildings/Tower_Red.png";
+
     private static final String PLAYER_ARCHER_IDLE = "Units/Archer/Archer_Idle.png";
     private static final String PLAYER_ARCHER_SHOOT = "Units/Archer/Archer_Shoot.png";
     private static final String ENEMY_ARCHER_IDLE = "EnemyUnits/Archer/Archer_Idle.png";

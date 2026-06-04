@@ -1,4 +1,3 @@
-
 buildscript {
   repositories {
     gradlePluginPortal()
@@ -25,13 +24,17 @@ eclipse.project.name = appName + '-lwjgl3'
 java.sourceCompatibility = 17
 java.targetCompatibility = 17
 if (JavaVersion.current().isJava9Compatible()) {
-        compileJava.options.release.set(17)
+  compileJava.options.release.set(17)
 }
 
 dependencies {
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation project(':core')
+
+  // --- ĐÂY LÀ DÒNG CODE "CỨU MẠNG" ĐỂ SỬA LỖI FONT TIẾNG VIỆT ---
+  implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+  // -------------------------------------------------------------
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-backend-lwjgl3:$graalHelperVersion"
