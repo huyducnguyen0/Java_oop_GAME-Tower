@@ -769,7 +769,7 @@
  <objectgroup id="16" name="towerdich" offsetx="0" offsety="-3.0303">
   <object id="8" name="enemymaintower" x="260.606" y="324.242" width="309.091" height="187.879"/>
   <object id="9" name="enemytower1" x="251.515" y="643.03" width="130.303" height="184.243"/>
-  <object id="147" x="451.515" y="1287.88" width="124.242" height="187.15"/>
+ <object id="147" name="enemytower2" x="451.515" y="1287.88" width="124.242" height="187.15"/>
  </objectgroup>
  <objectgroup id="15" name="towermain" offsetx="-3.0303" offsety="0">
   <object id="12" name="maintower" x="2751.52" y="578.788" width="318.182" height="187.879"/>
