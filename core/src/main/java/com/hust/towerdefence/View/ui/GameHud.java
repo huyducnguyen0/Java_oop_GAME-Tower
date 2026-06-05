@@ -25,16 +25,23 @@ public class GameHud {
     private static final float HUD_MAX_WIDTH = 580f;
     private static final float HUD_HEIGHT = 50f;
     private static final float HUD_TOP_MARGIN = 12f;
+    private static final float UNIT_COUNT_PANEL_WIDTH = 150f;
+    private static final float UNIT_COUNT_PANEL_HEIGHT = 44f;
+    private static final float UNIT_COUNT_PANEL_MARGIN = 18f;
 
     private final MainGame game; // Thêm biến game để có quyền chuyển màn hình
     private final GameWorld gameWorld;
     private final UiAssets assets;
     private final Stage stage;
     private final Table statusBar;
+    private final Table enemyCountPanel;
+    private final Table allyCountPanel;
     private final Table resultOverlay;
 
     private final Label goldLabel;
     private final Label selectedBuildingLabel;
+    private final Label enemyCountLabel;
+    private final Label allyCountLabel;
     private final Label resultLabel;
     private final TextButton pauseButton;
     private final TextButton quitButton; // Khai báo Nút Quit
@@ -51,6 +58,8 @@ public class GameHud {
 
         goldLabel = new Label("", assets.getDefaultLabelStyle());
         selectedBuildingLabel = new Label("", assets.getDefaultLabelStyle());
+        enemyCountLabel = new Label("", assets.getDefaultLabelStyle());
+        allyCountLabel = new Label("", assets.getDefaultLabelStyle());
         resultLabel = new Label("", assets.getTitleLabelStyle());
 
         pauseButton = new TextButton("", assets.getPauseButtonStyle());
@@ -83,6 +92,8 @@ public class GameHud {
         towerInfoPanel = new TowerInfoPanel(stage, gameWorld, assets);
 
         statusBar = new Table();
+        enemyCountPanel = new Table();
+        allyCountPanel = new Table();
         resultOverlay = new Table();
         buildLayout();
         layoutHud();
@@ -106,6 +117,18 @@ public class GameHud {
         statusBar.add(quitButton).width(75).height(34).padLeft(8);
 
         stage.addActor(statusBar);
+
+        enemyCountPanel.setBackground(assets.getPanelDrawable());
+        enemyCountPanel.pad(8, 14, 8, 14);
+        enemyCountLabel.setAlignment(Align.center);
+        enemyCountPanel.add(enemyCountLabel).center().expand().fill();
+        stage.addActor(enemyCountPanel);
+
+        allyCountPanel.setBackground(assets.getPanelDrawable());
+        allyCountPanel.pad(8, 14, 8, 14);
+        allyCountLabel.setAlignment(Align.center);
+        allyCountPanel.add(allyCountLabel).center().expand().fill();
+        stage.addActor(allyCountPanel);
 
         resultLabel.setAlignment(Align.center);
         resultOverlay.setBackground(assets.getPanelDrawable());
@@ -170,6 +193,8 @@ public class GameHud {
 
     private void updateLabels() {
         goldLabel.setText("Gold: " + gameWorld.getEconomyManager().getGold());
+        enemyCountLabel.setText("Enemy: " + gameWorld.getEntityManager().getAliveEnemyCount());
+        allyCountLabel.setText("Ally: " + gameWorld.getEntityManager().getAliveSoldierCount());
         selectedBuildingLabel.setText(selectedBuildingName == null ? "" : selectedBuildingName);
         pauseButton.setText(gameWorld.isPaused() ? "Play" : "Pause");
         resultOverlay.setVisible(gameWorld.isGameOver() || gameWorld.isVictory());
@@ -190,6 +215,15 @@ public class GameHud {
 
         statusBar.setSize(hudWidth, HUD_HEIGHT);
         statusBar.setPosition(x, y);
+
+        enemyCountPanel.setSize(UNIT_COUNT_PANEL_WIDTH, UNIT_COUNT_PANEL_HEIGHT);
+        enemyCountPanel.setPosition(UNIT_COUNT_PANEL_MARGIN, screenHeight - UNIT_COUNT_PANEL_HEIGHT - UNIT_COUNT_PANEL_MARGIN);
+
+        allyCountPanel.setSize(UNIT_COUNT_PANEL_WIDTH, UNIT_COUNT_PANEL_HEIGHT);
+        allyCountPanel.setPosition(
+            screenWidth - UNIT_COUNT_PANEL_WIDTH - UNIT_COUNT_PANEL_MARGIN,
+            screenHeight - UNIT_COUNT_PANEL_HEIGHT - UNIT_COUNT_PANEL_MARGIN
+        );
 
         resultOverlay.setSize(300f, 104f);
         resultOverlay.setPosition((screenWidth - 300f) / 2f, (screenHeight - 104f) / 2f);
