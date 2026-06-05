@@ -375,14 +375,18 @@ public class MainMenuScreen implements Screen {
                     game.audioManager.stopMenuMusic();
                     game.audioManager.playGameplayMusic();
                 }
-                game.setScreen(DemoModelScreen.class);
+                game.setScreen(new DemoModelScreen(game));
             }
         });
 
         lv2Btn.addListener(new ChangeListener() {
             @Override public void changed(ChangeEvent event, Actor actor) {
                 playClickSound();
-                System.out.println("Map 2 đang trong quá trình phát triển hoàn thiện!");
+                if (game.audioManager != null) {
+                    game.audioManager.stopMenuMusic();
+                    game.audioManager.playGameplayMusic();
+                }
+                game.setScreen(new DemoModelScreen2(game));
             }
         });
     }

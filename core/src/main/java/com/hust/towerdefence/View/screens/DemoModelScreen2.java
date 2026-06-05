@@ -31,11 +31,11 @@ import com.hust.towerdefence.View.ui.WorldHudRenderer;
  * Quản lý tương tác giữa bản đồ TiledMap, thực thể lính/tháp, AI Controller và hệ thống hiển thị HUD.
  * ĐÃ FIX LỖI: Reset trạng thái màn chơi mỗi khi bắt đầu lại!
  */
-public class DemoModelScreen extends ScreenAdapter {
+public class DemoModelScreen2 extends ScreenAdapter {
     // ==========================================
     // CẤU HÌNH THÔNG SỐ ĐẦU VÀO MẶC ĐỊNH
     // ==========================================
-    private static final String  MAP_PATH = "Game_Map.tmx";  // Đường dẫn đến file TiledMap (TMX) dùng cho
+    private static final String  MAP_PATH = "Game_Map2.tmx";  // Đường dẫn đến file TiledMap (TMX) dùng cho
     private static final int INITIAL_GOLD = 1000;
     private static final int MAX_GOLD = 2000;
     private static final int AI_LEVEL = 2;
@@ -71,7 +71,7 @@ public class DemoModelScreen extends ScreenAdapter {
 
     // ĐÃ XÓA BIẾN CỜ KIỂM TRA isInitialized ĐỂ ÉP GAME RESET
 
-    public DemoModelScreen(MainGame game) {
+    public DemoModelScreen2(MainGame game) {
         this.game = game;
     }
 
