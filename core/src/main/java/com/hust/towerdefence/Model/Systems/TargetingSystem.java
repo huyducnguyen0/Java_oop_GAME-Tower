@@ -43,6 +43,16 @@ public class TargetingSystem {
                 entity.setTargetId(-1);
             }
 
+            if (healer) {
+                CombatEntity healTarget = findNearestInjuredAlly(entity);
+                if (healTarget != null) {
+                    if (currentTarget != healTarget) {
+                        entity.setTargetId(healTarget.getId());
+                    }
+                    continue;
+                }
+            }
+
             if (!healer && !(entity instanceof BaseTower)) {
                 DefenseTower priorityTower = findNearestEnemyTowerInRange(entity);
                 if (priorityTower != null && currentTarget != priorityTower) {
@@ -52,7 +62,7 @@ public class TargetingSystem {
             }
 
             if (entity.getTargetId() == -1) {
-                CombatEntity newTarget = healer ? findNearestInjuredAlly(entity) : findNearestEnemy(entity);
+                CombatEntity newTarget = healer ? findNearestEnemyUnit(entity) : findNearestEnemy(entity);
                 if (newTarget != null) {
                     entity.setTargetId(newTarget.getId());
                 }
@@ -63,12 +73,22 @@ public class TargetingSystem {
     private boolean isInvalidTarget(CombatEntity source, CombatEntity target, boolean healer) {
         if (target.isDead() || target.isRemoved()) return true;
         if (healer) {
-            return target == source
-                || target.getTeam() != source.getTeam()
-                || target.getHealth() >= target.getMaxHealth();
+            if (target == source || target instanceof Miner || isOutOfEffectiveRange(source, target)) return true;
+            if (target.getTeam() == source.getTeam()) {
+                return target.getHealth() >= target.getMaxHealth();
+            }
+            return !(target instanceof Soldier || target instanceof Enemy);
         }
         if (source instanceof BaseTower && !(target instanceof Soldier || target instanceof Enemy)) return true;
-        return target.getTeam() == source.getTeam() || target instanceof Miner;
+        if (target.getTeam() == source.getTeam() || target instanceof Miner) return true;
+
+        // Moving units should not abandon their route to chase another moving unit
+        // that has already left attack range. They will resume their waypoint path.
+        if (target instanceof Soldier || target instanceof Enemy) {
+            return isOutOfEffectiveRange(source, target);
+        }
+
+        return false;
     }
 
     public DefenseTower findNearestEnemyTowerInRange(CombatEntity source) {
@@ -110,6 +130,27 @@ public class TargetingSystem {
         return nearest;
     }
 
+    public CombatEntity findNearestEnemyUnit(CombatEntity source) {
+        Team myTeam = source.getTeam();
+        CombatEntity nearest = null;
+        float minDist = Float.MAX_VALUE;
+        float rangeSq = effectiveRange(source) * effectiveRange(source);
+
+        for (CombatEntity other : entityManager.getAllActiveCombatUnits()) {
+            if (other == source || other.isDead() || other.isRemoved()) continue;
+            if (other.getTeam() == myTeam) continue;
+            if (!(other instanceof Soldier || other instanceof Enemy)) continue;
+            if (other instanceof Miner) continue;
+
+            float dist = source.getPosition().dst2(other.getPosition());
+            if (dist <= rangeSq && dist < minDist) {
+                minDist = dist;
+                nearest = other;
+            }
+        }
+        return nearest;
+    }
+
     public CombatEntity findNearestEnemy(CombatEntity source) {
         Team myTeam = source.getTeam();
         CombatEntity nearest = null;
@@ -134,6 +175,14 @@ public class TargetingSystem {
     private float effectiveRange(CombatEntity entity) {
         float rawRange = entity.getAttackRange();
         return rawRange <= TILE_RANGE_THRESHOLD ? rawRange * TILE_RANGE_SCALE : rawRange;
+    }
+
+    private boolean isOutOfEffectiveRange(CombatEntity source, CombatEntity target) {
+        float range = effectiveRange(source);
+        if (target instanceof DefenseTower) {
+            return distanceToTowerBoundsSq(source, (DefenseTower) target) > range * range;
+        }
+        return source.getPosition().dst2(target.getPosition()) > range * range;
     }
 
     private float distanceToTowerBoundsSq(CombatEntity source, DefenseTower tower) {

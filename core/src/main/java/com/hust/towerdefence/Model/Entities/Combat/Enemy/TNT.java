@@ -9,7 +9,7 @@ public class TNT extends Enemy {
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
     private static final float[] HEALTH_DATA = {60f, 150f, 400f};
     private static final float[] DAMAGE_DATA = {30f, 70f, 150f};
-    private static final float[] RANGE_DATA = {3.0f, 3.8f, 4.5f};
+    private static final float[] RANGE_DATA = {2.5f, 3.0f, 3.5f};
 
     // Phần thưởng tăng dần để người chơi có động lực nâng cấp Soldier
     private static final int[] GOLD_REWARD_DATA = {20, 50, 120};

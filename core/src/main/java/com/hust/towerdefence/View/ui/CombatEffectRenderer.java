@@ -16,12 +16,14 @@ public class CombatEffectRenderer {
     private static final String DYNAMITE = "EnemyUnits/TNT/Dynamite/Dynamite.png";
     private static final String PLAYER_HEAL = "Units/Monk/Heal_Effect.png";
     private static final String ENEMY_HEAL = "EnemyUnits/Monk/Heal_Effect.png";
+    private static final String POISON = "Destroyed_Effect/Explosion_01.png";
 
     private static final float ARROW_SPEED = 720f;
     private static final float DYNAMITE_SPEED = 420f;
     private static final float MIN_PROJECTILE_DURATION = 0.16f;
     private static final float MAX_PROJECTILE_DURATION = 0.55f;
     private static final float HEAL_DURATION = 0.55f;
+    private static final float POISON_DURATION = 0.45f;
 
     private final SpriteBatch batch;
     private final Texture playerArrow;
@@ -29,9 +31,11 @@ public class CombatEffectRenderer {
     private final Texture dynamite;
     private final Texture playerHeal;
     private final Texture enemyHeal;
+    private final Texture poison;
     private final TextureRegion[] dynamiteFrames;
     private final TextureRegion[] playerHealFrames;
     private final TextureRegion[] enemyHealFrames;
+    private final TextureRegion[] poisonFrames;
     private final Array<ActiveEffect> effects = new Array<>();
 
     public CombatEffectRenderer() {
@@ -41,9 +45,11 @@ public class CombatEffectRenderer {
         dynamite = loadTexture(DYNAMITE);
         playerHeal = loadTexture(PLAYER_HEAL);
         enemyHeal = loadTexture(ENEMY_HEAL);
+        poison = loadTexture(POISON);
         dynamiteFrames = split(dynamite, 64, 64);
         playerHealFrames = split(playerHeal, 192, 192);
         enemyHealFrames = split(enemyHeal, 192, 192);
+        poisonFrames = split(poison, 192, 192);
     }
 
     public void addEvents(Array<CombatVisualEvent> events) {
@@ -70,6 +76,8 @@ public class CombatEffectRenderer {
     private void drawEffect(ActiveEffect effect) {
         if (effect.type == CombatVisualEvent.Type.HEAL) {
             drawHeal(effect);
+        } else if (effect.type == CombatVisualEvent.Type.POISON) {
+            drawPoison(effect);
         } else if (effect.type == CombatVisualEvent.Type.DYNAMITE) {
             drawProjectile(effect, getFrame(dynamiteFrames, effect.progress()), 42f);
         } else {
@@ -89,6 +97,12 @@ public class CombatEffectRenderer {
     private void drawHeal(ActiveEffect effect) {
         TextureRegion frame = getFrame(effect.team == BaseEntity.Team.ENEMY ? enemyHealFrames : playerHealFrames, effect.progress());
         float size = 72f;
+        batch.draw(frame, effect.end.x - size / 2f, effect.end.y - size / 2f, size, size);
+    }
+
+    private void drawPoison(ActiveEffect effect) {
+        TextureRegion frame = getFrame(poisonFrames, effect.progress());
+        float size = 112f;
         batch.draw(frame, effect.end.x - size / 2f, effect.end.y - size / 2f, size, size);
     }
 
@@ -118,6 +132,7 @@ public class CombatEffectRenderer {
         dynamite.dispose();
         playerHeal.dispose();
         enemyHeal.dispose();
+        poison.dispose();
         batch.dispose();
     }
 
@@ -140,6 +155,9 @@ public class CombatEffectRenderer {
         private float computeDuration() {
             if (type == CombatVisualEvent.Type.HEAL) {
                 return HEAL_DURATION;
+            }
+            if (type == CombatVisualEvent.Type.POISON) {
+                return POISON_DURATION;
             }
             float speed = type == CombatVisualEvent.Type.DYNAMITE ? DYNAMITE_SPEED : ARROW_SPEED;
             return MathUtils.clamp(start.dst(end) / speed, MIN_PROJECTILE_DURATION, MAX_PROJECTILE_DURATION);

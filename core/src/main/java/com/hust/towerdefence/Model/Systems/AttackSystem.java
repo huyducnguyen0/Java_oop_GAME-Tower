@@ -13,6 +13,8 @@ import com.hust.towerdefence.Model.Managers.EntityManager;
 public class AttackSystem {
     private static final float TILE_RANGE_SCALE = 64f;
     private static final float TILE_RANGE_THRESHOLD = 10f;
+    private static final float HEALER_POISON_RADIUS = 72f;
+    private static final float HEALER_POISON_DAMAGE_SCALE = 0.6f;
     private static final float ARCHER_PROJECTILE_Y_OFFSET = 42f;
     private static final float ARCHER_PROJECTILE_FORWARD_OFFSET = 16f;
     private static final float TNT_PROJECTILE_Y_OFFSET = 34f;
@@ -62,12 +64,29 @@ public class AttackSystem {
                     addVisualEvent(attacker, target, CombatVisualEvent.Type.HEAL);
                     healthSystem.heal(target, attacker.getAttackDamage());
                 }
+            } else if (attacker instanceof Healer) {
+                addVisualEvent(attacker, target, CombatVisualEvent.Type.POISON);
+                applyHealerPoison((Healer) attacker, target);
             } else {
                 addAttackVisualEvent(attacker, target);
                 healthSystem.takeDamage(target, attacker.getAttackDamage());
             }
 
             attacker.setCooldownTimer(attacker.getCooldownDuration());
+        }
+    }
+
+    private void applyHealerPoison(Healer healer, CombatEntity target) {
+        float radiusSq = HEALER_POISON_RADIUS * HEALER_POISON_RADIUS;
+        float damage = healer.getAttackDamage() * HEALER_POISON_DAMAGE_SCALE;
+        Vector2 center = getVisualEnd(healer, target);
+
+        for (CombatEntity entity : entityManager.getAllActiveCombatUnits()) {
+            if (entity.isDead() || entity.isRemoved()) continue;
+            if (entity.getTeam() == healer.getTeam()) continue;
+            if (entity.getPosition().dst2(center) <= radiusSq) {
+                healthSystem.takeDamage(entity, damage);
+            }
         }
     }
 

@@ -7,7 +7,8 @@ public class CombatVisualEvent {
     public enum Type {
         ARROW,
         DYNAMITE,
-        HEAL
+        HEAL,
+        POISON
     }
 
     private final Type type;

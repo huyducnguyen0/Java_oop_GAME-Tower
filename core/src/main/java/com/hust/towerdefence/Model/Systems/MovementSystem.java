@@ -52,7 +52,7 @@ public class MovementSystem {
                 long targetId = entity.getTargetId();
                 if (targetId != -1) {
                     CombatEntity target = entityManager.getEntityById(targetId, CombatEntity.class);
-                    if (target != null && !target.isDead()) {
+                    if (target != null && !target.isDead() && attackDistance(entity, target) <= effectiveRange(entity)) {
                         pausedPaths.put(entity, new PausedPath(
                             new Array<>(entity.getPath()),
                             entity.getCurrentPathIndex()
@@ -90,7 +90,9 @@ public class MovementSystem {
         if (hasValidTarget) {
             float dist = attackDistance(entity, target);
             if (dist <= effectiveRange(entity)) {
-                newState = entity instanceof Healer ? State.HEALING : State.ATTACKING;
+                newState = entity instanceof Healer && target.getTeam() == entity.getTeam()
+                    ? State.HEALING
+                    : State.ATTACKING;
             } else {
                 newState = State.MOVING;
             }
