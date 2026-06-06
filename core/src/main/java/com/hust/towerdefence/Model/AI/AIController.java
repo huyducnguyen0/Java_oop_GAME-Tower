@@ -146,6 +146,7 @@ public class AIController {
 
         // --- Số quân trong wave này ---
         int enemyCount = getEnemyCountForWave(wavesStarted);
+        enemyCount += (level - 1) * 2;
 
         // --- Tính spawn interval (giảm dần theo difficultyIndex) ---
         currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, SPAWN_INTERVAL_BASE - difficultyIndex * 0.25f);
