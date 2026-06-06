@@ -7,11 +7,10 @@ package com.hust.towerdefence.Model.Entities.Combat.Enemy;
 public class WarriorHacHoa extends Enemy {
 
 
-    // Chỉ số nhỉnh hơn Warrior đồng minh (Warrior: 300, 650, 1200)
-    private static final float[] HEALTH_DATA = {350f, 750f, 1500f};
-
-    // Sát thương nhỉnh hơn Warrior đồng minh (Warrior: 15, 30, 55)
-    private static final float[] DAMAGE_DATA = {20f, 45f, 75f};
+    // Đã tối ưu: Chỉ số nhỉnh hơn hẳn Warrior trong ảnh (Warrior: HP 350-750-1400, ATK 12-25-45)
+    // Vẫn giữ đúng tinh thần HP cao - ATK thấp để kéo dài trận đấu
+    private static final float[] HEALTH_DATA = {420f, 900f, 1750f};       // Trâu hơn Warrior khoảng 20-25%, làm siêu tường thành
+    private static final float[] DAMAGE_DATA = {18f, 35f, 60f};           // ATK nhỉnh hơn Warrior (~12f/25f/45f) nhưng vẫn đủ thấp để quái không bốc hơi
 
     // Tầm đánh nhỉnh hơn Warrior một chút (Warrior: 75, 80, 85)
     private static final float[] RANGE_DATA = {1.2f, 1.3f, 1.4f};

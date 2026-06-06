@@ -7,11 +7,9 @@ package com.hust.towerdefence.Model.Entities.Combat.Enemy;
 public class PawnHacHoa extends Enemy {
 
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
-    // Chỉ số được thiết kế nhỉnh hơn Pawn (Pawn: 150, 300, 600)
-    private static final float[] HEALTH_DATA = {180f, 380f, 750f};
-
-    // Sát thương nhỉnh hơn Pawn (Pawn: 15, 35, 80)
-    private static final float[] DAMAGE_DATA = {0.65f, 0.75f, 0.85f};
+    // Đã BUFF MẠNH: Thống trị mặt bằng chung, HP cực trâu và ATK cực gắt
+    private static final float[] HEALTH_DATA = {280f, 580f, 1100f};      // HP tăng vọt, Lv3 chạm mốc 1100f (gần bằng Tanker đại ca 1200f)
+    private static final float[] DAMAGE_DATA = {32f, 68f, 115f};        // ATK siêu uy tín, Lv3 lên hẳn 115f (vượt mặt Sát thủ 110f, đứng top 2 game)
 
     // Giữ nguyên tầm đánh ngắn như yêu cầu (Pawn: 40, 45, 50)
     private static final float[] RANGE_DATA = {40f, 45f, 50f};

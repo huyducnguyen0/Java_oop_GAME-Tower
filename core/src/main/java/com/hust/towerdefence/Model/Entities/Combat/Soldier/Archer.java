@@ -8,8 +8,9 @@ package com.hust.towerdefence.Model.Entities.Combat.Soldier;
 public class Archer extends Soldier {
 
     // --- CẤU HÌNH THÔNG SỐ CHO 3 CẤP ĐỘ (LEVEL 1, 2, 3) ---
-    private static final float[] HEALTH_DATA = {80f, 150f, 300f};
-    private static final float[] DAMAGE_DATA = {12f, 28f, 65f};
+    // Đã tối ưu: Máu mỏng nhất hệ mặt trời nhưng sát thương đầu ra cực khủng, chuẩn Glass Cannon
+    private static final float[] HEALTH_DATA = {80f, 150f, 300f};        // Giữ nguyên mức máu siêu mỏng của bro
+    private static final float[] DAMAGE_DATA = {30f, 60f, 110f};        // Đẩy dame cao vượt trội hẳn so với các class khác
     private static final float[] RANGE_DATA = {3.0f, 3.4f, 3.8f}; // Effective range: 192px, 217.6px, 243.2px
     private static final int[] UPGRADE_COST_DATA = {60, 180, 0};
     private static final float[] ARROW_SPEED_DATA = {8.0f, 10.0f, 14.0f}; // Tốc độ bay của mũi tên tăng theo cấp độ
