@@ -8,7 +8,7 @@ public class PawnHacHoa extends Enemy {
 
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
     // Đã BUFF MẠNH: Thống trị mặt bằng chung, HP cực trâu và ATK cực gắt
-    private static final float[] HEALTH_DATA = {280f, 580f, 1100f};      // HP tăng vọt, Lv3 chạm mốc 1100f (gần bằng Tanker đại ca 1200f)
+    private static final float[] HEALTH_DATA = {280f, 600f, 1300f};      // HP tăng vọt, Lv3 chạm mốc 1100f (gần bằng Tanker đại ca 1200f)
     private static final float[] DAMAGE_DATA = {32f, 68f, 115f};        // ATK siêu uy tín, Lv3 lên hẳn 115f (vượt mặt Sát thủ 110f, đứng top 2 game)
 
     // Giữ nguyên tầm đánh ngắn như yêu cầu (Pawn: 40, 45, 50)

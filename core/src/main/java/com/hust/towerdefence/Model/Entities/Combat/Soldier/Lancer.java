@@ -9,8 +9,8 @@ public class Lancer extends Soldier {
 
     // --- CẤU HÌNH THÔNG SỐ CHO 3 CẤP ĐỘ (LEVEL 1, 2, 3) ---
     // Đã chỉnh sửa: Máu trâu hơn một chút để tăng khả năng sống sót, ATK giữ nguyên mức cân bằng
-    private static final float[] HEALTH_DATA = {160f, 320f, 650f};       // Tăng thêm ~20-30% HP so với trước, đỡ sợ bị quái vả chết sớm
-    private static final float[] DAMAGE_DATA = {22f, 45f, 90f};          // Sát thương vẫn đủ nhói nhưng không làm quái chết quá nhanh // Sát thương mỗi nhát đâm khá cao
+    private static final float[] HEALTH_DATA = {360f, 720f, 1200f};       // Tăng thêm ~20-30% HP so với trước, đỡ sợ bị quái vả chết sớm
+    private static final float[] DAMAGE_DATA = {35f, 60f, 140f};          // Sát thương vẫn đủ nhói nhưng không làm quái chết quá nhanh // Sát thương mỗi nhát đâm khá cao
     private static final float[] RANGE_DATA = {1.5f, 1.6f, 1.8f}; // Gấp đôi hoặc gấp ba Pawn (64px)
     private static final int[] UPGRADE_COST_DATA = {70, 220, 0};
 
