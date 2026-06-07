@@ -69,6 +69,7 @@ public class MainMenuScreen implements Screen {
     private ScrollPane aboutScrollPane;
     private ScrollPane allyScrollPane;
     private ScrollPane enemyScrollPane;
+    private ScrollPane tutorialScrollPane;
 
     // Quản lý Sprite Sheets của toàn bộ hệ thống binh chủng
     private Texture minerSheet, warriorSheet, archerSheet, lancerSheet, monkSheet;
@@ -211,7 +212,7 @@ public class MainMenuScreen implements Screen {
 
         Label levelTitle = new Label("- SELECT MAP -", subTitleStyle);
         TextButton lv1Btn = createAnimatedButton("MAP 1: GRASSLAND", btnStyle);
-        TextButton lv2Btn = createAnimatedButton("MAP 2: STONE TOWER", btnStyle);
+        TextButton lv2Btn = createAnimatedButton("MAP 2: Midnight Valley", btnStyle);
         TextButton backFromLvBtn = createAnimatedButton("BACK TO MENU", btnStyle);
 
         box2.add(levelTitle).padBottom(40f).row();
@@ -226,11 +227,11 @@ public class MainMenuScreen implements Screen {
         aboutTable = new Table();
         aboutTable.setFillParent(true);
         aboutTable.setVisible(false);
-        aboutTable.padTop(60f);
+        aboutTable.padTop(180f);
 
         Table boxAbout = new Table();
         boxAbout.setBackground(darkBox);
-        boxAbout.pad(35f, 60f, 35f, 60f);
+        boxAbout.pad(25f, 60f, 25f, 60f);
         boxAbout.add(new Label("- ABOUT TOWER DEFENSE -", subTitleStyle)).padBottom(25f).center().row();
 
         Table scrollContent = new Table().left().top();
@@ -264,7 +265,7 @@ public class MainMenuScreen implements Screen {
         aboutScrollPane.setFadeScrollBars(false);
         aboutScrollPane.setFlickScroll(true);
 
-        boxAbout.add(aboutScrollPane).width(1120f).height(420f).padBottom(25f).row();
+        boxAbout.add(aboutScrollPane).width(1120f).height(340f).padBottom(20f).row();
         TextButton backFromAboutBtn = createAnimatedButton("BACK", btnStyle);
         boxAbout.add(backFromAboutBtn).center();
         aboutTable.add(boxAbout);
@@ -443,24 +444,43 @@ public class MainMenuScreen implements Screen {
         wikiEnemyTable.add(boxEnemy);
 
         // ========================================================
-        // GIAO DIỆN CHỨC NĂNG 5: HƯỚNG DẪN LUẬT CHƠI
+        // GIAO DIỆN CHỨC NĂNG 5: HƯỚNG DẪN LUẬT CHƠI (ĐÃ CẬP NHẬT SCROLL)
         // ========================================================
         tutorialTable = new Table();
         tutorialTable.setFillParent(true);
         tutorialTable.setVisible(false);
-        tutorialTable.padTop(120f);
+        tutorialTable.padTop(180f); // Hạ thấp xuống một chút cho cân đối giống About
 
         Table box4 = new Table();
         box4.setBackground(darkBox);
-        box4.pad(40f, 60f, 40f, 60f);
+        box4.pad(25f, 60f, 25f, 60f);
+        box4.add(new Label("- HOW TO PLAY -", subTitleStyle)).padBottom(25f).center().row();
 
-        Label tutorialTitle = new Label("- HOW TO PLAY -", subTitleStyle);
-        box4.add(tutorialTitle).padBottom(30f).center().row();
+        Table tutorialScrollContent = new Table().left().top();
 
-        box4.add(new Label("1. Mua tháp và đặt dọc theo đường đi để chặn quái vật.", textStyle)).padBottom(15f).left().row();
-        box4.add(new Label("2. Tiêu diệt quái vật để kiếm thêm Vàng (Gold).", textStyle)).padBottom(15f).left().row();
-        box4.add(new Label("3. Sử dụng Vàng để mua thêm lính và nâng cấp căn cứ.", textStyle)).padBottom(15f).left().row();
-        box4.add(new Label("4. Tuyệt đối không để quái vật đi đến Nhà Chính!", textStyle)).padBottom(30f).left().row();
+        // --- NỘI DUNG HƯỚNG DẪN ---
+        String ruleText = "[ CƠ CHẾ ĐIỀU BINH & KINH TẾ ]\n"
+            + "- Mua và nâng cấp lính bằng cách Click trực tiếp vào các tòa nhà tương ứng trên bản đồ căn cứ của bạn.\n"
+            + "- Thợ Mỏ (Miner) là nguồn cung cấp Vàng duy nhất trong trò chơi. Hãy đầu tư mua Thợ Mỏ từ sớm để thiết lập một nền kinh tế vững chắc trước khi nghĩ đến việc kích hoạt quân đội.\n\n"
+            + "[ HỆ THỐNG PHÒNG THỦ TUYẾN ĐƯỜNG ]\n"
+            + "- Dọc theo tuyến đường hành quân của cả hai phe đều có các Tháp phòng thủ kiên cố canh giữ.\n"
+            + "- Bạn bắt buộc phải phá hủy hệ thống Tháp phòng thủ của địch để mở đường tiến quân, đồng thời phải bảo vệ nghiêm ngặt các Tháp bên mình nhằm làm giảm áp lực càn quét từ quân đối phương.\n\n"
+            + "[ ĐIỀU KIỆN THẮNG BẠI ]\n"
+            + "- CHIẾN THẮNG: Lực lượng quân ta vượt qua mọi tầng phòng thủ và phá hủy thành công Nhà Chính của phe địch.\n"
+            + "- THẤT BẠI: Để quái vật/quân địch tràn vào và đánh sập hoàn toàn Nhà Chính của ta.\n\n"
+            + "MẸO CHIẾN THUẬT: Đừng chỉ tập trung mua lính chiến đấu. Một chuỗi cung ứng Vàng ổn định kết hợp với việc điều phối lính chặn đường hợp lý mới là chìa khóa để đập tan các đợt Waves quỷ quyệt từ AI!";
+
+        Label tutorialTextLabel = new Label(ruleText, textStyle);
+        tutorialTextLabel.setWrap(true);
+        tutorialScrollContent.add(tutorialTextLabel).width(1050f).left().row();
+
+        // Tạo ScrollPane cho Tutorial
+        tutorialScrollPane = new ScrollPane(tutorialScrollContent, scrollStyle);
+        tutorialScrollPane.setScrollingDisabled(true, false);
+        tutorialScrollPane.setFadeScrollBars(false);
+        tutorialScrollPane.setFlickScroll(true);
+
+        box4.add(tutorialScrollPane).width(1120f).height(340f).padBottom(20f).row();
 
         TextButton backFromTutorialBtn = createAnimatedButton("BACK", btnStyle);
         box4.add(backFromTutorialBtn).center();
@@ -572,18 +592,29 @@ public class MainMenuScreen implements Screen {
                 mainTable.setVisible(true);
             }
         });
+        // Sửa lại đoạn listener của nút BACK từ Wiki Đồng Minh về bảng chọn
         backFromAllyBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 playClickSound();
+
+                // RESET TRẠNG THÁI NÚT BẤM TẠI ĐÂY
+                allyBranchBtn.setChecked(false);
+
                 wikiAllyTable.setVisible(false);
                 wikiSelectTable.setVisible(true);
             }
         });
+
+        // Sửa lại đoạn listener của nút BACK từ Wiki Kẻ Địch về bảng chọn
         backFromEnemyBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 playClickSound();
+
+                // RESET TRẠNG THÁI NÚT BẤM TẠI ĐÂY
+                enemyBranchBtn.setChecked(false);
+
                 wikiEnemyTable.setVisible(false);
                 wikiSelectTable.setVisible(true);
             }

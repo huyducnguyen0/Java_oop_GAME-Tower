@@ -8,11 +8,11 @@ public class EconomyManager {
 
     // Các hằng số chi phí lính
     public static final int COST_PAWN = 50;
-    public static final int COST_WARRIOR = 120;
-    public static final int COST_ARCHER = 60;
-    public static final int COST_HEALER = 100;
-    public static final int COST_LANCER = 70;
-    public static final int COST_MINER = 80;
+    public static final int COST_WARRIOR = 80;
+    public static final int COST_ARCHER = 110;
+    public static final int COST_HEALER = 150;
+    public static final int COST_LANCER = 190;
+    public static final int COST_MINER = 40;
 
     private int gold;
     private int initialGold;

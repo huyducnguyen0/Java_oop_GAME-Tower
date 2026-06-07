@@ -9,7 +9,7 @@ public class TNT extends Enemy {
     // Thông số cho 3 cấp độ (Level 1, 2, 3)
     // Đã tối ưu: Siêu bộc phá sát thương, máu mỏng dính như lá lúa, cực kỳ kích thích
     private static final float[] HEALTH_DATA = {50f, 130f, 350f};        // Máu siêu mỏng (Lv1 chỉ có 50 HP), quái vả 2 phát là đi viện
-    private static final float[] DAMAGE_DATA = {35f, 75f, 130f};        // ATK khởi điểm 35f cực gắt, Lv3 chốt ở 130f để game không bị quá nhanh
+    private static final float[] DAMAGE_DATA = {25f, 75f, 130f};        // ATK khởi điểm 35f cực gắt, Lv3 chốt ở 130f để game không bị quá nhanh
     private static final float[] RANGE_DATA = {2.5f, 3.0f, 3.5f};
 
     // Phần thưởng tăng dần để người chơi có động lực nâng cấp Soldier

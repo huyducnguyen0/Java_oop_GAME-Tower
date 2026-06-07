@@ -36,7 +36,7 @@ public class DemoModelScreen extends ScreenAdapter {
     // CẤU HÌNH THÔNG SỐ ĐẦU VÀO MẶC ĐỊNH
     // ==========================================
     private static final String  MAP_PATH = "Game_Map.tmx";  // Đường dẫn đến file TiledMap (TMX) dùng cho
-    private static final int INITIAL_GOLD = 1000;
+    private static final int INITIAL_GOLD = 350;
     private static final int MAX_GOLD = 2000;
     private static final int AI_LEVEL = 1;
 
