@@ -12,7 +12,7 @@ public class Lancer extends Soldier {
     private static final float[] HEALTH_DATA = {360f, 720f, 1200f};       // Tăng thêm ~20-30% HP so với trước, đỡ sợ bị quái vả chết sớm
     private static final float[] DAMAGE_DATA = {35f, 60f, 140f};          // Sát thương vẫn đủ nhói nhưng không làm quái chết quá nhanh // Sát thương mỗi nhát đâm khá cao
     private static final float[] RANGE_DATA = {1.5f, 1.6f, 1.8f}; // Gấp đôi hoặc gấp ba Pawn (64px)
-    private static final int[] UPGRADE_COST_DATA = {70, 220, 0};
+    private static final int[] UPGRADE_COST_DATA = {380, 760, 0};
 
     /**
      * Hàm khởi tạo Thiết binh (Lancer)

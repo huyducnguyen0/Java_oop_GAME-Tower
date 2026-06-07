@@ -12,7 +12,7 @@ public class Archer extends Soldier {
     private static final float[] HEALTH_DATA = {100f, 250f, 400f};        // Giữ nguyên mức máu siêu mỏng của bro
     private static final float[] DAMAGE_DATA = {22f, 45f, 90f};        // Đẩy dame cao vượt trội hẳn so với các class khác
     private static final float[] RANGE_DATA = {3.0f, 3.4f, 3.8f}; // Effective range: 192px, 217.6px, 243.2px
-    private static final int[] UPGRADE_COST_DATA = {60, 180, 0};
+    private static final int[] UPGRADE_COST_DATA = {220, 440, 0};
     private static final float[] ARROW_SPEED_DATA = {8.0f, 10.0f, 14.0f}; // Tốc độ bay của mũi tên tăng theo cấp độ
     protected float arrowSpeed;
 

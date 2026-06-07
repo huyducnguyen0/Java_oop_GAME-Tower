@@ -3,6 +3,7 @@ package com.hust.towerdefence.View.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -31,13 +32,13 @@ import com.hust.towerdefence.View.ui.WorldHudRenderer;
  * Quản lý tương tác giữa bản đồ TiledMap, thực thể lính/tháp, AI Controller và hệ thống hiển thị HUD.
  * ĐÃ FIX LỖI: Reset trạng thái màn chơi mỗi khi bắt đầu lại!
  */
-public class DemoModelScreen extends ScreenAdapter {
+public class DemoModelScreen extends ScreenAdapter implements GameHud.PauseMenuListener {
     // ==========================================
     // CẤU HÌNH THÔNG SỐ ĐẦU VÀO MẶC ĐỊNH
     // ==========================================
     private static final String  MAP_PATH = "Game_Map.tmx";  // Đường dẫn đến file TiledMap (TMX) dùng cho
-    private static final int INITIAL_GOLD = 350;
-    private static final int MAX_GOLD = 2000;
+    private static final int INITIAL_GOLD = 1000;
+    private static final int MAX_GOLD = 3000;
     private static final int AI_LEVEL = 1;
 
     // Cấu hình màu sắc hiển thị đường viền khi chọn công trình
@@ -118,7 +119,7 @@ public class DemoModelScreen extends ScreenAdapter {
 
         // 6. Khởi tạo ĐỒNG LOẠT mới tinh các bộ kết xuất đồ họa giao diện và thực thể
         shapeRenderer = new ShapeRenderer();
-        gameHud = new GameHud(gameWorld, game);
+        gameHud = new GameHud(gameWorld, game, this);
         worldHudRenderer = new WorldHudRenderer();
         mainTowerRenderer = new MainTowerRenderer();
         defenseTowerRenderer = new DefenseTowerRenderer();
@@ -147,6 +148,10 @@ public class DemoModelScreen extends ScreenAdapter {
      * Xử lý chuyển đổi tọa độ chuột và kiểm tra va chạm điểm chọn trên bản đồ.
      */
     private boolean handleWorldClick(int screenX, int screenY) {
+        if (gameWorld.isPaused() || gameWorld.isGameOver() || gameWorld.isVictory()) {
+            return true;
+        }
+
         Vector3 world = camera.unproject(new Vector3(screenX, screenY, 0f));
         BuildingZone hitZone = gameWorld.getMapManager().findInteractiveZone(world.x, world.y);
 
@@ -167,6 +172,15 @@ public class DemoModelScreen extends ScreenAdapter {
      * Hệ thống phím tắt Debug/Spawn nhanh các thực thể lính.
      */
     private boolean handleInputKey(int keycode) {
+        if (keycode == Input.Keys.SPACE && !gameWorld.isGameOver() && !gameWorld.isVictory()) {
+            gameWorld.setPaused(!gameWorld.isPaused());
+            return true;
+        }
+
+        if (gameWorld.isPaused() || gameWorld.isGameOver() || gameWorld.isVictory()) {
+            return false;
+        }
+
         switch (keycode) {
             case Input.Keys.P:
                 gameWorld.spawnPawn();
@@ -179,9 +193,6 @@ public class DemoModelScreen extends ScreenAdapter {
                 return true;
             case Input.Keys.W:
                 gameWorld.spawnWarrior();
-                return true;
-            case Input.Keys.SPACE:
-                gameWorld.setPaused(!gameWorld.isPaused());
                 return true;
             case Input.Keys.F1:
                 System.out.printf("Gold: %.1f  Level: %d\n", aiController.getGold(), AI_LEVEL);
@@ -292,5 +303,32 @@ public class DemoModelScreen extends ScreenAdapter {
             mapRenderer.dispose();
             mapRenderer = null;
         }
+    }
+
+    @Override
+    public void onResumeRequested() {
+        gameWorld.setPaused(false);
+    }
+
+    @Override
+    public void onRestartRequested() {
+        switchScreen(new DemoModelScreen(game), false);
+    }
+
+    @Override
+    public void onQuitToMenuRequested() {
+        switchScreen(new MainMenuScreen(game), true);
+    }
+
+    private void switchScreen(Screen nextScreen, boolean goToMenu) {
+        game.setInputProcessors(new com.badlogic.gdx.InputProcessor[0]);
+        if (game.audioManager != null) {
+            game.audioManager.stopGameplayMusic();
+            if (goToMenu) {
+                game.audioManager.playMenuMusic();
+            }
+        }
+        game.setScreen(nextScreen);
+        dispose();
     }
 }

@@ -16,7 +16,6 @@ import com.hust.towerdefence.Model.Managers.MapManager;
 
 public class MovementSystem {
     private static final float MINING_DURATION = 3.0f;
-    private static final int GOLD_PER_TRIP = 50;
     private static final float TILE_RANGE_SCALE = 64f;
     private static final float TILE_RANGE_THRESHOLD = 10f;
 
@@ -143,7 +142,7 @@ public class MovementSystem {
             case MINING:
                 miner.setMiningTimer(miner.getMiningTimer() - delta);
                 if (miner.getMiningTimer() <= 0) {
-                    miner.setCarriedGold(GOLD_PER_TRIP);
+                    miner.setCarriedGold((int) miner.getGoldPerCycle());
                     miner.setState(State.RETURNING_HOME);
 
                     Array<Vector2> toMinePath = mapManager.getWaypoints(miner);

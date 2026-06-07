@@ -17,9 +17,13 @@ import com.hust.towerdefence.Model.Managers.MapManager;
 public class AIController {
     // ---- Cấu hình wave ----
     private static final int MAX_WAVES = 100;
-    private static final float SPAWN_INTERVAL_BASE = 2.0f;   // giây spawn quân đầu tiên của mỗi wave (khi chưa tăng độ khó)
-    private static final float MIN_SPAWN_INTERVAL = 0.5f;    // giới hạn thấp nhất
-    private static final float INITIAL_DELAY = 2.0f;         // trễ trước wave đầu tiên
+    private static final float SPAWN_INTERVAL_BASE = 1.6f;   // giây spawn quân đầu tiên của mỗi wave (khi chưa tăng độ khó)
+    private static final float MIN_SPAWN_INTERVAL = 0.4f;    // giới hạn thấp nhất
+    private static final float INITIAL_DELAY = 1.2f;         // trễ trước wave đầu tiên
+    private static final float BETWEEN_WAVES_DELAY = 1.0f;   // nghỉ nhẹ giữa 2 wave để địch không nối đuôi quá gắt
+    private static final int LATE_GAME_WAVE_START = 10;
+    private static final int MID_GAME_WAVE_START = 5;
+    private static final int MAX_ENEMIES_PER_WAVE = 12;
 
     // ---- Trạng thái wave ----
     private int wavesStarted;               // tổng số wave đã bắt đầu
@@ -27,6 +31,7 @@ public class AIController {
     private float spawnTimer;               // đếm ngược đến lần spawn tiếp theo
     private boolean isSpawningWave;         // đang trong quá trình spawn quân của 1 wave
     private float initialDelayTimer;        // đếm ngược cho lần đầu
+    private float betweenWavesTimer;        // đếm ngược giữa 2 wave
 
     // ---- Độ khó động ----
     private int currentEnemyLevel;          // level của quân được spawn (1,2,3), tăng mỗi 6 wave
@@ -51,10 +56,15 @@ public class AIController {
      */
     private int getEnemyCountForWave(int waveNumber) {
         if (waveNumber <= 2) return 4;
+        if (waveNumber <= 4) return 5;
         if (waveNumber <= 6) return 6;
-        // Từ wave 7 trở đi, cứ 2 wave tăng 1 quân, tối đa 9
-        int extra = (waveNumber - 7) / 2 + 1;  // wave 7->1, 8->1, 9->2, 10->2, 11->3...
-        return Math.min(9, 6 + extra);
+        if (waveNumber <= 8) return 7;
+        if (waveNumber == 9) return 8;
+        if (waveNumber == 10) return 9;
+        if (waveNumber == 11) return 10;
+        if (waveNumber == 12) return 11;
+
+        return MAX_ENEMIES_PER_WAVE;
     }
 
     /**
@@ -64,7 +74,14 @@ public class AIController {
         float avgCost = (PAWN_COST + WARRIOR_COST + TNT_COST) / 3f;
         float baseGold = enemyCount * avgCost * 1.2f;
         // Càng khó (difficultyIndex cao) càng thêm vàng để mua quân mạnh
-        return baseGold * (1f + difficultyIndex * 0.1f);
+        float difficultyMultiplier = 1f + difficultyIndex * 0.1f;
+        if (wavesStarted >= MID_GAME_WAVE_START) {
+            difficultyMultiplier += 0.1f;
+        }
+        if (wavesStarted >= LATE_GAME_WAVE_START) {
+            difficultyMultiplier += 0.25f;
+        }
+        return baseGold * difficultyMultiplier;
     }
 
     public AIController(int level, EntityManager entityManager, MapManager mapManager,
@@ -81,6 +98,7 @@ public class AIController {
         this.enemiesRemainingToSpawn = 0;
         this.spawnTimer = 0;
         this.initialDelayTimer = INITIAL_DELAY;
+        this.betweenWavesTimer = 0f;
         this.gold = 0;
         this.currentEnemyLevel = 1;
         this.wavesInCurrentLevel = 0;
@@ -119,9 +137,15 @@ public class AIController {
 
                 if (enemiesRemainingToSpawn <= 0) {
                     isSpawningWave = false;
+                    betweenWavesTimer = BETWEEN_WAVES_DELAY;
                 }
             }
         } else {
+            if (betweenWavesTimer > 0f) {
+                betweenWavesTimer -= delta;
+                return;
+            }
+
             // Wave mới khi còn <=2 quân địch trên sân
             if (wavesStarted < MAX_WAVES && getAliveEnemyCount() <= 2) {
                 startNewWave();
@@ -132,9 +156,9 @@ public class AIController {
     private void startNewWave() {
         wavesStarted++;
 
-        // --- Xác định level quân và vị trí trong block 6 wave ---
-        // Level tăng mỗi 6 wave: wave 1-6 lv1, 7-12 lv2, 13+ lv3
-        int newLevel = Math.min(3, 1 + (wavesStarted - 1) / 6);
+        // --- Xác định level quân và vị trí trong block hiện tại ---
+        // Level tăng sớm hơn để late game bắt đầu nguy hiểm từ khoảng wave 10+.
+        int newLevel = Math.min(3, 1 + (wavesStarted - 1) / 5);
         if (newLevel != currentEnemyLevel) {
             // Lên level mới → reset độ khó về đầu block
             currentEnemyLevel = newLevel;
@@ -147,9 +171,18 @@ public class AIController {
         // --- Số quân trong wave này ---
         int enemyCount = getEnemyCountForWave(wavesStarted);
         enemyCount += (level - 1) * 2;
+        if (wavesStarted >= LATE_GAME_WAVE_START) {
+            enemyCount += 1;
+        }
+        enemyCount = Math.min(MAX_ENEMIES_PER_WAVE, enemyCount);
 
         // --- Tính spawn interval (giảm dần theo difficultyIndex) ---
-        currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, SPAWN_INTERVAL_BASE - difficultyIndex * 0.25f);
+        currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, SPAWN_INTERVAL_BASE - difficultyIndex * 0.22f);
+        if (wavesStarted >= LATE_GAME_WAVE_START) {
+            currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, currentSpawnInterval - 0.2f);
+        } else if (wavesStarted >= MID_GAME_WAVE_START) {
+            currentSpawnInterval = Math.max(MIN_SPAWN_INTERVAL, currentSpawnInterval - 0.1f);
+        }
 
         // --- Ngân sách vàng ---
         gold = getWaveGoldBudget(enemyCount, difficultyIndex);
@@ -181,6 +214,15 @@ public class AIController {
         warriorWeight *= (1f + difficultyFactor);
         tntWeight *= (1f + difficultyFactor);
         pawnWeight *= Math.max(0.5f, 1f - difficultyFactor * 0.5f);
+        if (wavesStarted >= MID_GAME_WAVE_START) {
+            warriorWeight *= 1.15f;
+            tntWeight *= 1.1f;
+        }
+        if (wavesStarted >= LATE_GAME_WAVE_START) {
+            warriorWeight *= 1.35f;
+            tntWeight *= 1.5f;
+            pawnWeight *= 0.8f;
+        }
 
         float pawnScore = Math.max(0, evaluatePawn(state) * pawnWeight);
         float warriorScore = Math.max(0, evaluateWarrior(state) * warriorWeight);
@@ -271,6 +313,7 @@ public class AIController {
         if (s.playerMainTowerHP < 150) score += 20;
         if (s.gold < 20) score += 15;
         if (s.gold > 60) score += 5;
+        if (wavesStarted >= LATE_GAME_WAVE_START) score -= 6;
         return score;
     }
 
@@ -280,6 +323,8 @@ public class AIController {
         if (s.myMainTowerHP < 500) score += 30;
         if (s.gold < 50) score -= 10;
         if (s.playerMainTowerHP < 100) score -= 10;
+        if (wavesStarted >= MID_GAME_WAVE_START) score += 10;
+        if (wavesStarted >= LATE_GAME_WAVE_START) score += 18;
         return score;
     }
 
@@ -289,6 +334,8 @@ public class AIController {
         if (s.myMainTowerHP < 600) score += 30;
         if (s.playerMainTowerHP < 300) score += 20;
         if (s.gold < 25) score += 10;
+        if (wavesStarted >= MID_GAME_WAVE_START) score += 8;
+        if (wavesStarted >= LATE_GAME_WAVE_START) score += 20;
         return score;
     }
 

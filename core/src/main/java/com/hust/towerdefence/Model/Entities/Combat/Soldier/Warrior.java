@@ -9,7 +9,7 @@ public class Warrior extends Soldier {
     private static final float[] HEALTH_DATA = {350f, 750f, 1400f};       // Máu siêu to khổng lồ
     private static final float[] DAMAGE_DATA = {12f, 25f, 45f};          // Sát thương siêu muỗi, chỉ làm bao cát          // Sat thuong can chien
     private static final float[] RANGE_DATA = {1.0f, 1.1f, 1.2f};         // Tam danh (World Unit)
-    private static final int[] UPGRADE_COST_DATA = {120, 300, 0};         // Chi phi nang cap theo tung cap (Lv3 dat max = 0)
+    private static final int[] UPGRADE_COST_DATA = {160, 320, 0};         // 2x, 4x gia mua Warrior
 
     /**
      * Ham khoi tao don vi Chien binh (Warrior) - Mac dinh o Level 1
