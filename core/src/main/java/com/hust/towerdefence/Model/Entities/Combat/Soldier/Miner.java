@@ -11,9 +11,9 @@ public class Miner extends Soldier {
     private float miningTimer;
     private int carriedGold;
     private static final float[] HEALTH_DATA = {80f, 120f, 160f};  // Extracted: thợ mỏ yếu hơn Pawn
-    private static final float[] GOLD_PER_MINE = {10f, 25f, 60f}; // Thay cho attackDamage
+    private static final float[] GOLD_PER_MINE = {25f, 50f, 100f}; // Thay cho attackDamage
     private static final float[] RANGE_DATA = {0.5f, 0.5f, 0.5f};  // Standardize to world units
-    private static final int[] UPGRADE_COST_DATA = {80, 200, 0};
+    private static final int[] UPGRADE_COST_DATA = {80, 160, 0};
 
     /**
      * Hàm khởi tạo Thợ mỏ (Miner)

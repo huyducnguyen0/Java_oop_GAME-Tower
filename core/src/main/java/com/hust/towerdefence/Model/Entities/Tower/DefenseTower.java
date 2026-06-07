@@ -9,7 +9,7 @@ public class DefenseTower extends BaseTower {
     private static final int[] UPGRADE_COSTS = {200, 400, 0};
     private static final float[] HEALTH_BY_LEVEL = {1000f, 2000f, 3000f};
     private static final float[] DAMAGE_BY_LEVEL = {25f, 60f, 100f};
-    private static final float[] RANGE_BY_LEVEL = {260f, 300f, 340f};
+    private static final float[] RANGE_BY_LEVEL = {4f, 4f, 4f};
     private static final float[] ATTACK_SPEED_BY_LEVEL = {1.0f, 1.15f, 1.3f};
 
     private final String mapName;

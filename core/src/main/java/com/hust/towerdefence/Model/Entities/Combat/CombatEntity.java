@@ -45,7 +45,7 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
     public CombatEntity() {
         super();
         targetId = -1;
-        speed = 50f;
+        speed = 75f;
         this.path = new Array<>();
         this.currentPathIndex = 0;// Default speed
         this.facing = new Vector2(1f, 0f);
@@ -75,7 +75,7 @@ public abstract class CombatEntity extends BaseEntity implements Poolable {
         team = null;
 
 
-        speed = 50f;
+        speed = 75f;
         facing.set(1f, 0f);
     } // Đặt lại trạng thái để tái sử dụng từ pool
     public float getHealth() { return health; }
