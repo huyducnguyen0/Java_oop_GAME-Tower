@@ -39,6 +39,7 @@ public class DemoModelScreen2 extends ScreenAdapter {
     private static final int INITIAL_GOLD = 1000;
     private static final int MAX_GOLD = 2000;
     private static final int AI_LEVEL = 2;
+    private static final float GAME_SPEED = 1.5f;
 
     // Cấu hình màu sắc hiển thị đường viền khi chọn công trình
     private static final Color SELECTED_PURCHASE_BUILDING = new Color(0.15f, 0.8f, 1f, 1f);
@@ -193,9 +194,9 @@ public class DemoModelScreen2 extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        gameWorld.update(delta);
+        gameWorld.update(delta * GAME_SPEED);
         if (!gameWorld.isPaused()) {
-            aiController.update(delta);
+            aiController.update(delta* GAME_SPEED);
         }
 
 
