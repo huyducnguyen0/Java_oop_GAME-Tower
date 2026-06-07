@@ -2,6 +2,7 @@ package com.hust.towerdefence.View.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -18,10 +19,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
@@ -74,6 +72,14 @@ public class MainMenuScreen implements Screen {
     // Quản lý Sprite Sheets của toàn bộ hệ thống binh chủng
     private Texture minerSheet, warriorSheet, archerSheet, lancerSheet, monkSheet;
     private Texture enemyWarriorSheet, tntSheet, torchSheet;
+    // Quản lý âm thanh
+    private Preferences prefs;
+    private float musicVolume;
+    private float soundVolume;
+    private Image musicIcon, soundIcon;
+    private Label musicPercentLabel, soundPercentLabel;
+    private Table volumeTable;
+    private Texture musicIconTex, soundIconTex;
 
     public MainMenuScreen(MainGame game) {
         this.game = game;
@@ -643,6 +649,95 @@ public class MainMenuScreen implements Screen {
                 game.setScreen(new DemoModelScreen2(game));
             }
         });
+        // ===== ĐỌC CÀI ĐẶT ÂM LƯỢNG =====
+        prefs = Gdx.app.getPreferences("TowerDefenceSettings");
+        musicVolume = prefs.getFloat("musicVolume", 0.4f);
+        soundVolume = prefs.getFloat("soundVolume", 0.6f);
+
+        if (game.audioManager != null) {
+            game.audioManager.setVolumes(musicVolume, soundVolume);
+        }
+
+// ===== TẢI ICON TỪ FILE =====
+        musicIconTex = new Texture(Gdx.files.internal("audio/music/Icon_12.png"));
+        soundIconTex = new Texture(Gdx.files.internal("audio/sounds/Icon_10.png"));
+
+        musicIcon = new Image(new TextureRegionDrawable(new TextureRegion(musicIconTex)));
+        soundIcon = new Image(new TextureRegionDrawable(new TextureRegion(soundIconTex)));
+
+        musicIcon.setSize(32f, 32f);
+        soundIcon.setSize(32f, 32f);
+
+// Label hiển thị phần trăm
+        musicPercentLabel = new Label(String.format("%d%%", (int)(musicVolume * 100)), textStyle);
+        soundPercentLabel = new Label(String.format("%d%%", (int)(soundVolume * 100)), textStyle);
+
+// Style nút nhỏ + / -
+        TextButton.TextButtonStyle smallBtnStyle = new TextButton.TextButtonStyle(btnStyle);
+        smallBtnStyle.font = textFont;
+        smallBtnStyle.fontColor = Color.WHITE;
+        smallBtnStyle.overFontColor = Color.GOLD;
+
+        TextButton musicUp = new TextButton("+", smallBtnStyle);
+        TextButton musicDown = new TextButton("-", smallBtnStyle);
+        TextButton soundUp = new TextButton("+", smallBtnStyle);
+        TextButton soundDown = new TextButton("-", smallBtnStyle);
+
+// ===== TẠO BẢNG ÂM LƯỢNG =====
+        volumeTable = new Table();
+        volumeTable.setPosition(1400f, 30f);
+        volumeTable.setSize(240f, 110f);
+        volumeTable.setBackground(darkBox);
+        volumeTable.pad(10f);
+        volumeTable.defaults().pad(4f);
+
+// Dòng Music
+        volumeTable.add(musicIcon).size(32f, 32f);
+        volumeTable.add(musicPercentLabel).width(50f);
+        volumeTable.add(musicDown).size(40f, 40f);
+        volumeTable.add(musicUp).size(40f, 40f).row();
+
+// Dòng Sound
+        volumeTable.add(soundIcon).size(32f, 32f);
+        volumeTable.add(soundPercentLabel).width(50f);
+        volumeTable.add(soundDown).size(40f, 40f);
+        volumeTable.add(soundUp).size(40f, 40f).row();
+
+        stage.addActor(volumeTable);
+
+// Gắn listener
+        musicUp.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                playClickSound();
+                musicVolume = Math.min(1f, musicVolume + 0.05f);
+                updateMusicVolume();
+            }
+        });
+        musicDown.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                playClickSound();
+                musicVolume = Math.max(0f, musicVolume - 0.05f);
+                updateMusicVolume();
+            }
+        });
+        soundUp.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                playClickSound();
+                soundVolume = Math.min(1f, soundVolume + 0.05f);
+                updateSoundVolume();
+            }
+        });
+        soundDown.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                playClickSound();
+                soundVolume = Math.max(0f, soundVolume - 0.05f);
+                updateSoundVolume();
+            }
+        });
     }
 
     private void playClickSound() {
@@ -750,6 +845,8 @@ public class MainMenuScreen implements Screen {
         buttonFont.dispose();
         textFont.dispose();
         stage.dispose();
+        if (musicIconTex != null) musicIconTex.dispose();
+        if (soundIconTex != null) soundIconTex.dispose();
     }
 
     @Override
@@ -764,5 +861,22 @@ public class MainMenuScreen implements Screen {
     public void hide() {
         Gdx.input.setInputProcessor(null);
         System.out.println("MainMenuScreen ẩn -> Đã dọn dẹp Input của Menu.");
+    }
+    private void updateMusicVolume() {
+        musicPercentLabel.setText(String.format("%d%%", (int)(musicVolume * 100)));
+        prefs.putFloat("musicVolume", musicVolume);
+        prefs.flush();
+        if (game.audioManager != null) {
+            game.audioManager.setVolumes(musicVolume, soundVolume);
+        }
+    }
+
+    private void updateSoundVolume() {
+        soundPercentLabel.setText(String.format("%d%%", (int)(soundVolume * 100)));
+        prefs.putFloat("soundVolume", soundVolume);
+        prefs.flush();
+        if (game.audioManager != null) {
+            game.audioManager.setVolumes(musicVolume, soundVolume);
+        }
     }
 }
