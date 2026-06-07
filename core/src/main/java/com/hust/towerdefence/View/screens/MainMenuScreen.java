@@ -212,7 +212,7 @@ public class MainMenuScreen implements Screen {
 
         Label levelTitle = new Label("- SELECT MAP -", subTitleStyle);
         TextButton lv1Btn = createAnimatedButton("MAP 1: GRASSLAND", btnStyle);
-        TextButton lv2Btn = createAnimatedButton("MAP 2: STONE TOWER", btnStyle);
+        TextButton lv2Btn = createAnimatedButton("MAP 2: Midnight Valley", btnStyle);
         TextButton backFromLvBtn = createAnimatedButton("BACK TO MENU", btnStyle);
 
         box2.add(levelTitle).padBottom(40f).row();

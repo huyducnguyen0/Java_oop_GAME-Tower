@@ -6,9 +6,9 @@ import com.hust.towerdefence.Model.Entities.BaseEntity;
 public class DefenseTower extends BaseTower {
     private static final float DESTROY_DURATION = 0.75f;
     private static final int MAX_TOWER_LEVEL = 3;
-    private static final int[] UPGRADE_COSTS = {180, 320, 0};
-    private static final float[] HEALTH_BY_LEVEL = {700f, 1000f, 1350f};
-    private static final float[] DAMAGE_BY_LEVEL = {35f, 52f, 72f};
+    private static final int[] UPGRADE_COSTS = {200, 400, 0};
+    private static final float[] HEALTH_BY_LEVEL = {1000f, 2000f, 3000f};
+    private static final float[] DAMAGE_BY_LEVEL = {25f, 60f, 100f};
     private static final float[] RANGE_BY_LEVEL = {260f, 300f, 340f};
     private static final float[] ATTACK_SPEED_BY_LEVEL = {1.0f, 1.15f, 1.3f};
 
